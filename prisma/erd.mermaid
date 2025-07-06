@@ -1,0 +1,162 @@
+erDiagram
+
+  Admin {
+    int id PK
+    string nama
+    string email
+    string password
+  }
+
+  Laboran {
+    int id PK
+    int id_admin FK
+    string nama
+    string email
+    string password
+  }
+
+  Dosen {
+    int id PK
+    string nip
+    string nama
+    string email
+    string password
+  }
+
+  Mahasiswa {
+    int id PK
+    string npm
+    string nama
+    string email
+    string password
+    string program_studi
+  }
+
+  Praktikum {
+    int id PK
+    int id_laboran FK
+    string nama
+    string kode_praktikum
+    string kode_mk
+    string kelas
+    string semester
+    int tahun
+    string jadwal_hari
+    datetime jadwal_jam_masuk
+    datetime jadwal_jam_selesai
+    string ruang
+  }
+
+  DosenPraktikum {
+    int id PK
+    int id_dosen FK
+    int id_praktikum FK
+  }
+
+  AsistenPraktikum {
+    int id PK
+    int id_mahasiswa FK
+    int id_praktikum FK
+  }
+
+  PesertaPraktikum {
+    int id PK
+    int id_mahasiswa FK
+    int id_praktikum FK
+  }
+
+  Tugas {
+    int id PK
+    int id_praktikum FK
+    int id_asisten FK
+    string judul
+    string deskripsi
+    datetime deadline
+    int maksimal_submit
+  }
+
+  Soal {
+    int id PK
+    int id_tugas FK
+    string judul
+    string deskripsi
+    string batasan
+    string format_input
+    string format_output
+    int batasan_memori_kb
+    int batasan_waktu_eksekusi_ms
+    string template_kode
+    int bobot_nilai
+  }
+
+  ContohTestCase {
+    int id PK
+    int id_soal FK
+    string contoh_input
+    string contoh_output
+    string penjelasan_input
+    string penjelasan_output
+  }
+
+  TestCase {
+    int id PK
+    int id_soal FK
+    string input
+    string output_diharapkan
+  }
+
+  Submission {
+    int id PK
+    int id_soal FK
+    int id_peserta FK
+    int id_bahasa FK
+    string source_code
+    int score
+  }
+
+  BahasaPemrograman {
+    int id PK
+    string nama
+    string ekstensi
+    string compiler
+    string versi
+  }
+
+  TestCaseResult {
+    int id PK
+    int id_submission FK
+    int id_test_case FK
+    string status
+    string output_dihasilkan
+    int waktu_eksekusi_ms
+    int memori_kb
+  }
+
+  NilaiTugas {
+    int id PK
+    int id_peserta FK
+    int id_tugas FK
+    int total_nilai
+    datetime updated_at
+  }
+
+  Admin ||--o{ Laboran : "mengelola"
+  Laboran ||--o{ Praktikum : "mengelola"
+  Dosen ||--o{ DosenPraktikum : "mengampu"
+  Praktikum ||--o{ DosenPraktikum : "diampu oleh"
+  Praktikum ||--o{ AsistenPraktikum : "memiliki asisten"
+  Mahasiswa ||--o{ AsistenPraktikum : "menjadi asisten"
+  Praktikum ||--o{ PesertaPraktikum : "memiliki peserta"
+  Mahasiswa ||--o{ PesertaPraktikum : "menjadi peserta"
+  Praktikum ||--o{ Tugas : "memiliki"
+  AsistenPraktikum ||--o{ Tugas : "membuat"
+  Tugas ||--o{ Soal : "berisi"
+  Soal ||--o{ ContohTestCase : "memiliki contoh"
+  Soal ||--o{ TestCase : "memiliki"
+  Soal ||--o{ Submission : "dijawab oleh"
+  PesertaPraktikum ||--o{ Submission : "mengumpulkan"
+  BahasaPemrograman ||--o{ Submission : "menggunakan"
+  Submission ||--o{ TestCaseResult : "menghasilkan"
+  TestCase ||--o{ TestCaseResult : "dieksekusi pada"
+  PesertaPraktikum ||--o{ NilaiTugas : "mendapat"
+  Tugas ||--o{ NilaiTugas : "dinilai"

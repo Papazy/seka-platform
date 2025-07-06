@@ -1,0 +1,124 @@
+classDiagram
+
+%% ===== Superclass User =====
+class User {
+  +int id
+  +string nama
+  +string email
+  +string password
+  +login(): void
+  +logout(): void
+}
+
+%% ===== Subclasses =====
+class Admin {
+  +kelolaLaboran(): void
+}
+class Dosen {
+  +string nip
+  +lihatRekapNilai(): void
+  +lihatPraktikum(): void
+}
+class Mahasiswa {
+  +string npm
+  +string programStudi
+  +lihatTugas(): void
+  +lihatSoal(): void
+  +submitJawaban(): void
+  +lihatNilai(): void
+}
+
+class Asisten {
+  +buatTugas(): void
+  +buatSoal(): void
+  +buatTestCase(): void
+  +lihatSubmissionMahasiswa(): void
+  +editNilai(): void
+  +exportNilai(): void
+}
+
+class Laboran {
+  +int id_admin
+  +buatPraktikum(): void
+  +aturDosen(): void
+  +aturAsisten(): void
+  +aturMahasiswa(): void
+  +aturJadwal(): void
+}
+
+%% ===== Entitas lainnya =====
+class Praktikum {
+  +string nama
+  +string kodePraktikum
+  +string kodeMk
+  +string kelas
+  +string semester
+  +int tahun
+  +string ruang
+  +jadwal
+  +aturJadwal(): void
+  +tambahMahasiswa(): void
+}
+
+class Tugas {
+  +string judul
+  +string deskripsi
+  +deadline: datetime
+  +tambahSoal(): void
+}
+
+class Soal {
+  +string judul
+  +string deskripsi
+  +string formatInput
+  +string formatOutput
+  +int batasanMemoriKB
+  +int batasanWaktuMS
+  +string templateKode
+  +int bobotNilai
+  +tambahTestCase(): void
+}
+
+class TestCase {
+  +string input
+  +string outputDiharapkan
+}
+
+class Submission {
+  +string sourceCode
+  +int score
+  +eksekusi(): void
+}
+
+class TestCaseResult {
+  +string status
+  +string outputDihasilkan
+  +int waktuEksekusiMS
+  +int memoriKB
+}
+
+class BahasaPemrograman {
+  +string nama
+  +string ekstensi
+  +string compiler
+  +string versi
+}
+
+%% ===== Inheritance =====
+User <|-- Admin
+User <|-- Dosen
+User <|-- Mahasiswa
+Mahasiswa <|-- Asisten
+
+%% ===== Relasi (as needed for context) =====
+Admin --> Laboran : mengelola
+Laboran --> Praktikum : mengelola
+Laboran --> Mahasiswa : mengelola
+Laboran --> Dosen : mengatur
+Laboran --> Asisten : mengatur
+Praktikum --> Tugas : memiliki
+Tugas --> Soal : berisi
+Soal --> TestCase : memiliki
+Soal --> Submission : dijawab oleh
+Submission --> TestCaseResult : menghasilkan
+Submission --> BahasaPemrograman : menggunakan

@@ -1,0 +1,356 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum SubmissionStatus {
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+  PENDING
+  RUNNING
+  JUDGING
+  JUDGE_ERROR
+  PARTIAL
+}
+
+enum Semester {
+  GANJIL
+  GENAP
+}
+
+// 1. Admin
+model Admin {
+  id       Int    @id @default(autoincrement())
+  nama     String
+  email    String @unique
+  password String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  laboran Laboran[]
+
+  @@map("admin")
+}
+
+// 2. Laboran
+model Laboran {
+  id       Int    @id @default(autoincrement())
+  idAdmin  Int    @map("id_admin")
+  nama     String
+  email    String @unique
+  password String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  admin     Admin       @relation(fields: [idAdmin], references: [id], onDelete: Cascade)
+  praktikum Praktikum[]
+
+  @@map("laboran")
+}
+
+// 3. Dosen
+model Dosen {
+  id       Int    @id @default(autoincrement())
+  nip      String @unique
+  nama     String
+  email    String @unique
+  password String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  dosenPraktikum DosenPraktikum[]
+
+  @@map("dosen")
+}
+
+// 4. Mahasiswa
+model Mahasiswa {
+  id           Int    @id @default(autoincrement())
+  npm          String @unique
+  nama         String
+  email        String @unique
+  password     String
+  programStudi String @map("program_studi")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  asistenPraktikum AsistenPraktikum[]
+  pesertaPraktikum PesertaPraktikum[]
+
+  @@map("mahasiswa")
+}
+
+// 5. Praktikum
+model Praktikum {
+  id                  Int       @id @default(autoincrement())
+  idLaboran           Int       @map("id_laboran")
+  nama                String
+  kodePraktikum       String    @unique @map("kode_praktikum")
+  kodeMk              String    @map("kode_mk")
+  kelas               String
+  semester            Semester
+  tahun               Int
+  jadwalHari          String    @map("jadwal_hari")
+  jadwalJamMasuk      DateTime  @map("jadwal_jam_masuk")
+  jadwalJamSelesai    DateTime  @map("jadwal_jam_selesai")
+  ruang               String
+
+  // Archive status berdasarkan semester dan tahun
+  isActive            Boolean   @default(true) @map("is_active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  laboran          Laboran            @relation(fields: [idLaboran], references: [id], onDelete: Cascade)
+  dosenPraktikum   DosenPraktikum[]
+  asistenPraktikum AsistenPraktikum[]
+  pesertaPraktikum PesertaPraktikum[]
+  tugas            Tugas[]
+
+  @@map("praktikum")
+}
+
+// 6. DosenPraktikum 
+model DosenPraktikum {
+  id          Int @id @default(autoincrement())
+  idDosen     Int @map("id_dosen")
+  idPraktikum Int @map("id_praktikum")
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  dosen     Dosen     @relation(fields: [idDosen], references: [id], onDelete: Cascade)
+  praktikum Praktikum @relation(fields: [idPraktikum], references: [id], onDelete: Cascade)
+
+  @@unique([idDosen, idPraktikum])
+  @@map("dosen_praktikum")
+}
+
+// 7. AsistenPraktikum
+model AsistenPraktikum {
+  id          Int @id @default(autoincrement())
+  idMahasiswa Int @map("id_mahasiswa")
+  idPraktikum Int @map("id_praktikum")
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  mahasiswa Mahasiswa @relation(fields: [idMahasiswa], references: [id], onDelete: Cascade)
+  praktikum Praktikum @relation(fields: [idPraktikum], references: [id], onDelete: Cascade)
+  tugas     Tugas[]
+
+  @@unique([idMahasiswa, idPraktikum])
+  @@map("asisten_praktikum")
+}
+
+// 8. PesertaPraktikum
+model PesertaPraktikum {
+  id          Int @id @default(autoincrement())
+  idMahasiswa Int @map("id_mahasiswa")
+  idPraktikum Int @map("id_praktikum")
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  mahasiswa  Mahasiswa    @relation(fields: [idMahasiswa], references: [id], onDelete: Cascade)
+  praktikum  Praktikum    @relation(fields: [idPraktikum], references: [id], onDelete: Cascade)
+  submission Submission[]
+  nilaiTugas NilaiTugas[]
+
+  @@unique([idMahasiswa, idPraktikum])
+  @@map("peserta_praktikum")
+}
+
+// 9. Tugas
+model Tugas {
+  id              Int      @id @default(autoincrement())
+  idPraktikum     Int      @map("id_praktikum")
+  idAsisten       Int      @map("id_asisten")
+  judul           String
+  deskripsi       String   @db.Text
+  deadline        DateTime
+  maksimalSubmit  Int      @default(3) @map("maksimal_submit") // Default 3, bisa diubah asisten
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  praktikum Praktikum        @relation(fields: [idPraktikum], references: [id], onDelete: Cascade)
+  asisten   AsistenPraktikum @relation(fields: [idAsisten], references: [id], onDelete: Cascade)
+  soal      Soal[]
+  nilaiTugas NilaiTugas[]
+
+  @@map("tugas")
+}
+
+// 10. Soal
+model Soal {
+  id                        Int    @id @default(autoincrement())
+  idTugas                   Int    @map("id_tugas")
+  judul                     String
+  deskripsi                 String @db.Text
+  batasan                   String @db.Text
+  formatInput               String @map("format_input") @db.Text
+  formatOutput              String @map("format_output") @db.Text
+  batasanMemoriKb           Int    @map("batasan_memori_kb")
+  batasanWaktuEksekusiMs    Int    @map("batasan_waktu_eksekusi_ms")
+  templateKode              String @map("template_kode") @db.Text
+  bobotNilai                Int    @map("bobot_nilai") // Bobot untuk perhitungan score 100
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tugas           Tugas             @relation(fields: [idTugas], references: [id], onDelete: Cascade)
+  contohTestCase  ContohTestCase[]
+  testCase        TestCase[]
+  submission      Submission[]
+
+  @@map("soal")
+}
+
+// 11. ContohTestCase
+model ContohTestCase {
+  id                Int    @id @default(autoincrement())
+  idSoal            Int    @map("id_soal")
+  contohInput       String @map("contoh_input") @db.Text
+  contohOutput      String @map("contoh_output") @db.Text
+  penjelasanInput   String @map("penjelasan_input") @db.Text
+  penjelasanOutput  String @map("penjelasan_output") @db.Text
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  soal Soal @relation(fields: [idSoal], references: [id], onDelete: Cascade)
+
+  @@map("contoh_test_case")
+}
+
+// 12. TestCase
+model TestCase {
+  id               Int    @id @default(autoincrement())
+  idSoal           Int    @map("id_soal")
+  input            String @db.Text
+  outputDiharapkan String @map("output_diharapkan") @db.Text
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  soal           Soal             @relation(fields: [idSoal], references: [id], onDelete: Cascade)
+  testCaseResult TestCaseResult[]
+
+  @@map("test_case")
+}
+
+// 13. BahasaPemrograman
+model BahasaPemrograman {
+  id        Int    @id @default(autoincrement())
+  nama      String @unique
+  ekstensi  String
+  compiler  String
+  versi     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  submission Submission[]
+
+  @@map("bahasa_pemrograman")
+}
+
+// 14. Submission
+model Submission {
+  id         Int    @id @default(autoincrement())
+  idSoal     Int    @map("id_soal")
+  idPeserta  Int    @map("id_peserta")
+  idBahasa   Int    @map("id_bahasa")
+  sourceCode String @map("source_code") @db.Text
+  score      Int    @default(0)
+
+  // Submission tracking
+  attemptNumber Int      @default(1) @map("attempt_number") // track jumlah percobaan
+  submittedAt   DateTime @default(now()) @map("submitted_at")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  soal           Soal                @relation(fields: [idSoal], references: [id], onDelete: Cascade)
+  peserta        PesertaPraktikum    @relation(fields: [idPeserta], references: [id], onDelete: Cascade)
+  bahasa         BahasaPemrograman   @relation(fields: [idBahasa], references: [id])
+  testCaseResult TestCaseResult[]
+
+  @@map("submission")
+}
+
+// 15. TestCaseResult
+model TestCaseResult {
+  id                Int              @id @default(autoincrement())
+  idSubmission      Int              @map("id_submission")
+  idTestCase        Int              @map("id_test_case")
+  status            SubmissionStatus
+  outputDihasilkan  String?          @map("output_dihasilkan") @db.Text
+  waktuEksekusiMs   Int?             @map("waktu_eksekusi_ms")
+  memoriKb          Int?             @map("memori_kb")
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  submission Submission @relation(fields: [idSubmission], references: [id], onDelete: Cascade)
+  testCase   TestCase   @relation(fields: [idTestCase], references: [id], onDelete: Cascade)
+
+  @@unique([idSubmission, idTestCase])
+  @@map("test_case_result")
+}
+
+// 16. NilaiTugas
+model NilaiTugas {
+  id         Int @id @default(autoincrement())
+  idPeserta  Int @map("id_peserta")
+  idTugas    Int @map("id_tugas")
+  totalNilai Int @map("total_nilai") // Total nilai dari semua soal dalam tugas
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  peserta PesertaPraktikum @relation(fields: [idPeserta], references: [id], onDelete: Cascade)
+  tugas   Tugas            @relation(fields: [idTugas], references: [id], onDelete: Cascade)
+
+  @@unique([idPeserta, idTugas])
+  @@map("nilai_tugas")
+}
+
+// 17. untuk tracking tahun sekarang
+model PengaturanSistem {
+  id               Int       @id @default(autoincrement())
+  currentSemester  Semester  @map("current_semester")
+  currentYear      Int       @map("current_year")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pengaturan_sistem")
+}
