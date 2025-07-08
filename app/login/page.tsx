@@ -1,3 +1,4 @@
+// app/login/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -11,25 +12,28 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  const {login, isLoading} = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const {login} = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
 
     try{
       await login(email, password)
     }catch(err: any) {
       console.error('Login error:', err);
       setError(err.message || 'Terjadi kesalahan saat masuk. Silakan coba lagi.');
+    }finally{
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Side - Login Form */}
-      <div className="w-1/2 bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col justify-center py-12 px-6 lg:px-12 relative overflow-hidden">
+      <div className="w-full lg:w-1/2 bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col justify-center py-8 lg:py-12 px-4 sm:px-6 lg:px-12 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -37,28 +41,29 @@ export default function Login() {
           }}></div>
         </div>
 
-        <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md lg:max-w-lg relative z-10">
           {/* Logo/Brand */}
-          <div className="text-center mb-8">
-            <div className="mx-auto h-16 w-16 bg-gradient-to-br from-[#3ECF8E] to-[#2DD4BF] rounded-2xl flex items-center justify-center shadow-lg">
-              <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
+          <div className="mb-6 lg:mb-8">
+            <div className="flex justify-center items-center gap-3 lg:gap-4">
+              <div className="h-12 w-12 lg:h-16 lg:w-16 bg-gradient-to-br from-[#3ECF8E] to-[#2DD4BF] rounded-2xl flex items-center justify-center shadow-lg">
+                <svg className="h-6 w-6 lg:h-8 lg:w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                  SEKA USK
+                </h1>
+                <p className="mt-1 text-xs lg:text-sm text-gray-600 font-medium">
+                  Sistem Evaluasi Kode Akademik USK
+                </p>
+              </div>
             </div>
-            <h1 className="mt-6 text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              SEKA USK
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 font-medium">
-              Sistem Evaluasi Kode Akademik USK
-            </p>
           </div>
 
           {/* Welcome Message */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              Selamat Datang Kembali
-            </h2>
-            <p className="mt-2 text-gray-600">
+          <div className="text-center mb-4 lg:mb-6">
+            <p className="text-gray-500 text-sm lg:text-base">
               Masuk ke akun Anda untuk melanjutkan pembelajaran
             </p>
           </div>
@@ -71,8 +76,8 @@ export default function Login() {
           )}
 
           {/* Login Form */}
-          <div className="bg-white/70 backdrop-blur-sm py-8 px-6 shadow-xl rounded-2xl border border-white/20">
-            <form className="space-y-6" onSubmit={handleLogin}>
+          <div className="bg-white/70 backdrop-blur-sm py-6 lg:py-8 px-4 lg:px-6 shadow-xl rounded-2xl border border-white/20">
+            <form className="space-y-4 lg:space-y-6" onSubmit={handleLogin}>
               {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -80,7 +85,7 @@ export default function Login() {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                     </svg>
                   </div>
@@ -91,7 +96,7 @@ export default function Login() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] focus:border-[#3ECF8E] transition-all duration-200 bg-white/50"
+                    className="block w-full pl-10 pr-3 py-2.5 lg:py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] focus:border-[#3ECF8E] transition-all duration-200 bg-white/50 text-sm lg:text-base"
                     placeholder="nama@email.com"
                   />
                 </div>
@@ -104,7 +109,7 @@ export default function Login() {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                   </div>
@@ -115,7 +120,7 @@ export default function Login() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] focus:border-[#3ECF8E] transition-all duration-200 bg-white/50"
+                    className="block w-full pl-10 pr-12 py-2.5 lg:py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] focus:border-[#3ECF8E] transition-all duration-200 bg-white/50 text-sm lg:text-base"
                     placeholder="Masukkan password"
                   />
                   <button
@@ -137,32 +142,12 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Remember Me & Forgot Password */}
-              {/* <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 text-[#3ECF8E] focus:ring-[#3ECF8E] border-gray-300 rounded"
-                  />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                    Ingat saya
-                  </label>
-                </div>
-                <div className="text-sm">
-                  <a href="#" className="font-medium text-[#3ECF8E] hover:text-[#2DD4BF] transition-colors">
-                    Lupa password?
-                  </a>
-                </div>
-              </div> */}
-
               {/* Login Button */}
               <div>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-[#3ECF8E] to-[#2DD4BF] hover:from-[#2DD4BF] hover:to-[#3ECF8E] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3ECF8E] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="group relative w-full flex justify-center py-3 lg:py-3.5 px-4 border border-transparent text-sm lg:text-base font-semibold rounded-xl text-white bg-gradient-to-r from-[#3ECF8E] to-[#2DD4BF] hover:from-[#2DD4BF] hover:to-[#3ECF8E] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3ECF8E] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                     {isLoading ? (
@@ -181,8 +166,8 @@ export default function Login() {
               </div>
             </form>
 
-            {/* Divider */}
-            <div className="mt-6">
+            {/* Divider - Hidden on small screens */}
+            <div className="mt-6 hidden sm:block">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300" />
@@ -193,11 +178,11 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Guest Login */}
-            <div className="mt-6">
+            {/* Guest Login - Hidden on small screens */}
+            <div className="mt-6 hidden sm:block">
               <button
                 type="button"
-                className="w-full flex justify-center items-center px-4 py-3 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3ECF8E] transition-all duration-200"
+                className="w-full flex justify-center items-center px-4 py-2.5 lg:py-3 border border-gray-300 rounded-xl shadow-sm text-sm lg:text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3ECF8E] transition-all duration-200"
               >
                 <svg className="h-5 w-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -206,19 +191,11 @@ export default function Login() {
               </button>
             </div>
           </div>
-
-          {/* Footer */}
-          {/* <p className="mt-8 text-center text-sm text-gray-600">
-            Belum punya akun?{' '}
-            <a href="#" className="font-semibold text-[#3ECF8E] hover:text-[#2DD4BF] transition-colors">
-              Daftar sekarang
-            </a>
-          </p> */}
         </div>
       </div>
 
       {/* Right Side - Image/Illustration */}
-      <div className="w-1/2 relative bg-gradient-to-br from-[#3ECF8E] to-[#2DD4BF] overflow-hidden">
+      <div className="w-full lg:w-1/2 min-h-[300px] lg:min-h-screen relative bg-gradient-to-br from-[#3ECF8E] to-[#2DD4BF] overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -227,56 +204,48 @@ export default function Login() {
         </div>
 
         {/* Content Overlay */}
-        <div className="relative h-full flex flex-col justify-center items-center p-12 text-white">
+        <div className="relative h-full flex flex-col justify-center items-center p-6 lg:p-12 text-white">
           <div className="max-w-md text-center">
             {/* Floating Code Elements */}
-            <div className="relative mb-8">
-              <div className="absolute -top-4 -left-4 bg-white/20 backdrop-blur-sm rounded-lg p-3 transform rotate-12 animate-float">
-                <code className="text-white text-sm font-mono">{'{ }'}</code>
+            <div className="relative mb-6 lg:mb-8">
+              <div className="absolute -top-4 -left-4 bg-white/20 backdrop-blur-sm rounded-lg p-2 lg:p-3 transform rotate-12 animate-float">
+                <code className="text-white text-xs lg:text-sm font-mono">{'{ }'}</code>
               </div>
-              <div className="absolute -top-2 -right-8 bg-white/20 backdrop-blur-sm rounded-lg p-3 transform -rotate-12 animate-float-delayed">
-                <code className="text-white text-sm font-mono">{'</>'}</code>
+              <div className="absolute -top-2 -right-8 bg-white/20 backdrop-blur-sm rounded-lg p-2 lg:p-3 transform -rotate-12 animate-float-delayed">
+                <code className="text-white text-xs lg:text-sm font-mono">{'</>'}</code>
               </div>
-              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
-                <svg className="h-16 w-16 mx-auto text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 lg:p-6">
+                <svg className="h-12 w-12 lg:h-16 lg:w-16 mx-auto text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
             </div>
 
-            <h3 className="text-3xl font-bold mb-4">
+            <h3 className="text-xl lg:text-3xl font-bold mb-3 lg:mb-4">
               Platform Programming Informatika USK
             </h3>
-            <p className="text-lg text-white/90 leading-relaxed">
+            <p className="text-sm lg:text-lg text-white/90 leading-relaxed">
               Platform pembelajaran coding yang dirancang untuk mengembangkan skill programming Anda dengan praktik langsung dan feedback real-time.
             </p>
 
             {/* Features */}
-            <div className="mt-8 space-y-4">
-              <div className="flex items-center text-white/90">
-                <div className="bg-white/20 rounded-full p-2 mr-3">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mt-6 lg:mt-8 space-y-3 lg:space-y-4">
+              <div className="flex items-center text-white/90 text-sm lg:text-base">
+                <div className="bg-white/20 rounded-full p-1.5 lg:p-2 mr-3">
+                  <svg className="h-3 w-3 lg:h-4 lg:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span>Online Judge System</span>
               </div>
-              <div className="flex items-center text-white/90">
-                <div className="bg-white/20 rounded-full p-2 mr-3">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center text-white/90 text-sm lg:text-base">
+                <div className="bg-white/20 rounded-full p-1.5 lg:p-2 mr-3">
+                  <svg className="h-3 w-3 lg:h-4 lg:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span>Real-time Code Evaluation</span>
               </div>
-              {/* <div className="flex items-center text-white/90">
-                <div className="bg-white/20 rounded-full p-2 mr-3">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <span>Interactive Learning</span>
-              </div> */}
             </div>
           </div>
         </div>

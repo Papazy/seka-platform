@@ -43,6 +43,14 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+.text-green-primary {
+  color: #3ECF8E;
+}
+
+.bg-green-primary {
+  background-color: #3ECF8E;
+}
+
 @keyframes float {
   0%, 100% {
     transform: translateY(0px) rotate(12deg);

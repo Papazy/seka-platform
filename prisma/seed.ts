@@ -28,7 +28,136 @@ async function main() {
     },
   })
 
-  // 2. ✅ Bahasa Pemrograman
+  // 2. ✅ Fakultas
+  console.log('🏛️ Seeding fakultas...')
+  const fakultasData = [
+    { nama: 'Fakultas Ekonomi dan Bisnis', kodeFakultas: 'FEB' },
+    { nama: 'Fakultas Kedokteran Hewan', kodeFakultas: 'FKH' },
+    { nama: 'Fakultas Hukum', kodeFakultas: 'FH' },
+    { nama: 'Fakultas Teknik', kodeFakultas: 'FT' },
+    { nama: 'Fakultas Pertanian', kodeFakultas: 'FP' },
+    { nama: 'Fakultas Keguruan dan Ilmu Pendidikan', kodeFakultas: 'FKIP' },
+    { nama: 'Fakultas Kedokteran', kodeFakultas: 'FK' },
+    { nama: 'Fakultas Matematika dan Ilmu Pengetahuan Alam', kodeFakultas: 'FMIPA' },
+    { nama: 'Fakultas Ilmu Sosial dan Ilmu Politik', kodeFakultas: 'FISIP' },
+    { nama: 'Fakultas Kelautan dan Perikanan', kodeFakultas: 'FKP' },
+    { nama: 'Fakultas Keperawatan', kodeFakultas: 'FKEP' },
+    { nama: 'Fakultas Kedokteran Gigi', kodeFakultas: 'FKG' },
+  ];
+
+  for (const fakultas of fakultasData) {
+    await prisma.fakultas.upsert({
+      where: { kodeFakultas: fakultas.kodeFakultas },
+      update: {},
+      create: fakultas,
+    });
+  }
+  console.log('✅ Seeding fakultas selesai.');
+
+  // 3. ✅ Seeding Program Studi
+  console.log('🎓 Memulai seeding program studi...');
+
+  // Mengambil semua ID fakultas untuk relasi
+  const semuaFakultas = await prisma.fakultas.findMany();
+  const idFakultasMap = semuaFakultas.reduce((map :any, fakultas) => {
+    map[fakultas.kodeFakultas] = fakultas.id;
+    return map;
+  }, {});
+
+  const programStudiData = [
+    // FEB
+    { nama: 'Akuntansi', kodeProdi: 'AKT', idFakultas: idFakultasMap['FEB'] },
+    { nama: 'Manajemen', kodeProdi: 'MNJ', idFakultas: idFakultasMap['FEB'] },
+    { nama: 'Ekonomi Pembangunan', kodeProdi: 'EP', idFakultas: idFakultasMap['FEB'] },
+    { nama: 'Ekonomi Islam', kodeProdi: 'EI', idFakultas: idFakultasMap['FEB'] },
+
+    // FKH
+    { nama: 'Pendidikan Dokter Hewan', kodeProdi: 'PDH', idFakultas: idFakultasMap['FKH'] },
+
+    // FH
+    { nama: 'Ilmu Hukum', kodeProdi: 'IH', idFakultas: idFakultasMap['FH'] },
+
+    // FT
+    { nama: 'Teknik Sipil', kodeProdi: 'TS', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Teknik Mesin', kodeProdi: 'TM', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Teknik Kimia', kodeProdi: 'TK', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Arsitektur', kodeProdi: 'ARS', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Teknik Elektro', kodeProdi: 'TE', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Teknik Industri', kodeProdi: 'TI', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Teknik Pertambangan', kodeProdi: 'TP', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Teknik Geologi', kodeProdi: 'TG', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Teknik Geofisika', kodeProdi: 'TGF', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Teknik Komputer', kodeProdi: 'TKOM', idFakultas: idFakultasMap['FT'] },
+    { nama: 'Perencanaan Wilayah dan Kota', kodeProdi: 'PWK', idFakultas: idFakultasMap['FT'] },
+
+    // FP
+    { nama: 'Agroteknologi', kodeProdi: 'AGT', idFakultas: idFakultasMap['FP'] },
+    { nama: 'Agribisnis', kodeProdi: 'AGB', idFakultas: idFakultasMap['FP'] },
+    { nama: 'Peternakan', kodeProdi: 'PTR', idFakultas: idFakultasMap['FP'] },
+    { nama: 'Teknologi Hasil Pertanian', kodeProdi: 'THP', idFakultas: idFakultasMap['FP'] },
+    { nama: 'Teknik Pertanian', kodeProdi: 'TPT', idFakultas: idFakultasMap['FP'] },
+    { nama: 'Ilmu Tanah', kodeProdi: 'IT', idFakultas: idFakultasMap['FP'] },
+    { nama: 'Proteksi Tanaman', kodeProdi: 'PT', idFakultas: idFakultasMap['FP'] },
+    { nama: 'Kehutanan', kodeProdi: 'KH', idFakultas: idFakultasMap['FP'] },
+
+    // FKIP
+    { nama: 'Pendidikan Pancasila dan Kewarganegaraan', kodeProdi: 'PPKN', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Sejarah', kodeProdi: 'SEJ', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Ekonomi', kodeProdi: 'EKO', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Geografi', kodeProdi: 'GEO', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Bahasa dan Sastra Indonesia', kodeProdi: 'PBSI', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Bahasa Inggris', kodeProdi: 'PBI', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Biologi', kodeProdi: 'BIO', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Matematika', kodeProdi: 'MTK', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Fisika', kodeProdi: 'FIS', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Kimia', kodeProdi: 'KIM', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Guru Sekolah Dasar', kodeProdi: 'PGSD', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Guru PAUD', kodeProdi: 'PAUD', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Jasmani, Kesehatan, dan Rekreasi', kodeProdi: 'PJKR', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Pendidikan Seni Drama, Tari, dan Musik', kodeProdi: 'SDR', idFakultas: idFakultasMap['FKIP'] },
+    { nama: 'Bimbingan dan Konseling', kodeProdi: 'BK', idFakultas: idFakultasMap['FKIP'] },
+
+    // FK
+    { nama: 'Pendidikan Dokter', kodeProdi: 'PD', idFakultas: idFakultasMap['FK'] },
+    { nama: 'Psikologi', kodeProdi: 'PSI', idFakultas: idFakultasMap['FK'] },
+
+    // FMIPA
+    { nama: 'Matematika', kodeProdi: 'MAT', idFakultas: idFakultasMap['FMIPA'] },
+    { nama: 'Fisika', kodeProdi: 'FSK', idFakultas: idFakultasMap['FMIPA'] },
+    { nama: 'Kimia', kodeProdi: 'KMA', idFakultas: idFakultasMap['FMIPA'] },
+    { nama: 'Biologi', kodeProdi: 'BIL', idFakultas: idFakultasMap['FMIPA'] },
+    { nama: 'Informatika', kodeProdi: 'INF', idFakultas: idFakultasMap['FMIPA'] },
+    { nama: 'Manajemen Informatika', kodeProdi: 'MI', idFakultas: idFakultasMap['FMIPA'] },
+    { nama: 'Statistika', kodeProdi: 'STA', idFakultas: idFakultasMap['FMIPA'] },
+    { nama: 'Farmasi', kodeProdi: 'FAR', idFakultas: idFakultasMap['FMIPA'] },
+
+    // FISIP
+    { nama: 'Ilmu Politik', kodeProdi: 'IP', idFakultas: idFakultasMap['FISIP'] },
+    { nama: 'Sosiologi', kodeProdi: 'SOS', idFakultas: idFakultasMap['FISIP'] },
+    { nama: 'Ilmu Komunikasi', kodeProdi: 'IKOM', idFakultas: idFakultasMap['FISIP'] },
+    { nama: 'Ilmu Pemerintahan', kodeProdi: 'IPEM', idFakultas: idFakultasMap['FISIP'] },
+
+    // FKP
+    { nama: 'Budidaya Perairan', kodeProdi: 'BP', idFakultas: idFakultasMap['FKP'] },
+    { nama: 'Ilmu Kelautan', kodeProdi: 'IK', idFakultas: idFakultasMap['FKP'] },
+    { nama: 'Pemanfaatan Sumber Daya Perikanan', kodeProdi: 'PSP', idFakultas: idFakultasMap['FKP'] },
+
+    // FKEP
+    { nama: 'Ilmu Keperawatan', kodeProdi: 'IKEP', idFakultas: idFakultasMap['FKEP'] },
+
+    // FKG
+    { nama: 'Pendidikan Dokter Gigi', kodeProdi: 'PDG', idFakultas: idFakultasMap['FKG'] },
+  ];
+
+  for (const prodi of programStudiData) {
+    await prisma.programStudi.upsert({
+      where: { kodeProdi: prodi.kodeProdi },
+      update: {},
+      create: prodi,
+    });
+  }
+
+  // 4. ✅ Bahasa Pemrograman
   console.log('💻 Seeding programming languages...')
   const languages = [
     { nama: 'Python', ekstensi: '.py', compiler: 'python3', versi: '3.11' },
@@ -45,7 +174,7 @@ async function main() {
     })
   }
 
-  // 3. ✅ Admin
+  // 5. ✅ Admin
   console.log('👑 Seeding admin...')
   await prisma.admin.upsert({
     where: { email: 'admin@usk.ac.id' },
@@ -57,7 +186,7 @@ async function main() {
     },
   })
 
-  // 4. ✅ Laboran
+  // 6. ✅ Laboran
   console.log('🔬 Seeding laboran...')
   const admin = await prisma.admin.findUnique({ where: { email: 'admin@usk.ac.id' } })
   
@@ -72,13 +201,44 @@ async function main() {
     },
   })
 
-  // 5. ✅ Dosen
+  // 7. ✅ Dosen
   console.log('👨‍🏫 Seeding dosen...')
+  const prodiINF = await prisma.programStudi.findUnique({ 
+    where: { kodeProdi: 'INF' } 
+  })
+  const prodiMAT = await prisma.programStudi.findUnique({ 
+    where: { kodeProdi: 'MAT' } 
+  })
+
   const dosenData = [
-    { nip: '198801012015041001', nama: 'Prof. Dr. Ir. Siti Nurhaliza, M.Kom', email: 'siti.nurhaliza@usk.ac.id' },
-    { nip: '198905152016051002', nama: 'Dr. Eng. Andi Pratama, S.T., M.T.', email: 'andi.pratama@usk.ac.id' },
-    { nip: '199102201017061003', nama: 'Dr. Rini Sari, S.Kom., M.Kom', email: 'rini.sari@usk.ac.id' },
-    { nip: '199304251018071004', nama: 'Ir. Bambang Sutrisno, M.Sc', email: 'bambang.sutrisno@usk.ac.id' },
+    { 
+      nip: '198801012015041001', 
+      nama: 'Prof. Dr. Ir. Siti Nurhaliza, M.Kom', 
+      email: 'siti.nurhaliza@usk.ac.id',
+      jabatan: 'Guru Besar',
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      nip: '198905152016051002', 
+      nama: 'Dr. Eng. Andi Pratama, S.T., M.T.', 
+      email: 'andi.pratama@usk.ac.id',
+      jabatan: 'Lektor Kepala',
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      nip: '199102201017061003', 
+      nama: 'Dr. Rini Sari, S.Kom., M.Kom', 
+      email: 'rini.sari@usk.ac.id',
+      jabatan: 'Lektor',
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      nip: '199304251018071004', 
+      nama: 'Ir. Bambang Sutrisno, M.Sc', 
+      email: 'bambang.sutrisno@usk.ac.id',
+      jabatan: 'Asisten Ahli',
+      programStudiId: prodiMAT!.id 
+    },
   ]
 
   for (const dosen of dosenData) {
@@ -92,42 +252,162 @@ async function main() {
     })
   }
 
-  // 6. ✅ Mahasiswa
+  // 8. ✅ Mahasiswa
   console.log('🎓 Seeding mahasiswa...')
   const mahasiswaData = [
     // Mahasiswa yang akan jadi asisten
-    { npm: '2108107010001', nama: 'Rizki Pratama', email: 'rizki.pratama@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107010002', nama: 'Sari Dewi', email: 'sari.dewi@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107010003', nama: 'Budi Setiawan', email: 'budi.setiawan@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107010059', nama: 'Fajry Ariansyah', email: 'fajry@mhs.usk.ac.id', programStudi: 'Informatika' },
+    { 
+      npm: '2108107010001', 
+      nama: 'Rizki Pratama', 
+      email: 'rizki.pratama@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107010002', 
+      nama: 'Sari Dewi', 
+      email: 'sari.dewi@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107010003', 
+      nama: 'Budi Setiawan', 
+      email: 'budi.setiawan@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107010059', 
+      nama: 'Fajry Ariansyah', 
+      email: 'fajry@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
     
     // Mahasiswa peserta - Pemrograman A
-    { npm: '2108107030001', nama: 'Andi Firmansyah', email: 'andi.firmansyah@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107030002', nama: 'Diah Permata', email: 'diah.permata@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107030003', nama: 'Cahyo Wibowo', email: 'cahyo.wibowo@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107030004', nama: 'Indira Sari', email: 'indira.sari@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107030005', nama: 'Fajar Nugroho', email: 'fajar.nugroho@mhs.usk.ac.id', programStudi: 'Informatika' },
+    { 
+      npm: '2108107030001', 
+      nama: 'Andi Firmansyah', 
+      email: 'andi.firmansyah@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107030002', 
+      nama: 'Diah Permata', 
+      email: 'diah.permata@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107030003', 
+      nama: 'Cahyo Wibowo', 
+      email: 'cahyo.wibowo@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107030004', 
+      nama: 'Indira Sari', 
+      email: 'indira.sari@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107030005', 
+      nama: 'Fajar Nugroho', 
+      email: 'fajar.nugroho@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
     
     // Mahasiswa peserta - Pemrograman B
-    { npm: '2108107030006', nama: 'Putri Maharani', email: 'putri.maharani@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107030007', nama: 'Yoga Pratama', email: 'yoga.pratama@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107030008', nama: 'Lestari Dewi', email: 'lestari.dewi@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107030009', nama: 'Arif Rahman', email: 'arif.rahman@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107030010', nama: 'Maya Sari', email: 'maya.sari@mhs.usk.ac.id', programStudi: 'Informatika' },
+    { 
+      npm: '2108107030006', 
+      nama: 'Putri Maharani', 
+      email: 'putri.maharani@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107030007', 
+      nama: 'Yoga Pratama', 
+      email: 'yoga.pratama@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107030008', 
+      nama: 'Lestari Dewi', 
+      email: 'lestari.dewi@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107030009', 
+      nama: 'Arif Rahman', 
+      email: 'arif.rahman@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107030010', 
+      nama: 'Maya Sari', 
+      email: 'maya.sari@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
     
     // Mahasiswa peserta - SDA A
-    { npm: '2108107020001', nama: 'Dedi Kurniawan', email: 'dedi.kurniawan@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107020002', nama: 'Eka Putri', email: 'eka.putri@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107020003', nama: 'Fandi Wijaya', email: 'fandi.wijaya@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107020004', nama: 'Gita Sari', email: 'gita.sari@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107020005', nama: 'Hendra Gunawan', email: 'hendra.gunawan@mhs.usk.ac.id', programStudi: 'Informatika' },
+    { 
+      npm: '2108107020001', 
+      nama: 'Dedi Kurniawan', 
+      email: 'dedi.kurniawan@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107020002', 
+      nama: 'Eka Putri', 
+      email: 'eka.putri@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107020003', 
+      nama: 'Fandi Wijaya', 
+      email: 'fandi.wijaya@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107020004', 
+      nama: 'Gita Sari', 
+      email: 'gita.sari@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107020005', 
+      nama: 'Hendra Gunawan', 
+      email: 'hendra.gunawan@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
     
     // Mahasiswa peserta - SDA B
-    { npm: '2108107020006', nama: 'Ira Wulandari', email: 'ira.wulandari@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107020007', nama: 'Joko Santoso', email: 'joko.santoso@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107020008', nama: 'Kiki Amelia', email: 'kiki.amelia@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107020009', nama: 'Lukman Hakim', email: 'lukman.hakim@mhs.usk.ac.id', programStudi: 'Informatika' },
-    { npm: '2108107020010', nama: 'Mila Kurnia', email: 'mila.kurnia@mhs.usk.ac.id', programStudi: 'Informatika' },
+    { 
+      npm: '2108107020006', 
+      nama: 'Ira Wulandari', 
+      email: 'ira.wulandari@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107020007', 
+      nama: 'Joko Santoso', 
+      email: 'joko.santoso@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107020008', 
+      nama: 'Kiki Amelia', 
+      email: 'kiki.amelia@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107020009', 
+      nama: 'Lukman Hakim', 
+      email: 'lukman.hakim@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
+    { 
+      npm: '2108107020010', 
+      nama: 'Mila Kurnia', 
+      email: 'mila.kurnia@mhs.usk.ac.id', 
+      programStudiId: prodiINF!.id 
+    },
   ]
 
   for (const mahasiswa of mahasiswaData) {
@@ -141,7 +421,7 @@ async function main() {
     })
   }
 
-  // 7. ✅ Praktikum
+  // 9. ✅ Praktikum
   console.log('📚 Seeding praktikum...')
   const laboran = await prisma.laboran.findUnique({ where: { email: 'laboran@usk.ac.id' } })
   
@@ -207,7 +487,7 @@ async function main() {
     })
   }
 
-  // 8. ✅ Assign Dosen ke Praktikum
+  // 10. ✅ Assign Dosen ke Praktikum
   console.log('👨‍🏫 Assigning dosen to praktikum...')
   const dosenList = await prisma.dosen.findMany()
   const praktikumList = await prisma.praktikum.findMany()
@@ -240,7 +520,7 @@ async function main() {
     }
   }
 
-  // 9. ✅ Assign Asisten ke Praktikum
+  // 11. ✅ Assign Asisten ke Praktikum
   console.log('🎯 Assigning asisten to praktikum...')
   const mahasiswaList = await prisma.mahasiswa.findMany()
   
@@ -272,7 +552,7 @@ async function main() {
     }
   }
 
-  // 10. ✅ Assign Peserta ke Praktikum
+  // 12. ✅ Assign Peserta ke Praktikum
   console.log('🎓 Assigning peserta to praktikum...')
   const pesertaAssignments = [
     // Pemrograman A
@@ -354,7 +634,7 @@ async function main() {
   }
   
 
-  // 11. ✅ Create Sample Tugas
+  // 13. ✅ Create Sample Tugas
   console.log('📝 Creating sample tugas...')
   const asistenList = await prisma.asistenPraktikum.findMany({
     include: { praktikum: true }
@@ -440,7 +720,7 @@ async function main() {
     }
   }
 
-  // 12. ✅ Create Sample Soal dan Test Case
+  // 14. ✅ Create Sample Soal dan Test Case
   console.log('🧩 Creating sample soal dan test case...')
   
   let tugasList = await prisma.tugas.findMany({
@@ -1259,6 +1539,8 @@ async function main() {
   
   console.log('✅ Seed completed successfully!')
   console.log('\n📊 Summary:')
+  console.log(`🏛️ Fakultas: ${fakultasData.length}`)
+  console.log(`🎓 Program Studi: ${programStudiData.length}`)
   console.log(`👑 Admin: 1`)
   console.log(`🔬 Laboran: 1`)
   console.log(`👨‍🏫 Dosen: ${dosenData.length}`)

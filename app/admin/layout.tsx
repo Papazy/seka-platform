@@ -1,16 +1,18 @@
-import Navbar from "../../components/Navbar"
+// app/admin/layout.tsx
+import ProtectedLayout from '@/components/ProtectedLayout'
+import Sidebar from '@/components/admin/Sidebar'
 
-export default function ClassLayout({
+export default function AdminLayout({
   children,
-}: {  
+}: {
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-    <Navbar />
-    <main>
-      {children}
-    </main>
-  </div>
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 overflow-auto">
+          {children}
+        </div>
+      </div>
   )
 }

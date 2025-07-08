@@ -3,288 +3,206 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { DataTable } from '@/components/ui/data-table'
-import { createLaboranColumns } from '@/app/admin/columns'
-import { Laboran } from '@/types'
-import toast from 'react-hot-toast'
-import Modal from '@/components/ui/modal'
-import LaboranForm from '@/components/forms/LaboranForm'
-import { PlusIcon, UsersIcon } from '@heroicons/react/24/outline'
-import ConfirmDeleteModal from '@/components/confimDeleteModal'
+import { 
+  UsersIcon, 
+  BuildingOfficeIcon, 
+  AcademicCapIcon,
+  PlusIcon,
+  ChartBarIcon
+} from '@heroicons/react/24/outline'
+import Link from 'next/link'
+
+interface DashboardStats {
+  totalLaboran: number
+  totalFakultas: number
+  totalProgramStudi: number
+  totalMahasiswa: number
+  totalDosen: number
+}
+
+interface RecentActivity {
+  id: number
+  type: 'laboran' | 'fakultas' | 'program_studi'
+  action: 'created' | 'updated'
+  name: string
+  time: string
+}
 
 export default function AdminDashboard() {
   const { user } = useAuth()
-  const [data, setData] = useState<Laboran[]>([])
+  const [stats, setStats] = useState<DashboardStats>({
+    totalLaboran: 0,
+    totalFakultas: 0,
+    totalProgramStudi: 0,
+    totalMahasiswa: 0,
+    totalDosen: 0
+  })
   const [loading, setLoading] = useState(true)
-  const [selectedLaboran, setSelectedLaboran] = useState<Laboran | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [selectedIdToDelete, setSelectedIdToDelete] = useState<number | null>(null)
 
   useEffect(() => {
-    fetchDashboardData()
+    fetchDashboardStats()
   }, [])
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('/api/laboran', {
-        credentials: 'include'
-      })
+      const [laboranRes, fakultasRes, prodiRes] = await Promise.all([
+        fetch('/api/laboran', { credentials: 'include' }),
+        fetch('/api/fakultas', { credentials: 'include' }),
+        fetch('/api/program-studi', { credentials: 'include' })
+      ])
 
-      if (response.ok) {
-        const dashboardData = await response.json()
-        setData(dashboardData.laboran)
-        console.log('Dashboard data:', dashboardData.laboran)
-      }
+      const [laboranData, fakultasData, prodiData] = await Promise.all([
+        laboranRes.json(),
+        fakultasRes.json(),
+        prodiRes.json()
+      ])
+
+      // Hitung total mahasiswa dan dosen dari semua program studi
+      const totalMahasiswa = prodiData.programStudi?.reduce((sum: number, prodi: any) => 
+        sum + (prodi._count?.mahasiswa || 0), 0) || 0
+      const totalDosen = prodiData.programStudi?.reduce((sum: number, prodi: any) => 
+        sum + (prodi._count?.dosen || 0), 0) || 0
+
+      setStats({
+        totalLaboran: laboranData.laboran?.length || 0,
+        totalFakultas: fakultasData.fakultas?.length || 0,
+        totalProgramStudi: prodiData.programStudi?.length || 0,
+        totalMahasiswa,
+        totalDosen
+      })
     } catch (error) {
-      console.error('Error fetching dashboard data:', error)
+      console.error('Error fetching dashboard stats:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSubmit = async (formData: { nama: string; email: string; password?: string }) => {
-    const method = isEditing ? 'PUT' : 'POST'
-    setLoading(true)
+  const statCards = [
+    {
+      title: 'Total Laboran',
+      value: stats.totalLaboran,
+      icon: UsersIcon,
+      color: 'bg-green-primary',
+      bgColor: 'bg-green-primary',
+      textColor: 'text-green-600',
+      href: '/admin/laboran'
+    },
+    {
+      title: 'Total Fakultas', 
+      value: stats.totalFakultas,
+      icon: BuildingOfficeIcon,
+      color: 'bg-green-primary',
+      bgColor: 'bg-green-primary',
+      textColor: 'text-green-600',
+      href: '/admin/fakultas'
+    },
+    {
+      title: 'Total Program Studi',
+      value: stats.totalProgramStudi,
+      icon: AcademicCapIcon,
+      color: 'bg-green-primary',
+      bgColor: 'bg-green-primary',
+      textColor: 'text-purple-600',
+      href: '/admin/program-studi'
+    },
+  ]
 
-    try{
-
-      
-      const response = await fetch('/api/laboran', {
-      method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        ...formData,
-        id: isEditing ? selectedLaboran?.id : undefined
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      toast.error(errorData.message || 'Gagal menyimpan laboran')
-      return
+  const quickActions = [
+    {
+      title: 'Tambah Laboran',
+      description: 'Tambah laboran baru ke sistem',
+      icon: PlusIcon,
+      color: 'bg-blue-50',
+      textColor: 'text-blue-600',
+      href: '/admin/laboran'
+    },
+    {
+      title: 'Tambah Fakultas',
+      description: 'Buat fakultas baru',
+      icon: PlusIcon,
+      color: 'bg-green-50',
+      textColor: 'text-green-600',
+      href: '/admin/fakultas'
+    },
+    {
+      title: 'Tambah Program Studi',
+      description: 'Buat program studi baru',
+      icon: PlusIcon,
+      color: 'bg-purple-50',
+      textColor: 'text-purple-600',
+      href: '/admin/program-studi'
     }
-    
-    const result = await response.json()
-    if(isEditing){
-      
-      setData(data.map(laboran => 
-        laboran.id === selectedLaboran?.id ? result.laboran : laboran
-      ))
-    }else{
-      setData([result.laboran, ...data])
-    }
-
-    toast.success(isEditing ? 'Laboran berhasil diperbarui' : 'Laboran berhasil ditambahkan')
-  }catch(error){
-      console.error('Error saving laboran:', error)
-      toast.error('Terjadi kesalahan saat menyimpan laboran')
-    } finally {
-      setIsSubmitting(false)
-      setIsModalOpen(false)
-      setSelectedLaboran(null)
-      setIsEditing(false)
-      fetchDashboardData() // Refresh data after submit
-      setLoading(false)
-  }
-      
-  }
-
-  const handleAdd = () => {
-    setSelectedLaboran(null)
-    setIsModalOpen(true)
-    setIsEditing(false)
-  }
-
-  const confirmDelete = (id: number) => { 
-    setIsModalDeleteOpen(true)
-    setSelectedIdToDelete(id)
-    // setSelectedLaboran(laboran)
-    // setIsEditing(true)
-    // setIsModalOpen(true)
-  }
-
-  const handleEdit = (laboran: Laboran) => {
-    setSelectedLaboran(laboran)
-    setIsEditing(true)
-    setIsModalOpen(true)
-  }
-
-  const handleDelete = () => {
-    setIsSubmitting(true)
-    const id = selectedIdToDelete
-    try{
-
-      if (!id) {
-        toast.error('ID laboran tidak ditemukan')
-      setIsSubmitting(false)
-      return
-    }
-
-
-    toast.promise(
-      fetch(`/api/laboran`, {
-        method: 'DELETE',
-        credentials: 'include', 
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id })
-      }).then(res => {
-        if (!res.ok) throw new Error('Gagal menghapus laboran')
-        const updatedData = data.filter(laboran => laboran.id !== id)
-        setData(updatedData)
-        return res.json()
-      }),
-      {
-        loading: 'Menghapus laboran...',
-        success: 'Laboran berhasil dihapus!',
-        error: (err) => err.message || 'Terjadi kesalahan'
-      }
-    )
-  }catch(error){
-    console.log(error)
-    toast.error('Terjadi kesalahan saat menghapus laboran')
-  }finally {
-    setIsSubmitting(false)
-    setIsModalDeleteOpen(false)
-    setSelectedIdToDelete(null)
-  }
-}
+  ]
 
   if (loading) {
     return (
-      <div className="bg-white min-h-screen w-full">
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white p-6 rounded-lg shadow">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
+      <div className="p-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded-xl"></div>
+            ))}
           </div>
         </div>
       </div>
     )
   }
 
-
-
-  const columns = createLaboranColumns({ onEdit: handleEdit, onDelete: confirmDelete })
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="mt-2 text-gray-600">
-              Selamat datang, {user?.nama}. Kelola Laboran SEKA dari sini.
-            </p>
-          </div>
-
-          {/* Stats Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-[#3ECF8E] bg-opacity-10 rounded-lg flex items-center justify-center">
-                  <UsersIcon className="w-6 h-6 text-[#3ECF8E]" />
-                </div>
-              </div>
-              <div className="ml-4">
-                <div className="text-sm font-medium text-gray-500">Total Laboran</div>
-                <div className="text-2xl font-bold text-gray-900">{data.length}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Table Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Data Laboran</h2>
-                  <p className="text-sm text-gray-500">Kelola semua laboran di sistem</p>
-                </div>
-                <button
-                  onClick={handleAdd}
-                  className="inline-flex items-center px-4 py-2 bg-[#3ECF8E] text-white text-sm font-medium rounded-lg hover:bg-[#2EBF7B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3ECF8E] transition-colors"
-                >
-                  <PlusIcon className="w-4 h-4 mr-2" />
-                  Tambah Laboran
-                </button>
-              </div>
-            </div>
-
-            <div className="p-6">
-              {data.length > 0 ? (
-                <DataTable columns={columns} data={data} />
-              ) : (
-                <div className="text-center py-12">
-                  <UsersIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">Tidak ada laboran</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Mulai dengan menambahkan laboran baru.
-                  </p>
-                  <div className="mt-6">
-                    <button
-                      onClick={handleAdd}
-                      className="inline-flex items-center px-4 py-2 bg-[#3ECF8E] text-white text-sm font-medium rounded-lg hover:bg-[#2EBF7B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3ECF8E] transition-colors"
-                    >
-                      <PlusIcon className="w-4 h-4 mr-2" />
-                      Tambah Laboran
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+    <div className="p-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+        <p className="mt-2 text-gray-600">
+          Selamat datang, {user?.nama}. Kelola sistem SEKA dari sini.
+        </p>
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false)
-          setIsEditing(false)
-          // setSelectedLaboran(null)
-        }}
-        title={selectedLaboran ? 'Edit Laboran' : 'Tambah Laboran'}
-        size="md"
-      >
-        <LaboranForm
-          laboran={selectedLaboran}
-          isOpen ={isModalOpen}
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            setIsModalOpen(false)
-            setSelectedLaboran(null)
-          }}
-          isSubmitting={isSubmitting}
-          isEditing={isEditing}
-        />
-      </Modal>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-12 md:grid-cols-6 lg:grid-cols-3 gap-6 mb-8">
+        {statCards.map((card) => (
+          <Link key={card.title} href={card.href}>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className={`flex-shrink-0 p-3 rounded-lg ${card.color}`}>
+                    <card.icon className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-gray-900">{card.value}</div>
+                  <div className="text-sm font-medium text-gray-500">{card.title}</div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
 
-      <ConfirmDeleteModal 
-        isOpen={isModalDeleteOpen}
-        onClose={() => setIsModalDeleteOpen(false)}
-        onConfirm={handleDelete}
-        title="Konfirmasi Hapus"
-        message="Apakah Anda yakin ingin menghapus laboran ini?"
-        isLoading={isSubmitting}
-      />
-      
+      {/* Quick Actions */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {quickActions.map((action) => (
+            <Link key={action.title} href={action.href}>
+              <div className={`p-4 rounded-lg ${action.color} hover:opacity-80 transition-opacity cursor-pointer`}>
+                <div className="flex items-center">
+                  <action.icon className={`w-5 h-5 ${action.textColor} mr-3`} />
+                  <div>
+                    <h3 className={`font-medium ${action.textColor}`}>{action.title}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{action.description}</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
 
-    </div >
+     
+      </div>
+    </div>
   )
 }

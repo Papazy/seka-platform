@@ -38,10 +38,11 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
       const response = await fetch('/api/auth/me', {
         credentials: 'include',
       })
+      const data = await response.json();
       if (!response.ok) {
+        console.error(data)
         throw new Error('Failed to fetch user data');
       }
-      const data = await response.json();
       if (data.error) {
         console.error('Authentication error:', data.error);
         setUser(null);
@@ -71,7 +72,7 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        throw new Error('Login gagal, periksa email dan password Anda');
       }
 
       const data = await response.json();

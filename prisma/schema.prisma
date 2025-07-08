@@ -71,6 +71,9 @@ model Dosen {
   nama     String
   email    String @unique
   password String
+  jabatan  String // Jabatan Dosen, misal: "Dosen Tetap", "Dosen Tidak Tetap", dll.
+  programStudiId Int @map("program_studi_id")
+  programStudi ProgramStudi @relation(fields: [programStudiId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -88,7 +91,6 @@ model Mahasiswa {
   nama         String
   email        String @unique
   password     String
-  programStudi String @map("program_studi")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -96,6 +98,8 @@ model Mahasiswa {
   // Relations
   asistenPraktikum AsistenPraktikum[]
   pesertaPraktikum PesertaPraktikum[]
+  programStudiId Int @map("program_studi_id")
+  programStudi ProgramStudi @relation(fields: [programStudiId], references: [id], onDelete: Cascade)
 
   @@map("mahasiswa")
 }
@@ -354,3 +358,32 @@ model PengaturanSistem {
 
   @@map("pengaturan_sistem")
 }
+
+// 18. Fakultas
+model Fakultas {
+  id        Int    @id @default(autoincrement())
+  nama      String @unique
+  kodeFakultas String @unique @map("kode_fakultas")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // Relations
+  programStudi ProgramStudi[]
+  @@map("fakultas")
+}
+
+// 19. ProgramStudi
+model ProgramStudi {
+  id        Int    @id @default(autoincrement())
+  nama      String @unique
+  kodeProdi String @unique @map("kode_prodi")
+  idFakultas Int @map("id_fakultas")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // Relations
+  fakultas Fakultas @relation(fields: [idFakultas], references: [id], onDelete: Cascade)
+
+  mahasiswa Mahasiswa[]
+  dosen Dosen[]
+  @@map("program_studi")
+}
+
