@@ -43,6 +43,13 @@ interface ColumnActionsProps {
 
 export const createDosenColumns = ({ onEdit, onDelete, onDetail, onAssignPraktikum }: ColumnActionsProps): ColumnDef<DosenData>[] => [
   {
+    header: 'No',
+    id: 'no',
+    cell: ({row}) => (
+      <div className="text-center">{row.index + 1}</div>
+    )
+  },
+  {
     accessorKey: 'nip',
     header: 'NIP',
     cell: ({ row }) => (
@@ -61,9 +68,8 @@ export const createDosenColumns = ({ onEdit, onDelete, onDetail, onAssignPraktik
     header: 'Nama',
     cell: ({ row }) => (
       <div className="max-w-xs">
-        <p className="font-medium text-gray-900">{row.original.nama}</p>
-        <p className="text-sm text-gray-500">{row.original.email}</p>
-        <p className="text-xs text-gray-500">{row.original.jabatan}</p>
+        <p className="font-medium text-sm text-gray-900">{row.original.nama}</p>
+        <p className="text-xs text-gray-500">{row.original.email}</p>
       </div>
     )
   },
@@ -71,8 +77,8 @@ export const createDosenColumns = ({ onEdit, onDelete, onDetail, onAssignPraktik
     accessorKey: 'programStudi',
     header: 'Program Studi',
     cell: ({ row }) => (
-      <div className="text-sm">
-        <p className="font-medium text-gray-900">{row.original.programStudi.nama}</p>
+      <div className="text-xs">
+        <p className="font-medium text-sm text-gray-900">{row.original.programStudi.nama}</p>
         <p className="text-gray-500">
           {row.original.programStudi.kodeProdi} • {row.original.programStudi.fakultas.kodeFakultas}
         </p>
@@ -80,27 +86,25 @@ export const createDosenColumns = ({ onEdit, onDelete, onDetail, onAssignPraktik
     )
   },
   {
-    accessorKey: 'praktikum',
-    header: 'Praktikum',
+    accessorKey: 'jabatan',
+    header: 'Jabatan',
     cell: ({ row }) => (
       <div className="text-sm">
         <div className="flex items-center">
-          <BookOpenIcon className="h-4 w-4 text-blue-500 mr-1" />
-          <span className="text-blue-700 font-medium">{row.original._count.dosenPraktikum}</span>
-          <span className="text-gray-500 ml-1">Mengajar</span>
+          <span className="text-gray-500 ml-1">{row.original.jabatan}</span>
         </div>
       </div>
     )
   },
-  {
-    accessorKey: 'createdAt',
-    header: 'Tanggal Daftar',
-    cell: ({ row }) => (
-      <div className="text-sm text-gray-500">
-        {formatDate(row.original.createdAt)}
-      </div>
-    )
-  },
+  // {
+  //   accessorKey: 'createdAt',
+  //   header: 'Tanggal Daftar',
+  //   cell: ({ row }) => (
+  //     <div className="text-sm text-gray-500">
+  //       {formatDate(row.original.createdAt)}
+  //     </div>
+  //   )
+  // },
   {
     id: 'actions',
     header: 'Aksi',

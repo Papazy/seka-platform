@@ -37,8 +37,7 @@ export async function POST(request: NextRequest) {
     
     const parsedData = await new Promise((resolve, reject) => {
       const data: any[] = []
-      stream
-        .pipe(parser)
+      stream.pipe(parser)
         .on('data', (row) => data.push(row))
         .on('end', () => resolve(data))
         .on('error', reject)
@@ -52,43 +51,38 @@ export async function POST(request: NextRequest) {
       const rowNum = index + 2 // +2 because CSV starts from row 2 (after header)
       
       // Validate required fields
-      const requiredFields = ['nip', 'nama', 'email', 'jabatan', 'programStudiId']
+      const requiredFields = ['nip', 'nama', 'email', 'jabatan', 'program_studi']
+      for (const field of requiredFields) {
+        if(!row[field]){
+          errors.push(`Baris ${rowNum}: Kolom ${field} tidak boleh kosong`)
+          continue
+        }
+      }
 
 
-      // // Validate email format
-      // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      // if (!emailRegex.test(row.email)) {
-      //   errors.push(`Baris ${rowNum}: Format email tidak valid`)
-      //   continue
-      // }
-
-      // // Validate phone number format
-      // const phoneRegex = /^[0-9+\-\s]+$/
-      // if (!phoneRegex.test(row.noTelp)) {
-      //   errors.push(`Baris ${rowNum}: Format nomor telepon tidak valid`)
-      //   continue
-      // }
-
-      // Check if departemen exists
-      const programStudi = await prisma.programStudi.findUnique({
-        where: { id: parseInt(row.programStudiId) }
+      // Check program studi
+      const programStudi = await prisma.programStudi.findFirst({
+        where: {
+          nama: row.program_studi
+        }
       })
       if (!programStudi) {
-        errors.push(`Baris ${rowNum}: Program Studi dengan ID ${row.programStudiId} tidak ditemukan`)
+        errors.push(`Baris ${rowNum - 1}: Program Studi dengan nama ${row.program_studi} tidak ditemukan`)
         continue
       }
-      // Check if NIDN or email already exists
+      console.log('Program Studi :', programStudi)
+      // Check nip dan email
       const existingDosen = await prisma.dosen.findFirst({
         where: {
           OR: [
-            { nidn: row.nidn },
+            { nip: row.nip },
             { email: row.email }
           ]
         }
       })
 
       if (existingDosen) {
-        errors.push(`Baris ${rowNum}: NIDN ${row.nidn} atau email ${row.email} sudah digunakan`)
+        errors.push(`Baris ${rowNum}: nip ${row.nip} atau email ${row.email} sudah digunakan`)
         continue
       }
 
@@ -100,7 +94,7 @@ export async function POST(request: NextRequest) {
             nama: row.nama,
             email: row.email,
             jabatan: row.jabatan,
-            programStudiId: parseInt(row.programStudiId),
+            programStudiId: programStudi.id,
             password: hashedPassword
           }
         })

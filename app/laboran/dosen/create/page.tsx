@@ -1,4 +1,4 @@
-// app/laboran/mahasiswa/create/page.tsx
+// app/laboran/dosen/create/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -9,15 +9,17 @@ import {
   UserIcon,
   AcademicCapIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  PhoneIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 
 interface FormData {
-  npm: string
+  nip: string
   nama: string
   email: string
+  jabatan: string
   programStudiId: number | ''
 }
 
@@ -36,14 +38,22 @@ interface ProgramStudi {
   }
 }
 
-export default function CreateMahasiswaPage() {
+const JABATAN_OPTIONS = [
+  'Asisten Ahli',
+  'Lektor',
+  'Lektor Kepala',
+  'Profesor',
+]
+
+export default function CreateDosenPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [programStudiList, setProgramStudiList] = useState<ProgramStudi[]>([])
   const [formData, setFormData] = useState<FormData>({
-    npm: '',
+    nip: '',
     nama: '',
     email: '',
+    jabatan: '',
     programStudiId: ''
   })
   const [errors, setErrors] = useState<FormErrors>({})
@@ -90,10 +100,10 @@ export default function CreateMahasiswaPage() {
     const newErrors: FormErrors = {}
 
     // Required fields validation
-    if (!formData.npm.trim()) {
-      newErrors.npm = 'NPM wajib diisi'
-    } else if (!/^\d{10,15}$/.test(formData.npm)) {
-      newErrors.npm = 'NPM harus berupa angka dengan panjang 10-15 digit'
+    if (!formData.nip.trim()) {
+      newErrors.nip = 'NIP wajib diisi'
+    } else if (!/^\d{8,20}$/.test(formData.nip)) {
+      newErrors.nip = 'NIP harus berupa angka dengan panjang 8-20 digit'
     }
 
     if (!formData.nama.trim()) {
@@ -106,6 +116,10 @@ export default function CreateMahasiswaPage() {
       newErrors.email = 'Email wajib diisi'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Format email tidak valid'
+    }
+
+    if (!formData.jabatan.trim()) {
+      newErrors.jabatan = 'Jabatan wajib dipilih'
     }
 
     if (!formData.programStudiId) {
@@ -127,7 +141,7 @@ export default function CreateMahasiswaPage() {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/mahasiswa', {
+      const response = await fetch('/api/dosen', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,23 +151,23 @@ export default function CreateMahasiswaPage() {
       })
 
       if (response.ok) {
-        toast.success('Mahasiswa berhasil dibuat!')
-        router.push('/laboran/mahasiswa')
+        toast.success('Dosen berhasil dibuat!')
+        router.push('/laboran/dosen')
       } else {
         const error = await response.json()
-        if (error.error?.includes('NPM') || error.error?.includes('email')) {
-          if (error.error.includes('NPM')) {
-            setErrors({ npm: 'NPM sudah digunakan' })
+        if (error.error?.includes('NIP') || error.error?.includes('email')) {
+          if (error.error.includes('NIP')) {
+            setErrors({ nip: 'NIP sudah digunakan' })
           }
           if (error.error.includes('email')) {
             setErrors({ email: 'Email sudah digunakan' })
           }
         }
-        toast.error(error.error || 'Gagal membuat mahasiswa')
+        toast.error(error.error || 'Gagal membuat dosen')
       }
     } catch (error) {
       console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat membuat mahasiswa')
+      toast.error('Terjadi kesalahan saat membuat dosen')
     } finally {
       setLoading(false)
     }
@@ -174,7 +188,7 @@ export default function CreateMahasiswaPage() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center mb-4">
-          <Link href="/laboran/mahasiswa">
+          <Link href="/laboran/dosen">
             <Button variant="outline" size="sm" className="mr-4">
               <ArrowLeftIcon className="h-4 w-4 mr-2" />
               Kembali
@@ -182,10 +196,10 @@ export default function CreateMahasiswaPage() {
           </Link>
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              Tambah Mahasiswa Baru
+              Tambah Dosen Baru
             </h1>
             <p className="mt-1 text-sm text-gray-600">
-              Isi form di bawah untuk menambahkan mahasiswa baru
+              Isi form di bawah untuk menambahkan dosen baru
             </p>
           </div>
         </div>
@@ -197,28 +211,29 @@ export default function CreateMahasiswaPage() {
           {/* Basic Information */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">Informasi Mahasiswa</h2>
+              <UserIcon className="h-5 w-5 text-blue-500 mr-2" />
+              <h2 className="text-lg font-semibold text-gray-900">Informasi Dosen</h2>
             </div>
 
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  NPM *
+                  NIP *
                 </label>
                 <input
                   type="text"
-                  name="npm"
-                  value={formData.npm}
+                  name="nip"
+                  value={formData.nip}
                   onChange={handleInputChange}
-                  placeholder="Contoh: 2021110001"
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.npm ? 'border-red-500' : 'border-gray-300'
+                  placeholder="Contoh: 19820215200912100"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent text-sm ${
+                    errors.nip ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
-                {errors.npm && (
+                {errors.nip && (
                   <p className="mt-1 text-sm text-red-600 flex items-center">
                     <ExclamationTriangleIcon className="h-4 w-4 mr-1" />
-                    {errors.npm}
+                    {errors.nip}
                   </p>
                 )}
               </div>
@@ -232,8 +247,8 @@ export default function CreateMahasiswaPage() {
                   name="nama"
                   value={formData.nama}
                   onChange={handleInputChange}
-                  placeholder="Contoh: Ahmad Maulana"
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
+                  placeholder="Contoh: Dr. John Doe, M.Kom"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent text-sm ${
                     errors.nama ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
@@ -254,8 +269,8 @@ export default function CreateMahasiswaPage() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="Contoh: maulana@mhs.usk.ac.id"
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
+                  placeholder="Contoh: john.doe@usk.ac.id"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent text-sm ${
                     errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
@@ -266,12 +281,40 @@ export default function CreateMahasiswaPage() {
                   </p>
                 )}
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Jabatan *
+                </label>
+                <select
+                  name="jabatan"
+                  value={formData.jabatan}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent text-sm ${
+                    errors.jabatan ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Pilih Jabatan</option>
+                  {JABATAN_OPTIONS.map(jabatan => (
+                    <option key={jabatan} value={jabatan}>
+                      {jabatan}
+                    </option>
+                  ))}
+                </select>
+                {errors.jabatan && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center">
+                    <ExclamationTriangleIcon className="h-4 w-4 mr-1" />
+                    {errors.jabatan}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
-          
+
           {/* Academic Information */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center mb-6">
+              <AcademicCapIcon className="h-5 w-5 text-purple-500 mr-2" />
               <h2 className="text-lg font-semibold text-gray-900">Informasi Akademik</h2>
             </div>
 
@@ -283,7 +326,7 @@ export default function CreateMahasiswaPage() {
                 name="programStudiId"
                 value={formData.programStudiId}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent text-sm ${
                   errors.programStudiId ? 'border-red-500' : 'border-gray-300'
                 }`}
               >
@@ -314,8 +357,8 @@ export default function CreateMahasiswaPage() {
               <div>
                 <h3 className="text-sm font-medium text-blue-900">Password Default</h3>
                 <p className="text-sm text-blue-700 mt-1">
-                  Password default akan diset sebagai <code className="bg-blue-100 px-2 py-1 rounded">mahasiswa123</code>. 
-                  Mahasiswa dapat mengubah password setelah login pertama kali.
+                  Password default akan diset sebagai <code className="bg-blue-100 px-2 py-1 rounded">dosen123</code>. 
+                  Dosen dapat mengubah password setelah login pertama kali.
                 </p>
               </div>
             </div>
@@ -323,7 +366,7 @@ export default function CreateMahasiswaPage() {
 
           {/* Submit Button */}
           <div className="flex justify-end space-x-4">
-            <Link href="/laboran/mahasiswa">
+            <Link href="/laboran/dosen">
               <Button type="button" variant="outline" disabled={loading}>
                 Batal
               </Button>
@@ -341,7 +384,7 @@ export default function CreateMahasiswaPage() {
               ) : (
                 <>
                   <CheckCircleIcon className="h-4 w-4 mr-2" />
-                  Buat Mahasiswa
+                  Buat Dosen
                 </>
               )}
             </Button>

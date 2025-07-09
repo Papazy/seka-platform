@@ -33,6 +33,62 @@ export async function GET(
             pesertaPraktikum: true,
             asistenPraktikum: true
           }
+        },
+        pesertaPraktikum: {
+          include: {
+            praktikum: {
+              select: {
+                id: true,
+                nama: true,
+                kodePraktikum: true,
+                kelas: true,
+                semester: true,
+                tahun: true,
+                jadwalHari: true,
+                ruang: true,
+                dosenPraktikum: {
+                  include: {
+                    dosen: {
+                      select: {
+                        nama: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        },
+        asistenPraktikum: {
+          include: {
+            praktikum: {
+              select: {
+                id: true,
+                nama: true,
+                kodePraktikum: true,
+                kelas: true,
+                semester: true,
+                tahun: true,
+                jadwalHari: true,
+                ruang: true,
+                dosenPraktikum: {
+                  include: {
+                    dosen: {
+                      select: {
+                        nama: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
         }
       }
     })
@@ -41,7 +97,42 @@ export async function GET(
       return NextResponse.json({ error: 'Mahasiswa tidak ditemukan' }, { status: 404 })
     }
 
-    return NextResponse.json({ data: mahasiswa })
+    // Transform data untuk memudahkan akses di frontend
+    const transformedData = {
+      ...mahasiswa,
+      pesertaPraktikum: mahasiswa.pesertaPraktikum.map(p => ({
+        id: p.praktikum.id,
+        nama: p.praktikum.nama,
+        kodePraktikum: p.praktikum.kodePraktikum,
+        kelas: p.praktikum.kelas,
+        semester: p.praktikum.semester,
+        tahun: p.praktikum.tahun,
+        status: 'active',
+        joinedAt: p.createdAt,
+        praktikum: {
+          jadwalHari: p.praktikum.jadwalHari,
+          ruang: p.praktikum.ruang,
+          dosen: p.praktikum.dosenPraktikum.map(dp => dp.dosen)
+        }
+      })),
+      asistenPraktikum: mahasiswa.asistenPraktikum.map(a => ({
+        id: a.praktikum.id,
+        nama: a.praktikum.nama,
+        kodePraktikum: a.praktikum.kodePraktikum,
+        kelas: a.praktikum.kelas,
+        semester: a.praktikum.semester,
+        tahun: a.praktikum.tahun,
+        status: 'active',
+        joinedAt: a.createdAt,
+        praktikum: {
+          jadwalHari: a.praktikum.jadwalHari,
+          ruang: a.praktikum.ruang,
+          dosen: a.praktikum.dosenPraktikum.map(dp => dp.dosen)
+        }
+      }))
+    }
+
+    return NextResponse.json({ data: transformedData })
   } catch (error) {
     console.error('Error fetching mahasiswa:', error)
     return NextResponse.json(
@@ -77,6 +168,7 @@ export async function PUT(
       }
     }
 
+    // Cek apakah mahasiswa exists
     const existingMahasiswa = await prisma.mahasiswa.findUnique({
       where: { id: mahasiswaId }
     })
@@ -85,6 +177,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Mahasiswa tidak ditemukan' }, { status: 404 })
     }
 
+    // Cek apakah NPM atau email sudah digunakan oleh mahasiswa lain
     const duplicateMahasiswa = await prisma.mahasiswa.findFirst({
       where: {
         AND: [
@@ -159,6 +252,7 @@ export async function DELETE(
 
     const mahasiswaId = parseInt(params.id)
     
+    // Cek apakah mahasiswa exists
     const existingMahasiswa = await prisma.mahasiswa.findUnique({
       where: { id: mahasiswaId },
       include: {

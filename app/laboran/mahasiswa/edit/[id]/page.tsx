@@ -117,7 +117,7 @@ export default function EditMahasiswaPage() {
       
       if (response.ok) {
         const result = await response.json()
-        setProgramStudiList(result.data)
+        setProgramStudiList(result.programStudi)
       } else {
         toast.error('Gagal mengambil data program studi')
       }
@@ -378,7 +378,7 @@ export default function EditMahasiswaPage() {
                   <optgroup key={fakultasNama} label={fakultasNama}>
                     {prodiList.map(prodi => (
                       <option key={prodi.id} value={prodi.id}>
-                        {prodi.nama} ({prodi.kodeProdi})
+                        {prodi.nama}
                       </option>
                     ))}
                   </optgroup>
@@ -393,26 +393,7 @@ export default function EditMahasiswaPage() {
             </div>
           </div>
 
-          {/* Activity Stats */}
-          {mahasiswa._count && (
-            <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Statistik Aktivitas</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {mahasiswa._count.pesertaPraktikum}
-                  </div>
-                  <div className="text-sm text-gray-600">Peserta Praktikum</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {mahasiswa._count.asistenPraktikum}
-                  </div>
-                  <div className="text-sm text-gray-600">Asisten Praktikum</div>
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* Submit Button */}
           <div className="flex justify-end space-x-4">

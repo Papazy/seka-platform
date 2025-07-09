@@ -18,7 +18,7 @@ import Link from 'next/link'
 import { formatTime, formatDate } from '@/lib/utils'
 import { DataTable } from '@/components/ui/data-table'
 // import { createPraktikanColumns } from './columns'
-import ConfirmDeleteModal from '@/components/ConfimDeleteModal'
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 import { createMahasiswaColumns, createDosenColumns } from './columns'
 
 interface PraktikumDetail {

@@ -21,7 +21,7 @@ import {
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { ImportCSVModal } from '@/components/modals/ImportCSVModal'
-import ConfirmDeleteModal from '@/components/ConfimDeleteModal'
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 import { set } from 'ace-builds-internal/config'
 
 interface PraktikumData {

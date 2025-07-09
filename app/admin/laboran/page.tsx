@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 import Modal from '@/components/ui/modal'
 import LaboranForm from '@/components/forms/LaboranForm'
 import { PlusIcon, UsersIcon } from '@heroicons/react/24/outline'
-import ConfirmDeleteModal from '@/components/ConfimDeleteModal'
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 
 export default function AdminDashboard() {
   const { user } = useAuth()

@@ -19,6 +19,7 @@ import {
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { ImportCSVModal } from '@/components/modals/ImportCSVModal'
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 
 interface MahasiswaData {
   id: number
@@ -50,6 +51,8 @@ export default function MahasiswaPage() {
   const [showImportModal, setShowImportModal] = useState(false)
   const [programStudiList, setProgramStudiList] = useState<any[]>([])
   const [fakultasList, setFakultasList] = useState<any[]>([])
+  const [isOpenModalDelete, setIsOpenModalDelete] = useState(false)
+  const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -120,20 +123,23 @@ export default function MahasiswaPage() {
     router.push(`/laboran/mahasiswa/edit/${id}`)
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus mahasiswa ini?')) {
-      return
-    }
+
+  const confirmDelete = (id: number) => {
+    setIsOpenModalDelete(true)
+    setSelectedDeleteId(id)
+  }
+
+  const handleDelete = async () => {
 
     try {
-      const response = await fetch(`/api/mahasiswa/${id}`, {
+      const response = await fetch(`/api/mahasiswa/${selectedDeleteId}`, {
         method: 'DELETE',
         credentials: 'include'
       })
 
       if (response.ok) {
         toast.success('Mahasiswa berhasil dihapus')
-        fetchMahasiswa()
+        setData(prevData => prevData.filter(item => item.id !== selectedDeleteId))
       } else {
         const error = await response.json()
         toast.error(error.error || 'Gagal menghapus mahasiswa')
@@ -158,31 +164,31 @@ export default function MahasiswaPage() {
     toast.success('Import mahasiswa berhasil!')
   }
 
-  const handleExport = async () => {
-    try {
-      const response = await fetch('/api/mahasiswa/export', {
-        credentials: 'include'
-      })
+  // const handleExport = async () => {
+  //   try {
+  //     const response = await fetch('/api/mahasiswa/export', {
+  //       credentials: 'include'
+  //     })
       
-      if (response.ok) {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `mahasiswa_${new Date().toISOString().split('T')[0]}.csv`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-        toast.success('Export berhasil!')
-      } else {
-        toast.error('Gagal export data')
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat export')
-    }
-  }
+  //     if (response.ok) {
+  //       const blob = await response.blob()
+  //       const url = window.URL.createObjectURL(blob)
+  //       const a = document.createElement('a')
+  //       a.href = url
+  //       a.download = `mahasiswa_${new Date().toISOString().split('T')[0]}.csv`
+  //       document.body.appendChild(a)
+  //       a.click()
+  //       document.body.removeChild(a)
+  //       window.URL.revokeObjectURL(url)
+  //       toast.success('Export berhasil!')
+  //     } else {
+  //       toast.error('Gagal export data')
+  //     }
+  //   } catch (error) {
+  //     console.error('Error:', error)
+  //     toast.error('Terjadi kesalahan saat export')
+  //   }
+  // }
 
   // Filter data
   const filteredData = data.filter(item => {
@@ -201,7 +207,7 @@ export default function MahasiswaPage() {
 
   const columns = createMahasiswaColumns({ 
     onEdit: handleEdit, 
-    onDelete: handleDelete,
+    onDelete: confirmDelete,
     onDetail: handleDetail,
     onAssignPraktikum: handleAssignPraktikum
   })
@@ -230,14 +236,14 @@ export default function MahasiswaPage() {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <Button
+          {/* <Button
             onClick={handleExport}
             variant="outline"
             className="text-green-600 hover:text-green-700"
           >
             <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
             Export CSV
-          </Button>
+          </Button> */}
           <Button
             onClick={() => setShowImportModal(true)}
             variant="outline"
@@ -291,14 +297,14 @@ export default function MahasiswaPage() {
               value={filterFakultas}
               onChange={(e) => {
                 setFilterFakultas(e.target.value)
-                setFilterProdi('') // Reset prodi filter when fakultas changes
+                // setFilterProdi('') // Reset prodi filter when fakultas changes
               }}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent text-xs"
             >
               <option value="">Semua Fakultas</option>
               {fakultasList.map(fakultas => (
                 <option key={fakultas.id} value={fakultas.kodeFakultas}>
-                  {fakultas.kodeFakultas} - {fakultas.nama}
+                  {fakultas.nama}
                 </option>
               ))}
             </select>
@@ -313,7 +319,7 @@ export default function MahasiswaPage() {
                 .filter(prodi => !filterFakultas || prodi.fakultas.kodeFakultas === filterFakultas)
                 .map(prodi => (
                   <option key={prodi.id} value={prodi.id}>
-                    {prodi.kodeProdi} - {prodi.nama}
+                    {prodi.nama}
                   </option>
                 ))}
             </select>
@@ -384,6 +390,14 @@ export default function MahasiswaPage() {
           { key: 'email', label: 'Email' },
           { key: 'programStudiId', label: 'ID Program Studi' }
         ]}
+      />
+
+      <ConfirmDeleteModal 
+        isOpen={isOpenModalDelete}
+        onClose={()=> setIsOpenModalDelete(false)}
+        onConfirm={handleDelete}
+        title="Hapus Mahasiswa"
+        message="Apakah Anda yakin ingin menghapus mahasiswa ini? Tindakan ini tidak dapat dibatalkan."
       />
     </div>
   )

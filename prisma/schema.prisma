@@ -374,7 +374,7 @@ model Fakultas {
 // 19. ProgramStudi
 model ProgramStudi {
   id        Int    @id @default(autoincrement())
-  nama      String @unique
+  nama      String 
   kodeProdi String @unique @map("kode_prodi")
   idFakultas Int @map("id_fakultas")
   createdAt DateTime @default(now())

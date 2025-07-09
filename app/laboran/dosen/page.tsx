@@ -19,6 +19,7 @@ import {
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { ImportCSVModal } from '@/components/modals/ImportCSVModal'
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 
 
 interface DosenData {
@@ -51,11 +52,15 @@ export default function DosenPage() {
   const [showImportModal, setShowImportModal] = useState(false)
   const [programStudiList, setProgramStudiList] = useState<any[]>([])
   const [fakultasList, setFakultasList] = useState<any[]>([])
+  
+  const [isOpenModalDelete, setIsOpenModalDelete] = useState<boolean>(false)
+  const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null)
   const router = useRouter()
 
   useEffect(() => {
     fetchDosen()
     fetchFakultas()
+    fetchProdi()
   }, [])
 
   const fetchDosen = async () => {
@@ -89,10 +94,25 @@ export default function DosenPage() {
       
       if (response.ok) {
         const result = await response.json()
-        setFakultasList(result.data || [])
+        setFakultasList(result.fakultas || [])
       }
     } catch (error) {
       console.error('Error fetching fakultas:', error)
+    }
+  }
+
+  const fetchProdi = async () => {
+    try{
+      const response = await fetch('/api/program-studi',{
+        credentials : 'include',
+      })
+
+      if(response.ok){
+        const result = await response.json()
+        setProgramStudiList(result.programStudi || [])
+      }
+    }catch(error) {
+      console.error('Error fetching program studi: ', error)
     }
   }
 
@@ -100,20 +120,23 @@ export default function DosenPage() {
     router.push(`/laboran/dosen/edit/${id}`)
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus dosen ini?')) {
-      return
-    }
+
+  const confirmDelete = async (id: number) => {
+    setIsOpenModalDelete(true)
+    setSelectedDeleteId(id)
+  }
+
+  const handleDelete = async () => {
 
     try {
-      const response = await fetch(`/api/dosen/${id}`, {
+      const response = await fetch(`/api/dosen/${selectedDeleteId}`, {
         method: 'DELETE',
         credentials: 'include'
       })
 
       if (response.ok) {
         toast.success('Dosen berhasil dihapus')
-        fetchDosen()
+        setData(prev => prev.filter(item => item.id !== selectedDeleteId))
       } else {
         const error = await response.json()
         toast.error(error.error || 'Gagal menghapus dosen')
@@ -121,6 +144,8 @@ export default function DosenPage() {
     } catch (error) {
       console.error('Error:', error)
       toast.error('Terjadi kesalahan saat menghapus dosen')
+    }finally{
+      setIsOpenModalDelete(false)
     }
   }
 
@@ -138,31 +163,6 @@ export default function DosenPage() {
     toast.success('Import dosen berhasil!')
   }
 
-  const handleExport = async () => {
-    try {
-      const response = await fetch('/api/dosen/export', {
-        credentials: 'include'
-      })
-      
-      if (response.ok) {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `dosen_${new Date().toISOString().split('T')[0]}.csv`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-        toast.success('Export berhasil!')
-      } else {
-        toast.error('Gagal export data')
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat export')
-    }
-  }
 
   // Filter data
   const filteredData = data.filter(item => {
@@ -182,7 +182,7 @@ export default function DosenPage() {
 
   const columns = createDosenColumns({ 
     onEdit: handleEdit, 
-    onDelete: handleDelete,
+    onDelete: confirmDelete,
     onDetail: handleDetail,
     onAssignPraktikum: handleAssignPraktikum
   })
@@ -212,14 +212,6 @@ export default function DosenPage() {
         </div>
         <div className="flex items-center space-x-3">
           <Button
-            onClick={handleExport}
-            variant="outline"
-            className="text-green-600 hover:text-green-700"
-          >
-            <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
-          <Button
             onClick={() => setShowImportModal(true)}
             variant="outline"
             className="text-blue-600 hover:text-blue-700"
@@ -237,44 +229,13 @@ export default function DosenPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow-sm border">
           <div className="flex items-center">
             <AcademicCapIcon className="h-8 w-8 text-blue-500" />
             <div className="ml-3">
               <p className="text-sm font-medium text-gray-500">Total Dosen</p>
               <p className="text-2xl font-bold text-gray-900">{data.length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <BookOpenIcon className="h-8 w-8 text-green-500" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Mengajar Praktikum</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {data.reduce((sum, d) => sum + d._count.dosenPraktikum, 0)}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <UserGroupIcon className="h-8 w-8 text-purple-500" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Reviewer Tugas</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {data.reduce((sum, d) => sum + d._count.tugasReviewer, 0)}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <FunnelIcon className="h-8 w-8 text-orange-500" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Hasil Filter</p>
-              <p className="text-2xl font-bold text-gray-900">{filteredData.length}</p>
             </div>
           </div>
         </div>
@@ -285,7 +246,7 @@ export default function DosenPage() {
   <div className="flex flex-col sm:flex-row gap-4">
     {/* Search */}
     <div className="flex-1">
-      <div className="relative">
+      <div className="relative text-sm">
         <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
         <input
           type="text"
@@ -298,19 +259,19 @@ export default function DosenPage() {
     </div>
     
     {/* Filters */}
-    <div className="flex gap-3">
+    <div className="flex gap-3 text-xs">
       <select
         value={filterFakultas}
         onChange={(e) => {
           setFilterFakultas(e.target.value)
-          setFilterProdi('') // Reset prodi filter when fakultas changes
+          setFilterProdi('') 
         }}
         className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent"
       >
         <option value="">Semua Fakultas</option>
         {fakultasList.map(fakultas => (
           <option key={fakultas.id} value={fakultas.kodeFakultas}>
-            {fakultas.kodeFakultas} - {fakultas.nama}
+            {fakultas.nama}
           </option>
         ))}
       </select>
@@ -325,7 +286,7 @@ export default function DosenPage() {
           .filter(prodi => !filterFakultas || prodi.fakultas.kodeFakultas === filterFakultas)
           .map(prodi => (
             <option key={prodi.id} value={prodi.id}>
-              {prodi.kodeProdi} - {prodi.nama}
+              {prodi.nama}
             </option>
           ))}
       </select>
@@ -347,15 +308,15 @@ export default function DosenPage() {
             <div className="text-center py-12">
               <AcademicCapIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm || filterDepartemen || filterFakultas ? 'Tidak ada hasil' : 'Belum ada dosen'}
+                {searchTerm  || filterFakultas ? 'Tidak ada hasil' : 'Belum ada dosen'}
               </h3>
               <p className="text-gray-500 mb-4">
-                {searchTerm || filterDepartemen || filterFakultas 
+                {searchTerm  || filterFakultas 
                   ? 'Coba ubah kriteria pencarian atau filter'
                   : 'Mulai dengan menambahkan dosen atau import dari CSV'
                 }
               </p>
-              {!searchTerm && !filterDepartemen && !filterFakultas && (
+              {!searchTerm  && !filterFakultas && (
                 <div className="flex justify-center space-x-3">
                   <Button
                     onClick={() => setShowImportModal(true)}
@@ -384,20 +345,30 @@ export default function DosenPage() {
   onClose={() => setShowImportModal(false)}
   onSuccess={handleImportSuccess}
   title="Import Dosen"
-  endpoint="/api/laboran/dosen/import"
-  templateEndpoint="/api/laboran/dosen/template"
+  endpoint="/api/dosen/import"
+  templateEndpoint="/api/dosen/template"
   sampleData={[
-    { nip: '123456789', nama: 'Dr. John Doe', email: 'johndoe@usk.ac.id', jabatan: 'Dosen Tetap', programStudiId: '1' },
-    { nip: '123456788', nama: 'Dr. Jane Smith', email: 'janesmith@usk.ac.id', jabatan: 'Dosen Tidak Tetap', programStudiId: '1' }
+    { nip: '123456789', nama: 'Dr. John Doe', email: 'johndoe@usk.ac.id', jabatan: 'Dosen Tetap', program_studi: 'Informatika' },
+    { nip: '123456788', nama: 'Dr. Jane Smith', email: 'janesmith@usk.ac.id', jabatan: 'Dosen Tidak Tetap', program_studi: 'Informatika' }
   ]}
   columns={[
     { key: 'nip', label: 'NIP' },
     { key: 'nama', label: 'Nama' },
     { key: 'email', label: 'Email' },
     { key: 'jabatan', label: 'Jabatan' },
-    { key: 'programStudiId', label: 'ID Program Studi' }
+    { key: 'program_studi', label: 'Program Studi' }
   ]}
 />
+
+
+  <ConfirmDeleteModal 
+    isOpen={isOpenModalDelete}
+    onClose={() => setIsOpenModalDelete(false)}
+    onConfirm={handleDelete}
+    title="Hapus Dosen"
+    message="Apakah Anda yakin ingin menghapus dosen ini? Tindakan ini tidak dapat dibatalkan."
+
+  />
     </div>
   )
 }

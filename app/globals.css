@@ -50,6 +50,9 @@
 .bg-green-primary {
   background-color: #3ECF8E;
 }
+.border-green-primary {
+  border-color: #3ECF8E;
+}
 
 @keyframes float {
   0%, 100% {

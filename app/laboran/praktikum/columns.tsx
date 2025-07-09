@@ -49,6 +49,13 @@ interface ColumnActionsProps {
 
 export const createPraktikumColumns = ({ onEdit, onDelete, onToggleActive, onDetail }: ColumnActionsProps): ColumnDef<PraktikumData>[] => [
   {
+    header: 'No',
+    id: 'no',
+    cell: ({row}) => (
+      <div className="text-center">{row.index + 1}</div>
+    )
+  },
+  {
     accessorKey: 'nama',
     header: 'Nama Praktikum',
     cell: ({ row }) => (
@@ -157,6 +164,7 @@ export const createPraktikumColumns = ({ onEdit, onDelete, onToggleActive, onDet
         >
           <EyeIcon className="h-4 w-4" />
         </Button>
+        
         <Button
           variant="outline"
           size="sm"

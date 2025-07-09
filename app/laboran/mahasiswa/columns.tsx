@@ -43,6 +43,15 @@ interface ColumnActionsProps {
 
 export const createMahasiswaColumns = ({ onEdit, onDelete, onDetail, onAssignPraktikum }: ColumnActionsProps): ColumnDef<MahasiswaData>[] => [
   {
+    header: "NO",
+    id: "no",
+    cell: ({ row }) => (
+      <div className="text-center">
+        {row.index + 1}
+      </div>
+    ),
+  },
+  {
     accessorKey: 'npm',
     header: 'NPM',
     cell: ({ row }) => (
@@ -91,14 +100,14 @@ export const createMahasiswaColumns = ({ onEdit, onDelete, onDetail, onAssignPra
         >
           <EyeIcon className="h-4 w-4" />
         </Button>
-        <Button
+        {/* <Button
           variant="outline"
           size="sm"
           onClick={() => onAssignPraktikum(row.original.id)}
           className="text-green-600 hover:text-green-700"
         >
           <PlusIcon className="h-4 w-4" />
-        </Button>
+        </Button> */}
         <Button
           variant="outline"
           size="sm"
