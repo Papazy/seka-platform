@@ -133,12 +133,12 @@ export function ImportParticipantsModal({
       case 'dosen':
         return [
           { label: 'NIP', value: '196801011995031001' },
-          { label: 'Nama (Opsional)', value: 'Dr. John Doe' }
+          { label: 'Nama (Opsional)', value: 'Dr. Ahmad' }
         ]
       default:
         return [
           { label: 'NPM', value: '2108107010001' },
-          { label: 'Nama (Opsional)', value: 'John Doe' }
+          { label: 'Nama (Opsional)', value: 'Ahmad' }
         ]
     }
   }

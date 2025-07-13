@@ -8,10 +8,10 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: 'SEKA | Sistem Evaluasi Kelas Akademik',
-    template: '%s | Sistem Evaluasi Kelas Akademik'
+    default: 'SEKA | Sistem Evaluasi Kode Akademik',
+    template: '%s | Sistem Evaluasi Kode Akademik'
   },
-  description: 'Sistem Evaluasi Kelas Akademik',
+  description: 'Sistem Evaluasi Kode Akademik',
 }
 
 export default function RootLayout({

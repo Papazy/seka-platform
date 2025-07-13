@@ -22,7 +22,7 @@ interface User {
 interface AddParticipantModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: (data: any) => void
+  handleAddParticipants: (data: any) => void
   type: 'peserta' | 'asisten' | 'dosen'
   praktikumId: number
 }
@@ -30,7 +30,7 @@ interface AddParticipantModalProps {
 export function AddParticipantModal({
   isOpen,
   onClose,
-  onSuccess,
+  handleAddParticipants,
   type,
   praktikumId
 }: AddParticipantModalProps) {
@@ -41,7 +41,7 @@ export function AddParticipantModal({
   const [searching, setSearching] = useState(false)
 
   useEffect(() => {
-    if (searchTerm.length >= 2) {
+    if (searchTerm.length >= 2 && searchResults.length === 0) {
       searchUsers()
     } else {
       setSearchResults([])
@@ -59,7 +59,15 @@ export function AddParticipantModal({
       
       if (response.ok) {
         const result = await response.json()
-        setSearchResults(result.data || [])
+        const formatedData = result.data.map((user: any) => ({
+          id: user.id,
+          nama: user.nama,
+          identifier: type === 'dosen' ? user.nip : user.npm,
+          email: user.email,
+          programStudi: user.programStudi || undefined,
+          jabatan: user.jabatan || undefined
+        }))
+        setSearchResults(formatedData)
       } else {
         toast.error('Gagal mencari data')
       }
@@ -92,7 +100,7 @@ export function AddParticipantModal({
     setLoading(true)
     try {
       const userIds = selectedUsers.map(u => u.id)
-      await onSuccess({ userIds })
+      await handleAddParticipants({ userIds })
       
       // Reset form
       setSelectedUsers([])
@@ -157,7 +165,7 @@ export function AddParticipantModal({
 
           {/* Search Results */}
           {searchResults.length > 0 && (
-            <div className="border rounded-lg max-h-48 overflow-y-auto">
+            <div className="border rounded-lg max-h-64 overflow-y-auto">
               {searchResults.map((user) => (
                 <button
                   key={user.id}
@@ -166,14 +174,19 @@ export function AddParticipantModal({
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-medium text-gray-900">{user.nama}</p>
-                      <p className="text-sm text-gray-500">{user.identifier} • {user.email}</p>
+                      <div className="flex">
+                        <p className="font-medium text-gray-900 text-sm">{user.nama}  </p> <p className='font-medium text-gray-600 text-sm'>• {user.identifier}</p>
+                      </div>
+                      <div className="flex">
+                      <p className="text-xs text-gray-500">{user.email}  </p>
+
                       {user.programStudi && (
-                        <p className="text-xs text-gray-400">{user.programStudi.nama}</p>
+                        <p className="text-xs text-gray-400">• {user.programStudi.nama}</p>
                       )}
                       {user.jabatan && (
-                        <p className="text-xs text-gray-400">{user.jabatan}</p>
+                        <p className="text-xs text-gray-400">• {user.jabatan}</p>
                       )}
+                      </div>
                     </div>
                   </div>
                 </button>
@@ -181,10 +194,19 @@ export function AddParticipantModal({
             </div>
           )}
 
+        
+
           {searching && (
             <div className="text-center py-4">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#3ECF8E] mx-auto"></div>
               <p className="text-sm text-gray-500 mt-2">Mencari...</p>
+            </div>
+          )}
+          {/* No Results */}
+          {searchTerm.length >= 2 && searchResults.length === 0 && !searching && (
+            <div className="text-center py-4">
+              <p className="text-sm h-5 w-full text-gray-500 mt-2 mx-auto">Tidak ada hasil</p>
+              <p className="text-xs text-gray-400 mt-2">*Periksa apakah mahasiswa sudah bergabung</p>
             </div>
           )}
 
@@ -194,12 +216,12 @@ export function AddParticipantModal({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {type === 'dosen' ? 'Dosen' : 'Mahasiswa'} Terpilih ({selectedUsers.length})
               </label>
-              <div className="space-y-2 max-h-32 overflow-y-auto">
+              <div className="space-y-2 max-h-40 overflow-y-auto">
                 {selectedUsers.map((user) => (
                   <div key={user.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                     <div>
-                      <p className="font-medium text-gray-900">{user.nama}</p>
-                      <p className="text-sm text-gray-500">{user.identifier}</p>
+                      <p className="font-medium text-gray-900 text-sm">{user.nama}</p>
+                      <p className="text-xs text-gray-500">{user.identifier}</p>
                     </div>
                     <Button
                       onClick={() => handleRemoveUser(user.id)}

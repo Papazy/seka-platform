@@ -20,6 +20,8 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData()
     const file = formData.get('file') as File
+
+    console.log(formData);
     
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
       const rowNum = index + 2 // +2 because CSV starts from row 2 (after header)
       
       // Validate required fields
-      const requiredFields = ['nip', 'nama', 'email', 'jabatan', 'program_studi']
+      const requiredFields = ['nip', 'nama', 'email', 'jabatan', 'programStudi']
       for (const field of requiredFields) {
         if(!row[field]){
           errors.push(`Baris ${rowNum}: Kolom ${field} tidak boleh kosong`)
@@ -63,11 +65,11 @@ export async function POST(request: NextRequest) {
       // Check program studi
       const programStudi = await prisma.programStudi.findFirst({
         where: {
-          nama: row.program_studi
+          nama: row.programStudi
         }
       })
       if (!programStudi) {
-        errors.push(`Baris ${rowNum - 1}: Program Studi dengan nama ${row.program_studi} tidak ditemukan`)
+        errors.push(`Baris ${rowNum - 1}: Program Studi dengan nama ${row.programStudi} tidak ditemukan`)
         continue
       }
       console.log('Program Studi :', programStudi)
@@ -107,13 +109,13 @@ export async function POST(request: NextRequest) {
     if (errors.length > 0 && imported === 0) {
       return NextResponse.json({ 
         error: 'Import gagal', 
-        errors: errors.slice(0, 10) // Limit to 10 errors
+        errors: errors // Limit to 10 errors
       }, { status: 400 })
     }
 
     return NextResponse.json({ 
       imported, 
-      errors: errors.slice(0, 10),
+      errors: errors,
       message: `${imported} dosen berhasil diimpor${errors.length > 0 ? ` dengan ${errors.length} error` : ''}`
     })
   } catch (error) {

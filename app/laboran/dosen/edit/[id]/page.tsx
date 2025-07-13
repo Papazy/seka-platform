@@ -52,8 +52,8 @@ interface DosenDetail {
 }
 
 const JABATAN_OPTIONS = [
-  'Dosen Tetap',
-  'Dosen Tidak Tetap',
+  'Lektor',
+  'Asisten Ahli',
   'Profesor',
   'Asisten Profesor',
   'Dosen Luar Biasa',
@@ -329,7 +329,7 @@ export default function EditDosenPage() {
                   name="nama"
                   value={formData.nama}
                   onChange={handleInputChange}
-                  placeholder="Contoh: Dr. John Doe, M.Kom"
+                  placeholder="Contoh: Dr. Ahmad, M.Kom"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
                     errors.nama ? 'border-red-500' : 'border-gray-300'
                   }`}

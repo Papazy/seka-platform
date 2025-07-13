@@ -348,15 +348,15 @@ export default function DosenPage() {
   endpoint="/api/dosen/import"
   templateEndpoint="/api/dosen/template"
   sampleData={[
-    { nip: '123456789', nama: 'Dr. John Doe', email: 'johndoe@usk.ac.id', jabatan: 'Dosen Tetap', program_studi: 'Informatika' },
-    { nip: '123456788', nama: 'Dr. Jane Smith', email: 'janesmith@usk.ac.id', jabatan: 'Dosen Tidak Tetap', program_studi: 'Informatika' }
+    { nip: '123456789', nama: 'Dr. Ahmad', email: 'ahmad@usk.ac.id', jabatan: 'Lektor', program_studi: 'Informatika' },
+    { nip: '123456788', nama: 'Dr. Ismail', email: 'ismail@usk.ac.id', jabatan: 'Asisten Ahli', program_studi: 'Informatika' }
   ]}
   columns={[
     { key: 'nip', label: 'NIP' },
     { key: 'nama', label: 'Nama' },
     { key: 'email', label: 'Email' },
     { key: 'jabatan', label: 'Jabatan' },
-    { key: 'program_studi', label: 'Program Studi' }
+    { key: 'programStudi', label: 'Program Studi' }
   ]}
 />
 

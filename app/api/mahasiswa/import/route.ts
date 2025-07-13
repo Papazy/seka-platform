@@ -25,7 +25,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
     }
 
-    // Read and parse CSV
     const buffer = await file.arrayBuffer()
     const csvData = Buffer.from(buffer).toString('utf-8')
     
@@ -53,8 +52,8 @@ export async function POST(request: NextRequest) {
       const rowNum = index + 2 // +2 because CSV starts from row 2 (after header)
       
       // Validate required fields
-      if (!row.npm || !row.nama || !row.email || !row.programStudiId) {
-        errors.push(`Baris ${rowNum}: Field npm, nama, email, dan programStudiId wajib diisi`)
+      if (!row.npm || !row.nama || !row.email || !row.programStudi) {
+        errors.push(`Baris ${rowNum}: Field npm, nama, email, dan programStudi wajib diisi`)
         continue
       }
 
@@ -66,12 +65,12 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if program studi exists
-      const programStudi = await prisma.programStudi.findUnique({
-        where: { id: parseInt(row.programStudiId) }
+      const programStudi = await prisma.programStudi.findFirst({
+        where: { nama: row.programStudi }
       })
 
       if (!programStudi) {
-        errors.push(`Baris ${rowNum}: Program Studi dengan ID ${row.programStudiId} tidak ditemukan`)
+        errors.push(`Baris ${rowNum}: Program Studi dengan nama ${row.programStudi} tidak ditemukan`)
         continue
       }
 
@@ -85,10 +84,14 @@ export async function POST(request: NextRequest) {
         }
       })
 
+    
+
       if (existingMahasiswa) {
         errors.push(`Baris ${rowNum}: NPM ${row.npm} atau email ${row.email} sudah digunakan`)
         continue
       }
+
+
 
       try {
         // Create mahasiswa
@@ -97,7 +100,7 @@ export async function POST(request: NextRequest) {
             npm: row.npm,
             nama: row.nama,
             email: row.email,
-            programStudiId: parseInt(row.programStudiId),
+            programStudiId: programStudi.id,
             password: hashedPassword
           }
         })
@@ -110,13 +113,13 @@ export async function POST(request: NextRequest) {
     if (errors.length > 0 && imported === 0) {
       return NextResponse.json({ 
         error: 'Import gagal', 
-        errors: errors.slice(0, 10) // Limit to 10 errors
+        errors: errors // Limit to 10 errors
       }, { status: 400 })
     }
 
     return NextResponse.json({ 
       imported, 
-      errors: errors.slice(0, 10),
+      errors: errors,
       message: `${imported} mahasiswa berhasil diimpor${errors.length > 0 ? ` dengan ${errors.length} error` : ''}`
     })
   } catch (error) {

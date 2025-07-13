@@ -14,10 +14,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const csvContent = `nip,nama,email,jabatan,programStudiId
-123456789,Dr. John Doe,johndoe@usk.ac.id,Dosen Tetap,1
-123456788,Dr. Jane Smith,janesmith@usk.ac.id,Dosen Tidak Tetap,1
-123456787,Prof. Bob Johnson,bobjohnson@usk.ac.id,Profesor,1`
+    const csvContent = `nip,nama,email,jabatan,programStudi
+123456789,Dr. Ahmad,ahmad@usk.ac.id,Lektor,Informatika
+123456788,Dr. Ismail,ismail@usk.ac.id,Asisten Ahli,Pendidikan Matematika
+123456787,Prof. Aji,aji@usk.ac.id,Profesor,Informatika`
 
     return new Response(csvContent, {
       headers: {

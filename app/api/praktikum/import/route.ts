@@ -166,13 +166,13 @@ export async function POST(request: NextRequest) {
     if (errors.length > 0 && imported === 0) {
       return NextResponse.json({ 
         error: 'Import gagal', 
-        errors: errors.slice(0, 10) // Limit to 10 errors
+        errors: errors // Limit to 10 errors
       }, { status: 400 })
     }
 
     return NextResponse.json({ 
       imported, 
-      errors: errors.slice(0, 10),
+      errors: errors,
       message: `${imported} praktikum berhasil diimpor${errors.length > 0 ? ` dengan ${errors.length} error` : ''}`
     })
   } catch (error) {

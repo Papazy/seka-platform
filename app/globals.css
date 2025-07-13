@@ -37,22 +37,23 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-green-primary: #3ECF8E;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-.text-green-primary {
+/* .text-green-primary {
   color: #3ECF8E;
 }
 
 .bg-green-primary {
   background-color: #3ECF8E;
-}
-.border-green-primary {
+} */
+/* .border-green-primary {
   border-color: #3ECF8E;
-}
+} */
 
 @keyframes float {
   0%, 100% {

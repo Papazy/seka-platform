@@ -317,7 +317,7 @@ export default function EditMahasiswaPage() {
                   name="nama"
                   value={formData.nama}
                   onChange={handleInputChange}
-                  placeholder="Contoh: John Doe"
+                  placeholder="Contoh: Ahmad"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
                     errors.nama ? 'border-red-500' : 'border-gray-300'
                   }`}

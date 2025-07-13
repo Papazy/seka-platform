@@ -381,14 +381,14 @@ export default function MahasiswaPage() {
         endpoint="/api/mahasiswa/import"
         templateEndpoint="/api/mahasiswa/template"
         sampleData={[
-          { npm: '2108107010001', nama: 'John Doe', email: 'john@mhs.usk.ac.id', programStudiId: '1' },
-          { npm: '2108107010002', nama: 'Jane Smith', email: 'jane@mhs.usk.ac.id', programStudiId: '1' }
+          { npm: '2108107010001', nama: 'Ahmad', email: 'john@mhs.usk.ac.id', programStudiId: '1' },
+          { npm: '2108107010002', nama: 'Ismail', email: 'jane@mhs.usk.ac.id', programStudiId: '1' }
         ]}
         columns={[
           { key: 'npm', label: 'NPM' },
           { key: 'nama', label: 'Nama' },
           { key: 'email', label: 'Email' },
-          { key: 'programStudiId', label: 'ID Program Studi' }
+          { key: 'programStudi', label: 'Program Studi' }
         ]}
       />
 

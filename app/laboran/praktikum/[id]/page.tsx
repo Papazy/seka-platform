@@ -263,9 +263,14 @@ export default function DetailPraktikumPage() {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-3">
+            <Link href={`/laboran/praktikum/${praktikum.id}/manage-participants`}>
+              <Button variant="outline" className='text-blue-600 hover:text-blue-700' >
+              + Partisipan
+              </Button>
+            </Link>
 
             <Link href={`/laboran/praktikum/edit/${praktikum.id}`}>
-              <Button variant="outline" className="text-yellow-600 hover:text-yellow-700">
+              <Button variant="outline" className="text-green-600 hover:text-green-700">
                 <PencilIcon className="h-4 w-4 mr-2" />
                 Edit
               </Button>
@@ -296,10 +301,10 @@ export default function DetailPraktikumPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <div className="flex items-center">
-            <UsersIcon className="h-10 w-10 text-blue-500" />
+            <UsersIcon className="h-10 w-10 text-green-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Peserta</p>
               <p className="text-3xl font-bold text-gray-900">{praktikum._count.pesertaPraktikum}</p>
@@ -317,7 +322,7 @@ export default function DetailPraktikumPage() {
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <div className="flex items-center">
-            <UserGroupIcon className="h-10 w-10 text-purple-500" />
+            <UserGroupIcon className="h-10 w-10 text-green-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Dosen</p>
               <p className="text-3xl font-bold text-gray-900">{praktikum._count.dosenPraktikum}</p>

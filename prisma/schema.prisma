@@ -71,7 +71,7 @@ model Dosen {
   nama     String
   email    String @unique
   password String
-  jabatan  String // Jabatan Dosen, misal: "Dosen Tetap", "Dosen Tidak Tetap", dll.
+  jabatan  String // Jabatan Dosen, misal: "Lektor", "Asisten Ahli", dll.
   programStudiId Int @map("program_studi_id")
   programStudi ProgramStudi @relation(fields: [programStudiId], references: [id], onDelete: Cascade)
 
