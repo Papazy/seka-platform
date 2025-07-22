@@ -1,0 +1,317 @@
+// app/api/mahasiswa/praktikum/[id]/tugas/[tugasId]/soal/[soalId]/route.ts
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
+import { verifyToken } from "@/lib/auth"
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string; tugasId: string; soalId: string } }
+) {
+  try {
+    const token = req.cookies.get('token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const payload = await verifyToken(token)
+    if (!payload) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const praktikumId = parseInt(params.id)
+    const tugasId = parseInt(params.tugasId)
+    const soalId = parseInt(params.soalId)
+    const mahasiswaId = payload.id
+
+    // Check user role and access
+    let userRole: 'peserta' | 'asisten' | null = null;
+    let pesertaId: number | null = null;
+
+    // Check if user is peserta
+    const pesertaCheck = await prisma.pesertaPraktikum.findFirst({
+      where: {
+        idPraktikum: praktikumId,
+        idMahasiswa: mahasiswaId
+      }
+    })
+
+    if (pesertaCheck) {
+      userRole = 'peserta'
+      pesertaId = pesertaCheck.id
+    } else {
+      // Check if user is asisten
+      const asistenCheck = await prisma.asistenPraktikum.findFirst({
+        where: {
+          idPraktikum: praktikumId,
+          idMahasiswa: mahasiswaId
+        }
+      })
+
+      if (asistenCheck) {
+        userRole = 'asisten'
+      }
+    }
+
+    if (!userRole) {
+      return NextResponse.json({ error: 'Anda tidak memiliki akses ke praktikum ini' }, { status: 403 })
+    }
+
+    // Get soal with role-based data
+    const soalInclude: any = {
+      tugas: {
+        include: {
+          praktikum: true,
+          asisten: {
+            include: {
+              mahasiswa: true
+            }
+          }
+        }
+      },
+      contohTestCase: {
+        orderBy: { id: 'asc' }
+      },
+      testCase: {
+        select: { id: true } // Count only for peserta, full data for asisten
+      }
+    }
+
+    // Add submission data based on role
+    if (userRole === 'peserta') {
+      soalInclude.submission = {
+        where: {
+          idPeserta: pesertaId
+        },
+        include: {
+          bahasa: true,
+          testCaseResult: true
+        },
+        orderBy: { submittedAt: 'desc' }
+      }
+    } else if (userRole === 'asisten') {
+      // Asisten can see all submissions for this soal
+      soalInclude.submission = {
+        include: {
+          peserta: {
+            include: {
+              mahasiswa: true
+            }
+          },
+          bahasa: true,
+          testCaseResult: {
+            include: {
+              testCase: true // Asisten can see test case details
+            }
+          }
+        },
+        orderBy: { submittedAt: 'desc' }
+      }
+      
+      // Asisten can see actual test cases
+      soalInclude.testCase = {
+        orderBy: { id: 'asc' }
+      }
+    }
+
+    const soal = await prisma.soal.findFirst({
+      where: {
+        id: soalId,
+        tugas: {
+          id: tugasId,
+          idPraktikum: praktikumId
+        }
+      },
+      include: soalInclude
+    })
+
+    if (!soal) {
+      return NextResponse.json({ error: 'Soal not found' }, { status: 404 })
+    }
+
+    // Base response
+    const response: any = {
+      id: soal.id,
+      judul: soal.judul,
+      deskripsi: soal.deskripsi,
+      batasan: soal.batasan,
+      formatInput: soal.formatInput,
+      formatOutput: soal.formatOutput,
+      batasanMemoriKb: soal.batasanMemoriKb,
+      batasanWaktuEksekusiMs: soal.batasanWaktuEksekusiMs,
+      templateKode: soal.templateKode,
+      bobotNilai: soal.bobotNilai,
+      contohTestCase: soal.contohTestCase,
+      totalTestCase: soal.testCase.length,
+      userRole,
+      tugas: {
+        id: soal.tugas.id,
+        judul: soal.tugas.judul,
+        maksimalSubmit: soal.tugas.maksimalSubmit,
+        deadline: soal.tugas.deadline.toISOString(),
+        isOverdue: new Date() > new Date(soal.tugas.deadline),
+        pembuat: {
+          nama: soal.tugas.asisten.mahasiswa.nama,
+          npm: soal.tugas.asisten.mahasiswa.npm
+        }
+      }
+    }
+
+    if (userRole === 'peserta') {
+      // Peserta-specific data
+      const bestScore = soal.submission.length > 0 
+        ? Math.max(...soal.submission.map((s: any) => s.score))
+        : 0
+      
+      const submissionCount = soal.submission.length
+      const canSubmit = !response.tugas.isOverdue && submissionCount < soal.tugas.maksimalSubmit
+
+      response.userStats = {
+        submissionCount,
+        bestScore,
+        canSubmit
+      }
+
+    } else if (userRole === 'asisten') {
+      // Asisten-specific data
+      const allSubmissions = soal.submission
+      const uniqueSubmitters = new Set(allSubmissions.map((s: any) => s.peserta.idMahasiswa)).size
+      
+      // Get total peserta for this praktikum
+      const totalPeserta = await prisma.pesertaPraktikum.count({
+        where: { idPraktikum: praktikumId }
+      })
+
+      // Statistics by status
+      const submissionStats = allSubmissions.reduce((acc: any, sub: any) => {
+        const hasAccepted = sub.testCaseResult.some((tcr: any) => tcr.status === 'ACCEPTED')
+        const allAccepted = sub.testCaseResult.every((tcr: any) => tcr.status === 'ACCEPTED')
+        
+        if (allAccepted) acc.perfect++
+        else if (hasAccepted) acc.partial++
+        else acc.failed++
+        
+        return acc
+      }, { perfect: 0, partial: 0, failed: 0 })
+
+      response.asistenStats = {
+        totalSubmissions: allSubmissions.length,
+        uniqueSubmitters,
+        totalPeserta,
+        participationRate: Math.round((uniqueSubmitters / totalPeserta) * 100),
+        submissionStats,
+        averageScore: allSubmissions.length > 0 
+          ? Math.round(allSubmissions.reduce((sum: number, s: any) => sum + s.score, 0) / allSubmissions.length)
+          : 0
+      }
+
+      // Include test case details for asisten
+      response.testCases = soal.testCase
+    }
+
+    return NextResponse.json(response)
+
+  } catch (error) {
+    console.error('Error fetching soal detail:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  }
+}
+
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { soalId: string } }
+) {
+  try {
+    const token = req.cookies.get('token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const payload = await verifyToken(token)
+    if (!payload) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const soalId = parseInt(params.soalId)
+    const soalData = await req.json()
+
+    // Verify authorization
+    const soal = await prisma.soal.findUnique({
+      where: { id: soalId },
+      include: {
+        tugas: {
+          include: {
+            asisten: {
+              include: { mahasiswa: true }
+            }
+          }
+        }
+      }
+    })
+
+    if (!soal || soal.tugas.asisten.mahasiswa.id !== payload.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    // Update in transaction
+    await prisma.$transaction(async (tx) => {
+      // Update soal
+      await tx.soal.update({
+        where: { id: soalId },
+        data: {
+          judul: soalData.judul,
+          deskripsi: soalData.deskripsi,
+          batasan: soalData.batasan || '',
+          formatInput: soalData.formatInput || '',
+          formatOutput: soalData.formatOutput || '',
+          batasanMemoriKb: soalData.batasanMemoriKb,
+          batasanWaktuEksekusiMs: soalData.batasanWaktuEksekusiMs,
+          templateKode: soalData.templateKode || '',
+          bobotNilai: soalData.bobotNilai
+        }
+      })
+
+      // Delete existing contoh test case
+      await tx.contohTestCase.deleteMany({
+        where: { idSoal: soalId }
+      })
+
+      // Create new contoh test case
+      if (soalData.contohTestCase?.length > 0) {
+        await tx.contohTestCase.createMany({
+          data: soalData.contohTestCase.map((tc: any) => ({
+            idSoal: soalId,
+            contohInput: tc.contohInput || '',
+            contohOutput: tc.contohOutput || '',
+            penjelasanInput: tc.penjelasanInput || '',
+            penjelasanOutput: tc.penjelasanOutput || ''
+          }))
+        })
+      }
+
+      // Delete existing test case
+      await tx.testCase.deleteMany({
+        where: { idSoal: soalId }
+      })
+
+      // Create new test case
+      if (soalData.testCase?.length > 0) {
+        await tx.testCase.createMany({
+          data: soalData.testCase.map((tc: any) => ({
+            idSoal: soalId,
+            input: tc.input,
+            outputDiharapkan: tc.outputDiharapkan
+          }))
+        })
+      }
+    })
+
+    return NextResponse.json({ 
+      message: 'Soal berhasil diupdate'
+    })
+
+  } catch (error) {
+    console.error('Error updating soal:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  }
+}

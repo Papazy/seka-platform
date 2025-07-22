@@ -15,3 +15,19 @@ export enum UserRole {
   DOSEN = 'DOSEN',
   LABORAN = 'LABORAN',
 }
+
+export enum StatusTugas {
+  DISERAHKAN = 'DISERAHKAN',
+  TERLAMBAT = 'TERLAMBAT',
+  DITOLAK = 'DITOLAK',
+  DITERIMA = 'DITERIMA',
+  DIHAPUS = 'DIHAPUS',
+}
+
+export enum StatusSubmissionTugas {
+  DISERAHKAN = 'DISERAHKAN',
+  TERLAMBAT = 'TERLAMBAT',
+  DITOLAK = 'DITOLAK',
+  DITERIMA = 'DITERIMA',
+  DIHAPUS = 'DIHAPUS',
+}

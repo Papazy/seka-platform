@@ -1,7 +1,7 @@
 // app/laboran/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { 
   BookOpenIcon, 
@@ -74,23 +74,17 @@ export default function LaboranDashboard() {
       // let totalMahasiswa = 0
       // let totalPraktikum = 0
       
-      if (praktikumResponse.ok) {
-        const praktikumData = await praktikumResponse.json()
-        setStats(prev => ({...prev, totalPraktikum: praktikumData.data.length}))
-        console.log('Praktikum Data:', praktikumData)
-      }
-      if (dosenResponse.ok) {
-        const dosenData = await dosenResponse.json()
-        setStats(prev => ({...prev, totalDosen: dosenData.data.length}))
-        console.log('Dosen Data:', dosenData)
-      }
-      if (mahasiswaResponse.ok) {
-        const mahasiswaData = await mahasiswaResponse.json()
-        setStats(prev => ({...prev, totalMahasiswa: mahasiswaData.data.length}))
-        console.log('Mahasiswa Data:', mahasiswaData)
-      }
+      const [dosenData, mahasiswaData, praktikumData] = await Promise.all([
+        dosenResponse.ok ? dosenResponse.json() : { data: []},
+        mahasiswaResponse.ok ? mahasiswaResponse.json() : { data: []},
+        praktikumResponse.ok ? praktikumResponse.json() : { data: []},
+      ])
 
-      // console.log('Stats:', stats)
+      setStats({
+        totalPraktikum: praktikumData.data.length || 0,
+        totalMahasiswa: mahasiswaData.data.length || 0,
+        totalDosen: dosenData.data.length || 0,
+      })
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
     } finally {
@@ -98,7 +92,7 @@ export default function LaboranDashboard() {
     }
   }
 
-  const statCards = [
+  const statCards = useMemo(()=> [
     {
       title: 'Total Praktikum',
       value: stats.totalPraktikum,
@@ -120,9 +114,9 @@ export default function LaboranDashboard() {
       color: 'bg-purple-500',
       href: '/laboran/dosen'
     },
-  ]
+  ], [stats])
 
-  const quickActions = [
+  const quickActions = useMemo(()=>[
     {
       title: 'Buat Praktikum',
       description: 'Buat praktikum baru untuk semester ini',
@@ -147,7 +141,7 @@ export default function LaboranDashboard() {
       textColor: 'text-purple-600',
       href: '/laboran/dosen/create'
     }
-  ]
+  ])
 
   const formatDeadline = (deadline: string) => {
     const date = new Date(deadline)
@@ -163,73 +157,97 @@ export default function LaboranDashboard() {
   }
 
   if (loading) {
-    return (
-      <div className="p-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-xl"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    )
+    return <DashboardSkeleton />
   }
 
   return (
     <div className="p-4 lg:p-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Dashboard Laboran</h1>
-        <p className="mt-2 text-gray-600">
-          Selamat datang, {user?.nama}. Kelola praktikum dan peserta dari sini.
-        </p>
-      </div>
+      <HeaderSection userName={user?.nama} />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
-        {statCards.map((card) => (
-          <Link key={card.title} href={card.href}>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className={`flex-shrink-0 p-3 rounded-lg ${card.color}`}>
-                    <card.icon className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-gray-900">{card.value}</div>
-                  <div className="text-sm font-medium text-gray-500">{card.title}</div>
-                </div>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <StatsSection cards={statCards} />
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
-          <p className="text-sm text-gray-500">Aksi cepat untuk mengelola praktikum</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {quickActions.map((action) => (
-            <Link key={action.title} href={action.href}>
-              <div className={`p-4 rounded-lg ${action.color} hover:opacity-80 transition-opacity cursor-pointer`}>
-                <div className="flex items-center">
-                  <action.icon className={`w-5 h-5 ${action.textColor} mr-3`} />
-                  <div>
-                    <h3 className={`font-medium ${action.textColor}`}>{action.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{action.description}</p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <QuickActionsSection actions={quickActions} />
     </div>
   )
 }
+
+// ✅ MEMOIZED: Sub-components to prevent unnecessary re-renders
+const HeaderSection = React.memo(({ userName }: { userName?: string }) => (
+  <div className="mb-8">
+    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Dashboard Laboran</h1>
+    <p className="mt-2 text-gray-600">
+      Selamat datang, {userName}. Kelola praktikum dan peserta dari sini.
+    </p>
+  </div>
+))
+
+const StatsSection = React.memo(({ cards }: { cards: any[] }) => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
+    {cards.map((card) => (
+      <StatCard key={card.title} card={card} />
+    ))}
+  </div>
+))
+
+const StatCard = React.memo(({ card }: { card: any }) => (
+  <Link href={card.href}>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer group">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <div className={`flex-shrink-0 p-3 rounded-lg ${card.color} group-hover:scale-105 transition-transform duration-200`}>
+            <card.icon className="w-6 h-6 text-white" />
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-2xl font-bold text-gray-900">{card.value}</div>
+          <div className="text-sm font-medium text-gray-500">{card.title}</div>
+        </div>
+      </div>
+    </div>
+  </Link>
+))
+
+const QuickActionsSection = React.memo(({ actions }: { actions: any[] }) => (
+  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
+      <p className="text-sm text-gray-500">Aksi cepat untuk mengelola praktikum</p>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {actions.map((action) => (
+        <QuickActionCard key={action.title} action={action} />
+      ))}
+    </div>
+  </div>
+))
+
+const QuickActionCard = React.memo(({ action }: { action: any }) => (
+  <Link href={action.href}>
+    <div className={`p-4 rounded-lg ${action.color} hover:opacity-80 transition-opacity duration-200 cursor-pointer`}>
+      <div className="flex items-center">
+        <action.icon className={`w-5 h-5 ${action.textColor} mr-3`} />
+        <div>
+          <h3 className={`font-medium ${action.textColor}`}>{action.title}</h3>
+          <p className="text-sm text-gray-600 mt-1">{action.description}</p>
+        </div>
+      </div>
+    </div>
+  </Link>
+))
+
+const DashboardSkeleton = React.memo(() => (
+  <div className="p-4 lg:p-8">
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-32 bg-gray-200 rounded-xl"></div>
+        ))}
+      </div>
+      <div className="h-48 bg-gray-200 rounded-xl"></div>
+    </div>
+  </div>
+))

@@ -45,7 +45,6 @@ export default function Navbar() {
           ...baseLinks,
           { name: 'Praktikum', href: '/mahasiswa/praktikum' },
           { name: 'Tugas', href: '/mahasiswa/tugas' },
-          { name: 'Submission', href: '/mahasiswa/submission' }
         ]
       default: 
       return baseLinks;
@@ -98,7 +97,7 @@ export default function Navbar() {
     return (
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-12">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
                 <div className="w-8 h-8 bg-[#3ECF8E] rounded-md flex items-center justify-center mr-3">
@@ -165,7 +164,7 @@ export default function Navbar() {
                   <button
                     key={item.name}
                     onClick={() => router.push(item.href)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                       isActive
                         ? 'text-[#3ECF8E] bg-[#3ECF8E]/5'
                         : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'

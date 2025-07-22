@@ -1,7 +1,7 @@
 // app/login/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/lib/enum';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +13,18 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const {login} = useAuth();
+  const {user,login} = useAuth();
+  useEffect(()=>{
+    if(user) {
+      if(user.role === UserRole.MAHASISWA) {
+        router.push('/mahasiswa');
+      } else if(user.role === UserRole.DOSEN) {
+        router.push('/dosen');
+      } else if(user.role === UserRole.ADMIN) {
+        router.push('/admin');
+      }
+    }
+  }, [user])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

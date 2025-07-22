@@ -36,6 +36,10 @@ export default function Home(){
   },[isLoading, user, router]);
     
 
-  return <LoadingSpinner />;
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <LoadingSpinner />
+    </div>
+);
 
 }

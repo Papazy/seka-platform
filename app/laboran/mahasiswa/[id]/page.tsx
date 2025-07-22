@@ -319,7 +319,7 @@ export default function MahasiswaDetailPage() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Praktikum sebagai Peserta
+                    Praktikum Praktikum
                   </h3>
                   <span className="text-sm text-gray-500">
                     {mahasiswa.pesertaPraktikum.length} praktikum
@@ -367,7 +367,7 @@ export default function MahasiswaDetailPage() {
                     <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
                     <h3 className="mt-2 text-sm font-medium text-gray-900">Belum menjadi peserta</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                      Mahasiswa ini belum terdaftar sebagai peserta praktikum
+                      Mahasiswa ini belum terdaftar Praktikum praktikum
                     </p>
                   </div>
                 )}
@@ -379,7 +379,7 @@ export default function MahasiswaDetailPage() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Praktikum sebagai Asisten
+                    Praktikum Mengajar
                   </h3>
                   <span className="text-sm text-gray-500">
                     {mahasiswa.asistenPraktikum.length} praktikum
@@ -424,7 +424,7 @@ export default function MahasiswaDetailPage() {
                     <AcademicCapIcon className="mx-auto h-12 w-12 text-gray-400" />
                     <h3 className="mt-2 text-sm font-medium text-gray-900">Belum menjadi asisten</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                      Mahasiswa ini belum ditugaskan sebagai asisten praktikum
+                      Mahasiswa ini belum ditugaskan Mengajar praktikum
                     </p>
                   </div>
                 )}

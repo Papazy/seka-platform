@@ -21,10 +21,26 @@ enum SubmissionStatus {
   PENDING
   RUNNING
   JUDGING
-  JUDGE_ERROR
+JUDGE_ERROR
   PARTIAL
 }
 
+enum TugasStatus {
+  DISERAHKAN
+  TERLAMBAT
+  DITOLAK
+  DITERIMA
+  DIHAPUS
+}
+
+enum SubmissionTugasStatus {
+  DISERAHKAN
+  TERLAMBAT
+  DITOLAK
+  DITERIMA
+  DIHAPUS
+  PENDING // untuk tracking status penilaian tugas
+}
 enum Semester {
   GANJIL
   GENAP
@@ -192,7 +208,7 @@ model Tugas {
   idPraktikum     Int      @map("id_praktikum")
   idAsisten       Int      @map("id_asisten")
   judul           String
-  deskripsi       String   @db.Text
+  deskripsi       String   @db.LongText
   deadline        DateTime
   maksimalSubmit  Int      @default(3) @map("maksimal_submit") // Default 3, bisa diubah asisten
 
@@ -213,10 +229,10 @@ model Soal {
   id                        Int    @id @default(autoincrement())
   idTugas                   Int    @map("id_tugas")
   judul                     String
-  deskripsi                 String @db.Text
-  batasan                   String @db.Text
-  formatInput               String @map("format_input") @db.Text
-  formatOutput              String @map("format_output") @db.Text
+  deskripsi                 String @db.LongText
+  batasan                   String @db.LongText
+  formatInput               String @map("format_input") @db.LongText
+  formatOutput              String @map("format_output") @db.LongText
   batasanMemoriKb           Int    @map("batasan_memori_kb")
   batasanWaktuEksekusiMs    Int    @map("batasan_waktu_eksekusi_ms")
   templateKode              String @map("template_kode") @db.Text
@@ -292,9 +308,8 @@ model Submission {
   idBahasa   Int    @map("id_bahasa")
   sourceCode String @map("source_code") @db.Text
   score      Int    @default(0)
+  statusJawaban SubmissionTugasStatus @map("status_jawaban")// terlambat atau diserahkan
 
-  // Submission tracking
-  attemptNumber Int      @default(1) @map("attempt_number") // track jumlah percobaan
   submittedAt   DateTime @default(now()) @map("submitted_at")
 
   createdAt DateTime @default(now())
@@ -335,7 +350,7 @@ model NilaiTugas {
   idPeserta  Int @map("id_peserta")
   idTugas    Int @map("id_tugas")
   totalNilai Int @map("total_nilai") // Total nilai dari semua soal dalam tugas
-
+  status    SubmissionTugasStatus @default(DISERAHKAN) // Status penilaian tugas
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

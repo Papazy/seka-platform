@@ -405,10 +405,6 @@ export default function DetailPraktikumPage() {
             </div>
           </div>
         </div>
-
-
-
-
       </div>
 
 
