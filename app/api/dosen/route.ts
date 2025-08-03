@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
+import bcrypt from 'bcrypt'
 
 // app/api/laboran/dosen/route.ts
 export async function GET(request: NextRequest) {
@@ -81,7 +82,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password default
-    const bcrypt = require('bcryptjs')
     const hashedPassword = await bcrypt.hash('dosen123', 10)
 
     // Buat dosen baru

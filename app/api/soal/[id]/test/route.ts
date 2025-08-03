@@ -4,11 +4,11 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
 
-    const soalId = parseInt(params.id)
+    const soalId = (params.id)
     const { sourceCode, languageId, testCases } = await request.json()
 
     if (!sourceCode || !languageId) {
@@ -42,7 +42,7 @@ export async function POST(
       }
 
       finalTestCases = soal.contohTestCase
-        .filter(tc => tc.contohInput && tc.contohInput !== '-' && 
+        .filter(tc => 
                      tc.contohOutput && tc.contohOutput !== '-')
         .map(tc => ({
           input: tc.contohInput,

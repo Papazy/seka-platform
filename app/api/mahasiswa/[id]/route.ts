@@ -5,7 +5,7 @@ import { verifyToken } from '@/lib/auth'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = request.cookies.get('token')?.value
@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const mahasiswaId = parseInt(params.id)
+    const mahasiswaId = (params.id)
     
     const mahasiswa = await prisma.mahasiswa.findUnique({
       where: { id: mahasiswaId },
@@ -144,7 +144,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = request.cookies.get('token')?.value
@@ -157,7 +157,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const mahasiswaId = parseInt(params.id)
+    const mahasiswaId = (params.id)
     const body = await request.json()
     
     // Validasi input
@@ -237,7 +237,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = request.cookies.get('token')?.value
@@ -250,7 +250,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const mahasiswaId = parseInt(params.id)
+    const mahasiswaId = (params.id)
     
     // Cek apakah mahasiswa exists
     const existingMahasiswa = await prisma.mahasiswa.findUnique({

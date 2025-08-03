@@ -60,7 +60,6 @@ export async function GET(req: NextRequest) {
     }
     ))
     
-    console.log("Fetched Tugas Data:", tugasData);
 
     return NextResponse.json(tugasWithTotalSoal);
 

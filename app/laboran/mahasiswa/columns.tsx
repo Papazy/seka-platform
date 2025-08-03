@@ -14,12 +14,12 @@ import {
 import { formatDate } from '@/lib/utils'
 
 interface MahasiswaData {
-  id: number
+  id: string
   npm: string
   nama: string
   email: string
   programStudi: {
-    id: number
+    id: string
     nama: string
     kodeProdi: string
     fakultas: {
@@ -35,10 +35,10 @@ interface MahasiswaData {
 }
 
 interface ColumnActionsProps {
-  onEdit: (id: number) => void
-  onDelete: (id: number) => void
-  onDetail: (id: number) => void
-  onAssignPraktikum: (id: number) => void
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
+  onDetail: (id: string) => void
+  onAssignPraktikum: (id: string) => void
 }
 
 export const createMahasiswaColumns = ({ onEdit, onDelete, onDetail, onAssignPraktikum }: ColumnActionsProps): ColumnDef<MahasiswaData>[] => [

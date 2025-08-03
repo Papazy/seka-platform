@@ -4,7 +4,7 @@
 import { useState } from 'react';
 
 interface Submission {
-  id: number;
+  id: string;
   status: string;
   score: number;
   language: string;
@@ -31,7 +31,7 @@ export default function SubmissionsList({
 }: SubmissionsListProps) {
   const [expandedSubmission, setExpandedSubmission] = useState<number | null>(null);
 
-  const toggleSubmission = (submissionId: number) => {
+  const toggleSubmission = (submissionId: string) => {
     setExpandedSubmission(expandedSubmission === submissionId ? null : submissionId);
   };
 

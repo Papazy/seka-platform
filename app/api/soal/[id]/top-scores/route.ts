@@ -3,10 +3,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
-    const soalId = parseInt(params.id)
+    const soalId = (params.id)
     
     // Get top 10 submissions for this soal with highest scores
     const topSubmissions = await prisma.submission.findMany({

@@ -23,13 +23,13 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 
 
 interface DosenData {
-  id: number
+  id: string
   nip: string // Berubah dari nidn ke nip sesuai schema
   nama: string
   email: string
   jabatan: string // Sesuai schema
   programStudi: {
-    id: number
+    id: string
     nama: string
     kodeProdi: string
     fakultas: {
@@ -116,12 +116,12 @@ export default function DosenPage() {
     }
   }
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     router.push(`/laboran/dosen/edit/${id}`)
   }
 
 
-  const confirmDelete = async (id: number) => {
+  const confirmDelete = async (id: string) => {
     setIsOpenModalDelete(true)
     setSelectedDeleteId(id)
   }
@@ -149,11 +149,11 @@ export default function DosenPage() {
     }
   }
 
-  const handleDetail = (id: number) => {
+  const handleDetail = (id: string) => {
     router.push(`/laboran/dosen/${id}`)
   }
 
-  const handleAssignPraktikum = (id: number) => {
+  const handleAssignPraktikum = (id: string) => {
     router.push(`/laboran/dosen/${id}/assign-praktikum`)
   }
 

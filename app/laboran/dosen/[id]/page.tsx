@@ -27,18 +27,18 @@ import { formatDate } from '@/lib/utils'
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 
 interface ProgramStudi {
-  id: number
+  id: string
   nama: string
   kodeProdi: string
   fakultas: {
-    id: number
+    id: string
     nama: string
     kodeFakultas: string
   }
 }
 
 interface PraktikumInfo {
-  id: number
+  id: string
   nama: string
   kodePraktikum: string
   kelas: string
@@ -54,7 +54,7 @@ interface PraktikumInfo {
 }
 
 interface DosenDetail {
-  id: number
+  id: string
   nip: string
   nama: string
   email: string

@@ -9,13 +9,13 @@ import { PlusIcon, AcademicCapIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 interface Fakultas {
-  id: number
+  id: string
   nama: string
   kodeFakultas: string
 }
 
 interface ProgramStudi {
-  id: number
+  id: string
   nama: string
   kodeProdi: string
   idFakultas: number
@@ -75,7 +75,7 @@ export default function ProgramStudiPage() {
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus program studi ini?')) {
       try {
         const response = await fetch(`/api/program-studi/${id}`, {
@@ -272,7 +272,7 @@ function ProgramStudiForm({
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const value = e.target.name === 'idFakultas' ? parseInt(e.target.value) : e.target.value
+    const value = e.target.name === 'idFakultas' ? (e.target.value) : e.target.value
     setFormData(prev => ({
       ...prev,
       [e.target.name]: value

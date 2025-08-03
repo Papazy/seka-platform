@@ -4,7 +4,7 @@ import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline"
 import { ColumnDef } from "@tanstack/react-table"
 
 interface MahasiswaData {
-  id: number
+  id: string
   npm: string
   nama: string
   programStudi: {
@@ -14,7 +14,7 @@ interface MahasiswaData {
 }
 
 interface DosenData {
-  id: number
+  id: string
   nama: string
   nip: string
   jabatan: string

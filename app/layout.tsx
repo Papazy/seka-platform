@@ -13,6 +13,7 @@ export const metadata: Metadata = {
     template: '%s | Sistem Evaluasi Kode Akademik'
   },
   description: 'Sistem Evaluasi Kode Akademik',
+  
 }
 
 export default function RootLayout({

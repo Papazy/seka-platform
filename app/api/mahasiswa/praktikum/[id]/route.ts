@@ -5,7 +5,7 @@ import { verifyToken } from "@/lib/auth"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = req.cookies.get('token')?.value
@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const praktikumId = parseInt(params.id)
+    const praktikumId = (params.id)
     const mahasiswaId = payload.id
 
     //  Check apakah mahasiswa terdaftar 
@@ -116,7 +116,7 @@ export async function GET(
       return NextResponse.json({ error: 'Praktikum not found' }, { status: 404 })
     }
 
-    const getTotalSoalSubmitted = async (tugasId: number, pesertaId: number | null): Promise<number> => {
+    const getTotalSoalSubmitted = async (tugasId: string, pesertaId: string | null): Promise<number> => {
       if (userRole !== 'peserta' || !pesertaId) {
         return 0
       }

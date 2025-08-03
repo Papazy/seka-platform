@@ -1,25 +1,26 @@
+import { verifyToken } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/app/lib/prisma'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/lib/auth'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const token = request.cookies.get('token')?.value
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const soalId = parseInt(params.id)
+    const payload = await verifyToken(token)
+
+    const soalId = (params.id)
     
     // Get current user's peserta record
     const peserta = await prisma.pesertaPraktikum.findFirst({
       where: {
         mahasiswa: {
-          id: session.user.id
+          id: payload.id
         }
       }
     })
@@ -46,7 +47,6 @@ export async function GET(
     const formattedSubmissions = submissions.map(submission => ({
       id: submission.id,
       score: submission.score,
-      attemptNumber: submission.attemptNumber,
       submittedAt: submission.submittedAt.toISOString(),
       sourceCode: submission.sourceCode,
       bahasa: {

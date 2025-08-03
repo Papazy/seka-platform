@@ -5,23 +5,23 @@ import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/lib/enum';
+import Link from 'next/link';
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  
+
   // ✅ Get real user data and auth functions
   const { user, logout, isLoading } = useAuth();
 
-  if(!user) return null;
-
   const getNavLinks = () => {
+    if (!user) return [];
     const baseLinks = [
-      {name: 'Beranda', href: `/${user?.role.toLowerCase()}`},
+      { name: 'Beranda', href: `/${user?.role.toLowerCase()}` },
     ]
 
-    switch(user.role) {
+    switch (user.role) {
       case UserRole.ADMIN:
         return [
           ...baseLinks,
@@ -46,13 +46,13 @@ export default function Navbar() {
           { name: 'Praktikum', href: '/mahasiswa/praktikum' },
           { name: 'Tugas', href: '/mahasiswa/tugas' },
         ]
-      default: 
-      return baseLinks;
+      default:
+        return baseLinks;
     }
 
   }
 
-  // ✅ Handle logout
+  //  Handle logout
   const handleLogout = async () => {
     try {
       await logout();
@@ -61,8 +61,8 @@ export default function Navbar() {
       console.error('Logout error:', error);
     }
   };
-  
-  // ✅ Get user initials for avatar
+
+  //  Get user initials for avatar
   const getUserInitials = (name: string) => {
     console.log('User:', user);
     const names = name.split(' ');
@@ -72,7 +72,7 @@ export default function Navbar() {
     return name.slice(0, 2).toUpperCase();
   };
 
-  // ✅ Format role display
+  //  Format role display
   const formatRole = (role: string) => {
     switch (role.toUpperCase()) {
       case 'STUDENT':
@@ -86,13 +86,13 @@ export default function Navbar() {
     }
   };
 
-  // ✅ Close dropdown when clicking outside
+  //  Close dropdown when clicking outside
   const handleProfileClick = () => {
     setIsProfileOpen(!isProfileOpen);
   };
 
-  
-  // ✅ Show loading state
+
+  //  Show loading state
   if (isLoading) {
     return (
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -102,11 +102,28 @@ export default function Navbar() {
               <div className="flex-shrink-0 flex items-center">
                 <div className="w-8 h-8 bg-[#3ECF8E] rounded-md flex items-center justify-center mr-3">
                   <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                   </svg>
                 </div>
                 <span className="text-xl font-semibold text-gray-900">SEKA USK</span>
               </div>
+              <div className="hidden md:ml-10 md:flex md:space-x-1">
+              {getNavLinks().map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${isActive
+                        ? 'text-[#3ECF8E] bg-[#3ECF8E]/5'
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                  >
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
             </div>
             <div className="flex items-center">
               <div className="animate-pulse">
@@ -119,8 +136,8 @@ export default function Navbar() {
     );
   }
 
-  // ✅ Don't show navigation if not authenticated
-  if  (!user) {
+  //  Don't show navigation if not authenticated
+  if (!user) {
     return (
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -129,11 +146,28 @@ export default function Navbar() {
               <div className="flex-shrink-0 flex items-center">
                 <div className="w-8 h-8 bg-[#3ECF8E] rounded-md flex items-center justify-center mr-3">
                   <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                   </svg>
                 </div>
                 <span className="text-xl font-semibold text-gray-900">SEKA USK</span>
               </div>
+              <div className="hidden md:ml-10 md:flex md:space-x-1">
+              {getNavLinks().map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${isActive
+                        ? 'text-[#3ECF8E] bg-[#3ECF8E]/5'
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                  >
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
             </div>
           </div>
         </div>
@@ -150,28 +184,27 @@ export default function Navbar() {
             <div className="flex-shrink-0 flex items-center">
               <div className="w-8 h-8 bg-[#3ECF8E] rounded-md flex items-center justify-center mr-3">
                 <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                 </svg>
               </div>
               <span className="text-xl font-semibold text-gray-900">SEKA USK</span>
             </div>
-            
+
             {/* Navigation Links */}
             <div className="hidden md:ml-10 md:flex md:space-x-1">
               {getNavLinks().map((item) => {
                 const isActive = pathname === item.href;
                 return (
-                  <button
+                  <Link
                     key={item.name}
-                    onClick={() => router.push(item.href)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                      isActive
+                    href={item.href}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${isActive
                         ? 'text-[#3ECF8E] bg-[#3ECF8E]/5'
                         : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     <span>{item.name}</span>
-                  </button>
+                  </Link>
                 );
               })}
             </div>
@@ -191,13 +224,13 @@ export default function Navbar() {
                     {getUserInitials(user.nama)}
                   </span>
                 </div>
-                
+
                 {/* ✅ Real user info */}
                 <div className="hidden md:block text-left">
                   <div className="text-sm font-medium text-gray-900">{user.nama}</div>
                   <div className="text-xs text-gray-500">{formatRole(user.role)}</div>
                 </div>
-                
+
                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -207,11 +240,11 @@ export default function Navbar() {
               {isProfileOpen && (
                 <>
                   {/* ✅ Backdrop to close dropdown */}
-                  <div 
-                    className="fixed inset-0 z-40" 
+                  <div
+                    className="fixed inset-0 z-40"
                     onClick={() => setIsProfileOpen(false)}
                   />
-                  
+
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                     {/* ✅ Real user info in dropdown */}
                     <div className="px-4 py-3 border-b border-gray-100">
@@ -219,9 +252,9 @@ export default function Navbar() {
                       <p className="text-sm text-gray-500">{user.email}</p>
                       <p className="text-xs text-gray-400 mt-1">{formatRole(user.role)}</p>
                     </div>
-                    
+
                     {/* ✅ Profile actions */}
-                    <button 
+                    <button
                       onClick={() => {
                         setIsProfileOpen(false);
                         router.push('/profile');
@@ -235,8 +268,8 @@ export default function Navbar() {
                         <span>Profile Settings</span>
                       </div>
                     </button>
-                    
-                    <button 
+
+                    <button
                       onClick={() => {
                         setIsProfileOpen(false);
                         router.push('/help');
@@ -250,10 +283,10 @@ export default function Navbar() {
                         <span>Help & Support</span>
                       </div>
                     </button>
-                    
+
                     <hr className="my-1" />
-                    
-                    <button 
+
+                    <button
                       onClick={handleLogout}
                       className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left transition-colors"
                     >

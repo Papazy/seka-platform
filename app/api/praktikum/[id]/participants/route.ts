@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: {params: Promise<{ id: string }>}) {
   try {
-    const idPraktikum = params.id
+    const { id } = await params
     const { searchParams } = new URL(req.url)
     const type = searchParams.get('type') || 'all'
     const token = req.cookies.get('token')?.value
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 
 
-    const idPraktikumInt = parseInt(idPraktikum) 
+    const idPraktikumInt = (idPraktikum) 
 
     const praktikum = await prisma.praktikum.findUnique({
       where: { id: idPraktikumInt },

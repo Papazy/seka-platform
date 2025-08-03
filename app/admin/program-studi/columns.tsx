@@ -3,13 +3,13 @@ import { ColumnDef } from '@tanstack/react-table'
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 interface Fakultas {
-  id: number
+  id: string
   nama: string
   kodeFakultas: string
 }
 
 interface ProgramStudi {
-  id: number
+  id: string
   nama: string
   kodeProdi: string
   idFakultas: number
@@ -24,7 +24,7 @@ interface ProgramStudi {
 
 interface ColumnActionsProps {
   onEdit: (programStudi: ProgramStudi) => void
-  onDelete: (id: number) => void
+  onDelete: (id: string) => void
 }
 
 export const createProgramStudiColumns = ({ onEdit, onDelete }: ColumnActionsProps): ColumnDef<ProgramStudi>[] => [

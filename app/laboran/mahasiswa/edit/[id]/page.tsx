@@ -18,7 +18,7 @@ interface FormData {
   npm: string
   nama: string
   email: string
-  programStudiId: number | ''
+  programStudiId: string | ''
 }
 
 interface FormErrors {
@@ -26,18 +26,18 @@ interface FormErrors {
 }
 
 interface ProgramStudi {
-  id: number
+  id: string
   nama: string
   kodeProdi: string
   fakultas: {
-    id: number
+    id: string
     nama: string
     kodeFakultas: string
   }
 }
 
 interface MahasiswaDetail {
-  id: number
+  id: string
   npm: string
   nama: string
   email: string
@@ -131,7 +131,7 @@ export default function EditMahasiswaPage() {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'programStudiId' ? (value ? parseInt(value) : '') : value
+      [name]: name === 'programStudiId' ? (value ? (value) : '') : value
     }))
     
     // Clear error when user starts typing

@@ -16,7 +16,7 @@ import { ImportCSVModal } from "@/components/modals/ImportCSVModal"
 
 
 interface PraktikumData {
-  id: number
+  id: string
   nama: string
   kodePraktikum: string
   kodeMk: string
@@ -42,7 +42,7 @@ interface PraktikumData {
 }
 
 interface mahasiswaPraktikum {
-  id: number
+  id: string
   npm: string
   nama: string
   programStudi: {
@@ -52,7 +52,7 @@ interface mahasiswaPraktikum {
 }
 
 interface dosenPraktikum {
-  id: number
+  id: string
   nama: string
   nip: string
   jabatan: string

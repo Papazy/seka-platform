@@ -25,12 +25,12 @@ export async function GET(req: NextRequest) {
           excludePraktikum ? {
             pesertaPraktikum: {
               none: {
-                idPraktikum: parseInt(excludePraktikum)
+                idPraktikum: (excludePraktikum)
               }
             },
             asistenPraktikum: {
               none: {
-                idPraktikum: parseInt(excludePraktikum)
+                idPraktikum: (excludePraktikum)
               }
             },
           } : {}

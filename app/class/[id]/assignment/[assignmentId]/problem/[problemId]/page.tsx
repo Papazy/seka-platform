@@ -14,7 +14,7 @@ import TopUsers from '@/components/TopUsers';
 import CodeEditor from '@/components/CodeEditor';
 
 interface ProblemData {
-  id: number;
+  id: string;
   title: string;
   description: string;
   inputFormat: string;
@@ -30,22 +30,22 @@ interface ProblemData {
   passedTests: number;
   totalTests: number;
   assignment: {
-    id: number;
+    id: string;
     title: string;
     class: {
-      id: number;
+      id: string;
       name: string;
       classCode: string;
     };
   };
   userRole: 'STUDENT' | 'DOSEN' | 'ASSISTANT';
   sampleTestCases: Array<{
-    id: number;
+    id: string;
     input: string;
     expectedOutput: string;
   }>;
   submissions: Array<{
-    id: number;
+    id: string;
     status: string;
     score: number;
     language: string;
@@ -155,7 +155,7 @@ export default function ProblemDetail({
 
   //  Helper functions
 
-  const pollSubmissionStatus = async (submissionId: number) => {
+  const pollSubmissionStatus = async (submissionId: string) => {
     try {
       const response = await fetch(`/api/submissions/${submissionId}/status`, {
         credentials: 'include'

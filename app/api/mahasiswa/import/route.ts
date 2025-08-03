@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
 import csvParser from 'csv-parser'
 import { Readable } from 'stream'
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 
 export async function POST(request: NextRequest) {
   try {

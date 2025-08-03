@@ -1,7 +1,7 @@
 'use client'
 
 interface ClassItem {
-  id: number;
+  id: string;
   name: string;
   code: string;
   instructor: string;
@@ -20,7 +20,7 @@ interface ClassItem {
 
 interface ClassCardProps {
   classItem: ClassItem;
-  onClick: (id: number) => void;
+  onClick: (id: string) => void;
   role: string
 }
 

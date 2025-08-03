@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 import toast from 'react-hot-toast';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
-import { ChevronLeft, ChevronRight, Edit, Eye, HelpCircle, Trash } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Edit, Eye, HelpCircle, Trash } from 'lucide-react';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { Button } from '@/components/ui/button';
+import { useBahasa } from '@/hooks/useBahasa';
 
 interface SoalData {
   id: string;
@@ -42,6 +43,19 @@ export default function CreateTugasPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('tugas');
   const [markdownPreview, setMarkdownPreview] = useState<{ [key: string]: boolean }>({})
+
+    const [selectedBahasa, setSelectedBahasa] = useState<number[]>([]);
+    
+    const {data: bahasaList, isLoading: bahasaLoading, error: bahasaError} = useBahasa()
+  
+    // Select semua bahasa saat pertama
+    useEffect(() => {
+      if (bahasaList && bahasaList.length > 0 && selectedBahasa.length === 0) {
+        setSelectedBahasa(bahasaList.map((bahasa) => bahasa.id));
+      }
+    }, [bahasaList, selectedBahasa.length]);
+    
+
 
   const [tugasData, setTugasData] = useState({
     judul: '',
@@ -172,6 +186,39 @@ export default function CreateTugasPage() {
     ));
   };
 
+  // toggle bahasa
+  const handleBahasaToggle = (bahasaId: string) => {
+    setSelectedBahasa(prev => {
+      if (prev.includes(bahasaId)) {
+        // Remove bahasa
+        const newSelection = prev.filter(id => id !== bahasaId);
+        
+        // validasi wajib plih 1 bahasa
+        if (newSelection.length === 0) {
+          toast.error('Minimal harus memilih 1 bahasa pemrograman');
+          return prev;
+        }
+        
+        return newSelection;
+      } else {
+        // add bahasa
+        return [...prev, bahasaId];
+      }
+    });
+  };
+
+  const handleSelectAllBahasa = () => {
+    if (bahasaList) {
+      setSelectedBahasa(bahasaList.map(bahasa => bahasa.id));
+    }
+  };
+
+  const handleDeselectAllBahasa = () => {
+    if (bahasaList && bahasaList.length > 0) {
+      setSelectedBahasa([bahasaList[0].id]);
+    }
+  };
+
   const validateForm = () => {
     // Validate tugas
     if (!tugasData.judul.trim()) {
@@ -194,8 +241,7 @@ export default function CreateTugasPage() {
 
     // Validate soal
     if (soalList.length === 0) {
-      toast.error('Minimal harus ada 1 soal');
-      return false;
+      return true;
     }
 
     for (let i = 0; i < soalList.length; i++) {
@@ -211,7 +257,7 @@ export default function CreateTugasPage() {
         return false;
       }
 
-      if (soal.testCase.length === 0 || !soal.testCase[0].input.trim()) {
+      if (soal.testCase.length === 0 || !soal.testCase[0].outputDiharapkan.trim()) {
         toast.error(`Soal ${i + 1}: Minimal harus ada 1 test case`);
         return false;
       }
@@ -227,10 +273,15 @@ export default function CreateTugasPage() {
 
     setIsLoading(true);
 
+    const soalData = soalList.map(({ id, ...soal }) => soal)
+
     try {
       const payload = {
-        tugas: tugasData,
-        soal: soalList.map(({ id, ...soal }) => soal) // Remove temporary id
+        tugas: {
+          ...tugasData,
+          selectedBahasa
+        },
+        soal:  soalData? soalData : []// Remove temporary id
       };
 
       const response = await fetch(`/api/praktikum/${params.id}/tugas`, {
@@ -386,6 +437,103 @@ export default function CreateTugasPage() {
                   <MarkdownGuide />
                 </div>
               </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Pilih Bahasa Pemrograman</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Pilih bahasa pemrograman yang diizinkan untuk tugas ini. Mahasiswa hanya bisa submit dengan bahasa yang dipilih.
+                  </p>
+                </div>
+                
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSelectAllBahasa}
+                    className="text-sm px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                  >
+                    ✓ Pilih Semua
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeselectAllBahasa}
+                    className="text-sm px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                  >
+                    ✗ Hapus Semua
+                  </button>
+                </div>
+              </div>
+
+              {bahasaLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="ml-3 text-gray-600">Memuat bahasa pemrograman...</span>
+                </div>
+              ) : bahasaError ? (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                  <p className="text-red-600">Gagal memuat bahasa pemrograman</p>
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="mt-2 text-sm bg-red-100 text-red-700 px-3 py-1 rounded"
+                  >
+                    Coba Lagi
+                  </button>
+                </div>
+              ) : bahasaList && bahasaList.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {bahasaList.map((bahasa) => (
+                    <div
+                      key={bahasa.id}
+                      className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                        selectedBahasa.includes(bahasa.id)
+                          ? 'border-blue-500 bg-blue-50 shadow-md'
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                      }`}
+                      onClick={() => handleBahasaToggle(bahasa.id)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-gray-900">{bahasa.nama}</h3>
+                          </div>
+                          
+                          <div className="space-y-1 text-sm text-gray-600">
+                            <div className="flex items-center gap-2">
+                              <span>Ekstensi: {bahasa.ekstensi}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span>Compiler: {bahasa.compiler}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span>Versi: {bahasa.versi}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Selection indicator */}
+                      {selectedBahasa.includes(bahasa.id) && (
+                        <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                          ✓
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                  <p className="text-yellow-600">Tidak ada bahasa pemrograman tersedia</p>
+                </div>
+              )}
+
+              {selectedBahasa.length === 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                  <p className="text-red-600 text-sm">
+                     Pilih minimal 1 bahasa pemrograman untuk tugas ini
+                  </p>
+                </div>
+              )}
 
               {/* Deadline & Maksimal Submit */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -6,12 +6,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import PraktikumCard from '@/components/PraktikumCard';
 import PraktikumContainer from '@/components/PraktikumContainer';
-import { usePraktikumMahasiswa } from '../hooks/usePraktikumMahasiswa';
+import { usePraktikumMahasiswa } from '@/hooks/usePraktikumMahasiswa';
 import { useViewMode } from '@/contexts/ViewModeContext';
 
 
 interface PraktikumItem {
-  id: number;
+  id: string;
   nama: string;
   kodePraktikum: string;
   kelas: string;
@@ -23,7 +23,6 @@ interface PraktikumItem {
   isActive: boolean;
 }
 
-type ViewMode = 'grid' | 'list';
 
 export default function ClassPage() {
   const router = useRouter();
@@ -57,7 +56,7 @@ export default function ClassPage() {
   const totalPraktikum = pesertaPraktikum.length + asistenPraktikum.length;
   const totalFilteredPraktikum = filteredPeserta.length + filteredAsisten.length;
 
-  const handleClassClick = (id: number) => {
+  const handleClassClick = (id: string) => {
     router.push(`/mahasiswa/praktikum/${id}`);
   };
 

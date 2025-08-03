@@ -22,7 +22,7 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 import { createMahasiswaColumns, createDosenColumns } from './columns'
 
 interface PraktikumDetail {
-  id: number
+  id: string
   nama: string
   kodePraktikum: string
   kodeMk: string
@@ -38,7 +38,7 @@ interface PraktikumDetail {
   asistenPraktikum: PesertaPraktikum[] | []
   dosenPraktikum: DosenPraktikum[] | []
   laboran: {
-    id: number
+    id: string
     nama: string
     email: string
   }
@@ -53,12 +53,12 @@ interface PraktikumDetail {
 }
 
 interface PesertaPraktikum {
-  id: number
+  id: string
   mahasiswa: MahasiswaData
 }
 
 interface DosenPraktikum {
-  id: number
+  id: string
   dosen: DosenData
 }
 

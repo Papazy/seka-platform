@@ -10,7 +10,7 @@ import { ProgramStudi } from '@/types/admin'
 import toast from 'react-hot-toast'
 
 interface Fakultas {
-  id: number
+  id: string
   nama: string
   kodeFakultas: string
   programStudi: ProgramStudi[]
@@ -56,7 +56,7 @@ export default function FakultasPage() {
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus fakultas ini?')) {
       try {
         const response = await fetch(`/api/fakultas/${id}`, {

@@ -1,5 +1,5 @@
 export interface Fakultas {
-  id: number;
+  id: string;
   nama: string;
   kodeFakultas: string;
   createdAt: Date;
@@ -7,7 +7,7 @@ export interface Fakultas {
 }
 
 export interface ProgramStudi {
-  id: number;
+  id: string;
   nama: string;
   kodeProdi: string;
   idFakultas: number;

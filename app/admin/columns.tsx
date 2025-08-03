@@ -4,7 +4,7 @@ import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface ColumnActionsProps{
   onEdit: (laboran: Laboran) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 

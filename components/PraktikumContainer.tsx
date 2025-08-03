@@ -1,7 +1,7 @@
 import PraktikumCard from "./PraktikumCard";
 
 interface ClassItem {
-  id: number;
+  id: string;
   nama: string;
   kodePraktikum: string;
   kelas: string;
@@ -22,7 +22,7 @@ export default function PraktikumContainer({
 }: { 
   praktikumList: ClassItem[]; 
   viewMode: ViewMode;
-  onClick: (id: number) => void;
+  onClick: (id: string) => void;
 }) {
   if (viewMode === 'grid') {
     return (

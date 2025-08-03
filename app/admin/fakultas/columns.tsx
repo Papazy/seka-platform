@@ -3,11 +3,11 @@ import { ColumnDef } from '@tanstack/react-table'
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 interface Fakultas {
-  id: number
+  id: string
   nama: string
   kodeFakultas: string
   programStudi: Array<{
-    id: number
+    id: string
     nama: string
     kodeProdi: string
   }>
@@ -17,7 +17,7 @@ interface Fakultas {
 
 interface ColumnActionsProps {
   onEdit: (fakultas: Fakultas) => void
-  onDelete: (id: number) => void
+  onDelete: (id: string) => void
 }
 
 export const createFakultasColumns = ({ onEdit, onDelete }: ColumnActionsProps): ColumnDef<Fakultas>[] => [

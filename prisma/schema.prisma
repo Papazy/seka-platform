@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -48,7 +48,7 @@ enum Semester {
 
 // 1. Admin
 model Admin {
-  id       Int    @id @default(autoincrement())
+  id  String @id @default(ulid())
   nama     String
   email    String @unique
   password String
@@ -64,8 +64,8 @@ model Admin {
 
 // 2. Laboran
 model Laboran {
-  id       Int    @id @default(autoincrement())
-  idAdmin  Int    @map("id_admin")
+  id  String @id @default(ulid())
+  idAdmin  String @map("id_admin")
   nama     String
   email    String @unique
   password String
@@ -82,13 +82,13 @@ model Laboran {
 
 // 3. Dosen
 model Dosen {
-  id       Int    @id @default(autoincrement())
+  id  String @id @default(ulid())
   nip      String @unique
   nama     String
   email    String @unique
   password String
   jabatan  String // Jabatan Dosen, misal: "Lektor", "Asisten Ahli", dll.
-  programStudiId Int @map("program_studi_id")
+  programStudiId String @map("program_studi_id")
   programStudi ProgramStudi @relation(fields: [programStudiId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
@@ -102,7 +102,7 @@ model Dosen {
 
 // 4. Mahasiswa
 model Mahasiswa {
-  id           Int    @id @default(autoincrement())
+  id  String @id @default(ulid())
   npm          String @unique
   nama         String
   email        String @unique
@@ -114,7 +114,7 @@ model Mahasiswa {
   // Relations
   asistenPraktikum AsistenPraktikum[]
   pesertaPraktikum PesertaPraktikum[]
-  programStudiId Int @map("program_studi_id")
+  programStudiId String @map("program_studi_id")
   programStudi ProgramStudi @relation(fields: [programStudiId], references: [id], onDelete: Cascade)
 
   @@map("mahasiswa")
@@ -122,8 +122,8 @@ model Mahasiswa {
 
 // 5. Praktikum
 model Praktikum {
-  id                  Int       @id @default(autoincrement())
-  idLaboran           Int       @map("id_laboran")
+  id  String @id @default(ulid())
+  idLaboran           String @map("id_laboran")
   nama                String
   kodePraktikum       String    @unique @map("kode_praktikum")
   kodeMk              String    @map("kode_mk")
@@ -153,9 +153,9 @@ model Praktikum {
 
 // 6. DosenPraktikum 
 model DosenPraktikum {
-  id          Int @id @default(autoincrement())
-  idDosen     Int @map("id_dosen")
-  idPraktikum Int @map("id_praktikum")
+  id  String @id @default(ulid())
+  idDosen     String @map("id_dosen")
+  idPraktikum String @map("id_praktikum")
 
   createdAt DateTime @default(now())
 
@@ -169,9 +169,9 @@ model DosenPraktikum {
 
 // 7. AsistenPraktikum
 model AsistenPraktikum {
-  id          Int @id @default(autoincrement())
-  idMahasiswa Int @map("id_mahasiswa")
-  idPraktikum Int @map("id_praktikum")
+  id  String @id @default(ulid())
+  idMahasiswa String @map("id_mahasiswa")
+  idPraktikum String @map("id_praktikum")
 
   createdAt DateTime @default(now())
 
@@ -186,9 +186,9 @@ model AsistenPraktikum {
 
 // 8. PesertaPraktikum
 model PesertaPraktikum {
-  id          Int @id @default(autoincrement())
-  idMahasiswa Int @map("id_mahasiswa")
-  idPraktikum Int @map("id_praktikum")
+  id  String @id @default(ulid())
+  idMahasiswa String @map("id_mahasiswa")
+  idPraktikum String @map("id_praktikum")
 
   createdAt DateTime @default(now())
 
@@ -204,9 +204,9 @@ model PesertaPraktikum {
 
 // 9. Tugas
 model Tugas {
-  id              Int      @id @default(autoincrement())
-  idPraktikum     Int      @map("id_praktikum")
-  idAsisten       Int      @map("id_asisten")
+  id  String @id @default(ulid())
+  idPraktikum     String @map("id_praktikum")
+  idAsisten       String @map("id_asisten")
   judul           String
   deskripsi       String   @db.LongText
   deadline        DateTime
@@ -220,14 +220,15 @@ model Tugas {
   asisten   AsistenPraktikum @relation(fields: [idAsisten], references: [id], onDelete: Cascade)
   soal      Soal[]
   nilaiTugas NilaiTugas[]
+  tugasBahasa TugasBahasa[]
 
   @@map("tugas")
 }
 
 // 10. Soal
 model Soal {
-  id                        Int    @id @default(autoincrement())
-  idTugas                   Int    @map("id_tugas")
+  id  String @id @default(ulid())
+  idTugas                   String @map("id_tugas")
   judul                     String
   deskripsi                 String @db.LongText
   batasan                   String @db.LongText
@@ -252,8 +253,8 @@ model Soal {
 
 // 11. ContohTestCase
 model ContohTestCase {
-  id                Int    @id @default(autoincrement())
-  idSoal            Int    @map("id_soal")
+  id  String @id @default(ulid())
+  idSoal            String @map("id_soal")
   contohInput       String @map("contoh_input") @db.Text
   contohOutput      String @map("contoh_output") @db.Text
   penjelasanInput   String @map("penjelasan_input") @db.Text
@@ -269,8 +270,8 @@ model ContohTestCase {
 
 // 12. TestCase
 model TestCase {
-  id               Int    @id @default(autoincrement())
-  idSoal           Int    @map("id_soal")
+  id  String @id @default(ulid())
+  idSoal           String @map("id_soal")
   input            String @db.Text
   outputDiharapkan String @map("output_diharapkan") @db.Text
 
@@ -285,7 +286,7 @@ model TestCase {
 
 // 13. BahasaPemrograman
 model BahasaPemrograman {
-  id        Int    @id @default(autoincrement())
+  id  String @id @default(ulid())
   nama      String @unique
   ekstensi  String
   compiler  String
@@ -296,16 +297,28 @@ model BahasaPemrograman {
 
   // Relations
   submission Submission[]
+  tugasBahasa TugasBahasa[]
 
   @@map("bahasa_pemrograman")
 }
 
+model TugasBahasa {
+  idTugas String @map("id_tugas")
+  idBahasa String @map("id_bahasa")
+
+  tugas Tugas @relation(fields: [idTugas], references: [id], onDelete: Cascade)
+  bahasa BahasaPemrograman @relation(fields: [idBahasa], references: [id], onDelete: Cascade)
+
+  @@id([idTugas, idBahasa])
+  @@map("tugas_bahasa")
+}
+
 // 14. Submission
 model Submission {
-  id         Int    @id @default(autoincrement())
-  idSoal     Int    @map("id_soal")
-  idPeserta  Int    @map("id_peserta")
-  idBahasa   Int    @map("id_bahasa")
+  id  String @id @default(ulid())
+  idSoal     String @map("id_soal")
+  idPeserta  String @map("id_peserta")
+  idBahasa   String @map("id_bahasa")
   sourceCode String @map("source_code") @db.Text
   score      Int    @default(0)
   statusJawaban SubmissionTugasStatus @map("status_jawaban")// terlambat atau diserahkan
@@ -326,9 +339,9 @@ model Submission {
 
 // 15. TestCaseResult
 model TestCaseResult {
-  id                Int              @id @default(autoincrement())
-  idSubmission      Int              @map("id_submission")
-  idTestCase        Int              @map("id_test_case")
+  id  String @id @default(ulid())
+  idSubmission      String @map("id_submission")
+  idTestCase        String @map("id_test_case")
   status            SubmissionStatus
   outputDihasilkan  String?          @map("output_dihasilkan") @db.Text
   waktuEksekusiMs   Int?             @map("waktu_eksekusi_ms")
@@ -346,9 +359,9 @@ model TestCaseResult {
 
 // 16. NilaiTugas
 model NilaiTugas {
-  id         Int @id @default(autoincrement())
-  idPeserta  Int @map("id_peserta")
-  idTugas    Int @map("id_tugas")
+  id  String @id @default(ulid())
+  idPeserta  String @map("id_peserta")
+  idTugas    String @map("id_tugas")
   totalNilai Int @map("total_nilai") // Total nilai dari semua soal dalam tugas
   status    SubmissionTugasStatus @default(DISERAHKAN) // Status penilaian tugas
   createdAt DateTime @default(now())
@@ -364,7 +377,7 @@ model NilaiTugas {
 
 // 17. untuk tracking tahun sekarang
 model PengaturanSistem {
-  id               Int       @id @default(autoincrement())
+  id  String @id @default(ulid())
   currentSemester  Semester  @map("current_semester")
   currentYear      Int       @map("current_year")
   
@@ -376,7 +389,7 @@ model PengaturanSistem {
 
 // 18. Fakultas
 model Fakultas {
-  id        Int    @id @default(autoincrement())
+  id  String @id @default(ulid())
   nama      String @unique
   kodeFakultas String @unique @map("kode_fakultas")
   createdAt DateTime @default(now())
@@ -388,10 +401,10 @@ model Fakultas {
 
 // 19. ProgramStudi
 model ProgramStudi {
-  id        Int    @id @default(autoincrement())
+  id  String @id @default(ulid())
   nama      String 
   kodeProdi String @unique @map("kode_prodi")
-  idFakultas Int @map("id_fakultas")
+  idFakultas String @map("id_fakultas")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   // Relations

@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const idPraktikum = params.id
+export async function POST(req: NextRequest, { params }: {params: Promise<{ id: string }>}) {
+  const { id } = await params
   const { searchParams } = new URL(req.url)
   const {userIds, type} = await req.json()
 
@@ -11,8 +11,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const dataToAdd = userIds.map((userId: number) => ({
-      idPraktikum: parseInt(idPraktikum),
+    const dataToAdd = userIds.map((userId: string) => ({
+      idPraktikum: (idPraktikum),
       [type === 'dosen' ? 'idDosen' : 'idMahasiswa']: userId
     }))
     let data;

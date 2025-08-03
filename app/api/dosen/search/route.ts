@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
           excludePraktikum ? {
             dosenPraktikum: {
               none: {
-                idPraktikum: parseInt(excludePraktikum)
+                idPraktikum: (excludePraktikum)
               }
             }
           } : {}

@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 interface ClassItem {
-  id: number;
+  id: string;
   name: string;
   code: string;
   instructor: string;
@@ -119,7 +119,7 @@ export default function ClassPage() {
   const teachingClasses = filteredClasses.filter(c => c.type === 'teaching');
   const learningClasses = filteredClasses.filter(c => c.type === 'learning');
 
-  const handleClassClick = (id: number) => {
+  const handleClassClick = (id: string) => {
     router.push(`/class/${id}`);
   };
 
@@ -330,7 +330,7 @@ export default function ClassPage() {
 // Enhanced Class Card Component
 interface EnhancedClassCardProps {
   classItem: ClassItem;
-  onClick: (id: number) => void;
+  onClick: (id: string) => void;
 }
 
 function EnhancedClassCard({ classItem, onClick }: EnhancedClassCardProps) {

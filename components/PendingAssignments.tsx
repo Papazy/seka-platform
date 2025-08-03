@@ -1,7 +1,7 @@
 'use client';
 
 interface PendingAssignment {
-  id: number;
+  id: string;
   title: string;
   className: string;
   classCode: string;
@@ -12,7 +12,7 @@ interface PendingAssignment {
 
 interface PendingAssignmentsProps {
   assignments: PendingAssignment[];
-  onAssignmentClick: (id: number) => void;
+  onAssignmentClick: (id: string) => void;
 }
 
 export default function PendingAssignments({ assignments, onAssignmentClick }: PendingAssignmentsProps) {

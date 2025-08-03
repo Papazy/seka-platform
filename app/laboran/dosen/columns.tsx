@@ -15,13 +15,13 @@ import {
 import { formatDate } from '@/lib/utils'
 
 interface DosenData {
-  id: number
+  id: string
   nip: string
   nama: string
   email: string
   jabatan: string
   programStudi: {
-    id: number
+    id: string
     nama: string
     kodeProdi: string
     fakultas: {
@@ -35,10 +35,10 @@ interface DosenData {
   createdAt: string
 }
 interface ColumnActionsProps {
-  onEdit: (id: number) => void
-  onDelete: (id: number) => void
-  onDetail: (id: number) => void
-  onAssignPraktikum: (id: number) => void
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
+  onDetail: (id: string) => void
+  onAssignPraktikum: (id: string) => void
 }
 
 export const createDosenColumns = ({ onEdit, onDelete, onDetail, onAssignPraktikum }: ColumnActionsProps): ColumnDef<DosenData>[] => [

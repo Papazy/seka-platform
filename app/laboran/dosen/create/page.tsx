@@ -20,7 +20,7 @@ interface FormData {
   nama: string
   email: string
   jabatan: string
-  programStudiId: number | ''
+  programStudiId: string | ''
 }
 
 interface FormErrors {
@@ -28,11 +28,11 @@ interface FormErrors {
 }
 
 interface ProgramStudi {
-  id: number
+  id: string
   nama: string
   kodeProdi: string
   fakultas: {
-    id: number
+    id: string
     nama: string
     kodeFakultas: string
   }
@@ -84,7 +84,7 @@ export default function CreateDosenPage() {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'programStudiId' ? (value ? parseInt(value) : '') : value
+      [name]: name === 'programStudiId' ? (value ? (value) : '') : value
     }))
     
     // Clear error when user starts typing

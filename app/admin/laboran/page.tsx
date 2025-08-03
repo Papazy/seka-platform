@@ -101,7 +101,7 @@ export default function AdminDashboard() {
     setIsEditing(false)
   }
 
-  const confirmDelete = (id: number) => { 
+  const confirmDelete = (id: string) => { 
     setIsModalDeleteOpen(true)
     setSelectedIdToDelete(id)
     // setSelectedLaboran(laboran)

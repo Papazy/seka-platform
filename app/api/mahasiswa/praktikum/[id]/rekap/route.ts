@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { verifyToken } from "@/lib/auth"
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: {params: Promise<{ id: string }>}) {
   try {
     const token = req.cookies.get('token')?.value
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const praktikumId = parseInt(params.id)
+    const praktikumId = (params.id)
     const mahasiswaId = payload.id
 
     // ✅ Check access

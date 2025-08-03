@@ -1,10 +1,13 @@
+'use client'
+
 import React, { useState } from 'react';
 import { useRouter, useParams, usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LeftSidebar() {
-  const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
+  const router = useRouter()
 
   const menuItems = [
     {
@@ -24,9 +27,7 @@ export default function LeftSidebar() {
     }
   ];
 
-  const handleMenuClick = (path: string) => {
-    router.push(path);
-  };
+
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-2 shadow-sm w-64 flex-shrink-0">
@@ -45,9 +46,10 @@ export default function LeftSidebar() {
           const isActive = pathname === item.path;
 
           return (
-            <button
+            <Link
               key={item.id}
-              onClick={() => handleMenuClick(item.path)}
+              href={item.path}
+              prefetch={true}
               className={`w-full flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors cursor-pointer 
                 ${isActive
                       ? 'bg-green-100 text-green-700 font-medium'
@@ -55,7 +57,7 @@ export default function LeftSidebar() {
                 }`}
             >
               <span>{item.label}</span>
-            </button>
+            </Link>
           );
         })}
       </div>

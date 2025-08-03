@@ -1,90 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTugasDetail } from '@/app/hooks/useTugasDetail';
+import { TugasDetailResponse, useTugasDetail } from '@/hooks/useTugasDetail';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
-
-interface TugasDetail {
-  id: number;
-  judul: string;
-  deskripsi: string;
-  deadline: string;
-  maksimalSubmit: number;
-  createdAt: string;
-  isOverdue: boolean;
-  userRole: 'peserta' | 'asisten';
-  praktikum: {
-    nama: string;
-    kodePraktikum: string;
-    kelas: string;
-    id: number,
-  };
-  pembuat: {
-    nama: string;
-    npm: string;
-  };
-  soal: Array<{
-    id: number;
-    judul: string;
-    deskripsi: string;
-    batasan: string;
-    formatInput: string;
-    formatOutput: string;
-    batasanMemoriKb: number;
-    batasanWaktuEksekusiMs: number;
-    templateKode: string;
-    bobotNilai: number;
-    contohTestCase: Array<{
-      id: number;
-      contohInput: string;
-      contohOutput: string;
-      penjelasanInput: string;
-      penjelasanOutput: string;
-    }>;
-    totalTestCase: number;
-    userSubmissions?: Array<{
-      id: number;
-      score: number;
-      attemptNumber: number;
-      submittedAt: string;
-      bahasa: { nama: string; ekstensi: string };
-      testCaseResults: Array<{
-        status: string;
-        outputDihasilkan?: string;
-        waktuEksekusiMs?: number;
-        memoriKb?: number;
-      }>;
-    }>;
-    bestScore?: number;
-    submissionCount?: number;
-    canSubmit?: boolean;
-    totalSubmissions?: number;
-  }>;
-  nilaiTugas?: {
-    totalNilai: number;
-    createdAt: string;
-    updatedAt: string;
-  } | null;
-  totalBobot?: number;
-  submissionStats?: {
-    totalSubmissions: number;
-    uniqueSubmitters: number;
-    totalPeserta: number;
-  };
-}
+import { useRolePraktikum } from '@/contexts/RolePraktikumContext';
+import SoalContent from '@/components/SoalContent';
 
 export default function TugasDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
+  const praktikumId = params.id
 
   const [activeTab, setActiveTab] = useState('deskripsi');
-
+  const { isAsisten } = useRolePraktikum()
   // Fetch tugas detail
   const {
     data: tugas,
@@ -97,6 +31,10 @@ export default function TugasDetailPage() {
     !!user
   );
 
+  // useEffect(()=>{
+  //   console.log('data tugas', tugas)
+  // },[tugas])
+
   // Loading state
   if (isLoading) {
     return (
@@ -107,6 +45,9 @@ export default function TugasDetailPage() {
       </div>
     );
   }
+
+
+  const role = isAsisten((praktikumId)) ? 'ASISTEN' : 'PESERTA';
 
   // Error state
   if (error || !tugas) {
@@ -154,39 +95,10 @@ export default function TugasDetailPage() {
         <div className="flex gap-6">
 
           {/* Left Sidebar */}
-          <div className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg border p-2">
-              <div className="flex items-center justify-between p-4 border-b border-gray-200 gap-2 mb-2">
-                <h2 className="text-sm font-medium text-gray-900">Menu Tugas</h2>
-                <button
-                  onClick={() => router.back()}
-                  className="text-xs text-gray-600 hover:text-gray-900 border rounded px-1 py-1 transition-colors cursor-pointer hover:bg-gray-50"
-                >
-                  {'<'} Kembali
-                </button>
-              </div>
-              <nav className="space-y-2">
-                <button
-                  onClick={() => setActiveTab('deskripsi')}
-                  className={`w-full text-sm text-left px-3 py-2 rounded transition-colors ${activeTab === 'deskripsi'
-                      ? 'bg-green-100 text-green-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                >
-                  Deskripsi
-                </button>
-                <button
-                  onClick={() => setActiveTab('soal')}
-                  className={`w-full text-sm text-left px-3 py-2 rounded transition-colors ${activeTab === 'soal'
-                      ? 'bg-green-100 text-green-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                >
-                  Soal ({tugas.soal.length})
-                </button>
-              </nav>
-            </div>
-          </div>
+          <LeftSidebar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            soalLength={tugas.soal.length} />
 
           {/* Main Content Area */}
           <div className="flex-1">
@@ -195,7 +107,7 @@ export default function TugasDetailPage() {
             )}
 
             {activeTab === 'soal' && (
-              <SoalContent tugas={tugas} />
+              <SoalContent tugas={tugas} role={role} />
             )}
           </div>
         </div>
@@ -209,27 +121,27 @@ const DeskripsiContent = ({
   tugas,
   formatDate
 }: {
-  tugas: TugasDetail;
+  tugas: TugasDetailResponse;
   formatDate: (date: string) => string;
 }) => {
 
   const router = useRouter()
-  
+
   return (
     <div className="bg-white rounded-lg border p-6">
       <div className="flex justify-between items-center">
-      <h2 className="text-lg font-semibold mb-6">{tugas.judul}</h2>
-      { tugas.userRole === 'asisten' && (
+        <h2 className="text-lg font-semibold mb-6">{tugas.judul}</h2>
+        {tugas.userRole === 'asisten' && (
 
-        
-        <Button 
-          onClick={()=> router.push(`/mahasiswa/praktikum/${tugas.praktikum.id}/tugas/${tugas.id}/edit`)}
-          className="bg-green-primary hover:bg-green-700 text-white cursor-pointer "
-        >
-          <Edit/> Edit
+
+          <Button
+            onClick={() => router.push(`/mahasiswa/praktikum/${tugas.praktikum.id}/tugas/${tugas.id}/edit`)}
+            className="bg-green-primary hover:bg-green-700 text-white cursor-pointer "
+          >
+            <Edit /> Edit
           </Button>
-      
-      )}
+
+        )}
       </div>
 
       {/* Tugas Description */}
@@ -249,6 +161,20 @@ const DeskripsiContent = ({
                 {formatDate(tugas.deadline)}
               </p>
             </div>
+
+
+            <div>
+              <span className="text-sm font-medium text-gray-500">Bahasa didukung</span>
+              <p className={`mt-1  text-gray-900`}>
+                {tugas.tugasBahasa.map((tb) => (
+                  <span key={tb.idBahasa} className="inline-block bg-gray-100 text-gray-800 px-2 py-1 rounded mr-2 mb-2 text-sm">
+                    {tb.bahasa.nama}
+                  </span>
+                ))}
+              </p>
+            </div>
+
+
 
             <div>
               <span className="text-sm font-medium text-gray-500">Maksimal Submit per Soal</span>
@@ -288,7 +214,7 @@ const DeskripsiContent = ({
               <div className="text-2xl font-bold text-green-600">
                 {tugas.soal.filter(s => s.submissionCount && s.submissionCount > 0).length}
               </div>
-              <div className="text-sm text-gray-600">Soal Dicoba</div>
+              <div className="text-sm text-gray-600">Total Submission dikirim</div>
             </div>
 
             <div className="bg-gray-50 p-4 rounded">
@@ -336,137 +262,43 @@ const DeskripsiContent = ({
   );
 };
 
-// Soal Content Component
-const SoalContent = ({ tugas }: { tugas: TugasDetail }) => {
+// left sidebar component
+const LeftSidebar = ({ activeTab, setActiveTab, soalLength }: { activeTab: string; setActiveTab: (tab: string) => void; soalLength: number }) => {
   const router = useRouter();
   const params = useParams();
-
-  const praktikumId = params.id as string;
-
-  const handleSoalClick = (soalId: number) => {
-    router.push(`/mahasiswa/praktikum/${praktikumId}/tugas/${tugas.id}/soal/${soalId}`);
-  };
-
   return (
-    <div className="space-y-4">
-
-      {/* Header */}
-      <div className="bg-white rounded-lg border p-4 flex justify-between items-center">
-        <div className="">
-          <h2 className="text-lg font-semibold">Daftar Soal</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {tugas.soal.length} soal tersedia
-          </p>
+    <div className="w-64 flex-shrink-0">
+      <div className="bg-white rounded-lg border p-2">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 gap-2 mb-2">
+          <h2 className="text-sm font-medium text-gray-900">Menu Tugas</h2>
+          <button
+            onClick={() => router.replace(`/mahasiswa/praktikum/${params.id}`)}
+            className="text-xs text-gray-600 hover:text-gray-900 border rounded px-1 py-1 transition-colors cursor-pointer hover:bg-gray-50"
+          >
+            {'<'} Kembali
+          </button>
         </div>
-        <Button 
-        variant='default'
-        onClick={()=> router.push(`/mahasiswa/praktikum/${praktikumId}/tugas/${tugas.id}/soal/create`)}
-        className='text-white bg-green-primary hover:bg-green-600 cursor-pointer rounded shadow-sm '
-        >+ Soal</Button>
-      </div>
-
-      {/* Soal List */}
-      {tugas.soal.length === 0 ? (
-        <div className="bg-white rounded-lg border p-8 text-center">
-          <p className="text-gray-500">Belum ada soal untuk tugas ini.</p>
-        </div>
-      ) : (
-        tugas.soal.map((soal, index) => (
-          <SoalCard
-            key={soal.id}
-            soal={soal}
-            index={index + 1}
-            userRole={tugas.userRole}
-            onClick={() => handleSoalClick(soal.id)}
-          />
-        ))
-      )}
-    </div>
-  );
-};
-
-// Soal Card Component
-const SoalCard = ({
-  soal,
-  index,
-  userRole,
-  onClick
-}: {
-  soal: TugasDetail['soal'][0];
-  index: number;
-  userRole: 'peserta' | 'asisten';
-  onClick: () => void;
-}) => {
-
-  const getStatusBadge = () => {
-    if (userRole === 'asisten') {
-      return (
-        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-          {soal.totalSubmissions || 0} submission
-        </span>
-      );
-    }
-
-    if (soal.bestScore !== undefined && soal.bestScore >= soal.bobotNilai) {
-      return (
-        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-          Selesai
-        </span>
-      );
-    }
-
-    if (soal.submissionCount && soal.submissionCount > 0) {
-      return (
-        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-          Dicoba ({soal.submissionCount}x)
-        </span>
-      );
-    }
-
-    return (
-      <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
-        Belum dicoba
-      </span>
-    );
-  };
-
-  return (
-    <div
-      onClick={onClick}
-      className="bg-white rounded-lg border p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="bg-green-100 text-green-800 text-sm font-medium px-2 py-1 rounded">
-              Soal {index}
-            </span>
-            {getStatusBadge()}
-          </div>
-
-          <h3 className="font-medium text-gray-900 mb-2">{soal.judul}</h3>
-
-          <div className="flex gap-6 text-sm text-gray-600">
-            <span>{soal.bobotNilai} poin</span>
-            <span>{soal.batasanWaktuEksekusiMs}ms</span>
-            <span>{Math.round(soal.batasanMemoriKb / 1024)}MB</span>
-            <span>{soal.totalTestCase} test case</span>
-          </div>
-        </div>
-
-        <div className="text-right ml-4">
-          {userRole === 'peserta' && soal.bestScore !== undefined && (
-            <div className="mb-2">
-              <div className="text-lg font-bold text-green-600">{soal.bestScore}</div>
-              <div className="text-xs text-gray-500">Best Score</div>
-            </div>
-          )}
-
-          <div className="text-sm text-green-600">
-            {userRole === 'peserta' && soal.canSubmit ? 'Kerjakan' : 'Lihat'} →
-          </div>
-        </div>
+        <nav className="space-y-2">
+          <button
+            onClick={() => setActiveTab('deskripsi')}
+            className={`w-full text-sm text-left px-3 py-2 rounded transition-colors ${activeTab === 'deskripsi'
+              ? 'bg-green-100 text-green-700 font-medium'
+              : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            Deskripsi
+          </button>
+          <button
+            onClick={() => setActiveTab('soal')}
+            className={`w-full text-sm text-left px-3 py-2 rounded transition-colors ${activeTab === 'soal'
+              ? 'bg-green-100 text-green-700 font-medium'
+              : 'text-gray-700 hover:bg-gray-100'
+              }`}
+          >
+            Soal ({soalLength})
+          </button>
+        </nav>
       </div>
     </div>
-  );
-};
+  )
+}

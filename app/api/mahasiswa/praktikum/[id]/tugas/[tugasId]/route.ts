@@ -5,7 +5,7 @@ import { verifyToken } from "@/lib/auth"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string; tugasId: string } }
+  { params }: {params: Promise<{ id: string; tugasId: string }>}
 ) {
   try {
     const token = req.cookies.get('token')?.value
@@ -18,8 +18,8 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const praktikumId = parseInt(params.id)
-    const tugasId = parseInt(params.tugasId)
+    const praktikumId = (params.id)
+    const tugasId = (params.tugasId)
     const mahasiswaId = payload.id
 
     // ✅ Check akses ke praktikum
@@ -65,6 +65,11 @@ export async function GET(
             mahasiswa: {
               select: { nama: true, npm: true }
             }
+          }
+        },
+        tugasBahasa : {
+          include: {
+            bahasa: true
           }
         },
         soal: {
@@ -167,6 +172,7 @@ export async function GET(
       deskripsi: tugas.deskripsi,
       deadline: tugas.deadline,
       maksimalSubmit: tugas.maksimalSubmit,
+      tugasBahasa: tugas.tugasBahasa,
       createdAt: tugas.createdAt,
       isOverdue,
       userRole,

@@ -1,7 +1,7 @@
 import { verifyToken } from "@/lib/auth";
 import { UserRole } from "@/lib/enum";
 import { prisma } from "@/lib/prisma";
-import bcyrpt  from "bcryptjs";
+import bcyrpt  from "bcrypt";
 import { NextRequest, NextResponse } from "next/server";
 
 const LABORAN_PASSWORD_DEFAULT = 'laboran123';

@@ -17,13 +17,13 @@ import {
 import toast from "react-hot-toast";
 
 interface Fakultas {
-  id: number;
+  id: string;
   nama: string;
   kodeFakultas: string;
 }
 
 interface ProgramStudi {
-  id: number;
+  id: string;
   nama: string;
   kodeProdi: string;
   fakultas: Fakultas;

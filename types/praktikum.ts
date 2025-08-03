@@ -1,5 +1,5 @@
 interface Praktikum {
-  id: number;
+  id: string;
   nama: string;
   kodePraktikum: string;
   kelas: string;

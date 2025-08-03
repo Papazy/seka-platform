@@ -5,7 +5,7 @@ import { verifyToken } from "@/lib/auth"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string; tugasId: string; soalId: string } }
+  { params }: {params: Promise<{ id: string; tugasId: string; soalId: string }>}
 ) {
   try {
     const token = req.cookies.get('token')?.value
@@ -18,14 +18,14 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const praktikumId = parseInt(params.id)
-    const tugasId = parseInt(params.tugasId)
-    const soalId = parseInt(params.soalId)
+    const praktikumId = (params.id)
+    const tugasId = (params.tugasId)
+    const soalId = (params.soalId)
     const mahasiswaId = payload.id
 
     // Check user role and access
     let userRole: 'peserta' | 'asisten' | null = null;
-    let pesertaId: number | null = null;
+    let pesertaId: string | null = null;
 
     // Check if user is peserta
     const pesertaCheck = await prisma.pesertaPraktikum.findFirst({
@@ -218,100 +218,167 @@ export async function GET(
 
 
 export async function PUT(
-  req: NextRequest,
-  { params }: { params: { soalId: string } }
+  request: NextRequest,
+  { params }: {params: Promise<{ id: string, tugasId: string, soalId: string }>}
 ) {
   try {
-    const token = req.cookies.get('token')?.value
+    const token = request.cookies.get('token')?.value
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const payload = await verifyToken(token)
     if (!payload) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    const soalId = parseInt(params.soalId)
-    const soalData = await req.json()
+    const praktikumId = (params.id)
+    const tugasId = (params.tugasId)
+    const soalId = (params.soalId)
 
-    // Verify authorization
-    const soal = await prisma.soal.findUnique({
-      where: { id: soalId },
-      include: {
-        tugas: {
-          include: {
-            asisten: {
-              include: { mahasiswa: true }
-            }
-          }
-        }
+    // Verify user is asisten of this praktikum
+    const asisten = await prisma.asistenPraktikum.findFirst({
+      where: {
+        idPraktikum: praktikumId,
+        mahasiswa: { id: payload.id }
       }
     })
 
-    if (!soal || soal.tugas.asisten.mahasiswa.id !== payload.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    if (!asisten) {
+      return NextResponse.json({ error: 'Unauthorized - Not an assistant' }, { status: 403 })
     }
 
+    // Verify soal belongs to the tugas
+    const existingSoal = await prisma.soal.findFirst({
+      where: {
+        id: soalId,
+        idTugas: tugasId
+      }
+    })
+
+    if (!existingSoal) {
+      return NextResponse.json({ error: 'Soal not found' }, { status: 404 })
+    }
+
+    const requestData = await request.json()
+
     // Update in transaction
-    await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       // Update soal
-      await tx.soal.update({
+      const updatedSoal = await tx.soal.update({
         where: { id: soalId },
         data: {
-          judul: soalData.judul,
-          deskripsi: soalData.deskripsi,
-          batasan: soalData.batasan || '',
-          formatInput: soalData.formatInput || '',
-          formatOutput: soalData.formatOutput || '',
-          batasanMemoriKb: soalData.batasanMemoriKb,
-          batasanWaktuEksekusiMs: soalData.batasanWaktuEksekusiMs,
-          templateKode: soalData.templateKode || '',
-          bobotNilai: soalData.bobotNilai
+          judul: requestData.judul,
+          deskripsi: requestData.deskripsi,
+          batasan: requestData.batasan || '',
+          formatInput: requestData.formatInput || '',
+          formatOutput: requestData.formatOutput || '',
+          batasanMemoriKb: requestData.batasanMemoriKb,
+          batasanWaktuEksekusiMs: requestData.batasanWaktuEksekusiMs,
+          templateKode: requestData.templateKode || '',
+          bobotNilai: requestData.bobotNilai
         }
       })
 
-      // Delete existing contoh test case
-      await tx.contohTestCase.deleteMany({
-        where: { idSoal: soalId }
-      })
-
-      // Create new contoh test case
-      if (soalData.contohTestCase?.length > 0) {
-        await tx.contohTestCase.createMany({
-          data: soalData.contohTestCase.map((tc: any) => ({
-            idSoal: soalId,
-            contohInput: tc.contohInput || '',
-            contohOutput: tc.contohOutput || '',
-            penjelasanInput: tc.penjelasanInput || '',
-            penjelasanOutput: tc.penjelasanOutput || ''
-          }))
+      // Update contoh test cases
+      if (requestData.contohTestCase) {
+        // Delete existing contoh test cases
+        await tx.contohTestCase.deleteMany({
+          where: { idSoal: soalId }
         })
+
+        // Create new contoh test cases
+        if (requestData.contohTestCase.length > 0) {
+          await tx.contohTestCase.createMany({
+            data: requestData.contohTestCase.map((tc: any) => ({
+              idSoal: soalId,
+              contohInput: tc.contohInput || '',
+              contohOutput: tc.contohOutput || '',
+              penjelasanInput: tc.penjelasanInput || '',
+              penjelasanOutput: tc.penjelasanOutput || ''
+            }))
+          })
+        }
       }
 
-      // Delete existing test case
-      await tx.testCase.deleteMany({
-        where: { idSoal: soalId }
-      })
-
-      // Create new test case
-      if (soalData.testCase?.length > 0) {
-        await tx.testCase.createMany({
-          data: soalData.testCase.map((tc: any) => ({
-            idSoal: soalId,
-            input: tc.input,
-            outputDiharapkan: tc.outputDiharapkan
-          }))
+      // Update test cases
+      if (requestData.testCase) {
+        // Delete existing test cases
+        await tx.testCase.deleteMany({
+          where: { idSoal: soalId }
         })
+
+        // Create new test cases
+        if (requestData.testCase.length > 0) {
+          await tx.testCase.createMany({
+            data: requestData.testCase.map((tc: any) => ({
+              idSoal: soalId,
+              input: tc.input,
+              outputDiharapkan: tc.outputDiharapkan
+            }))
+          })
+        }
       }
+
+      return updatedSoal
     })
 
     return NextResponse.json({ 
-      message: 'Soal berhasil diupdate'
+      message: 'Soal updated successfully',
+      soal: result
     })
 
   } catch (error) {
     console.error('Error updating soal:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: {params: Promise<{ praktikumId: string, tugasId: string, soalId: string }>}
+) {
+  try {
+    const token = request.cookies.get('token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const payload = await verifyToken(token)
+    if (!payload) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
+
+    const praktikumId = (params.praktikumId)
+    const soalId = (params.soalId)
+
+    // Verify user is asisten
+    const asisten = await prisma.asistenPraktikum.findFirst({
+      where: {
+        idPraktikum: praktikumId,
+        mahasiswa: { id: payload.id }
+      }
+    })
+
+    if (!asisten) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    // Delete soal (cascade will handle related data)
+    await prisma.soal.delete({
+      where: { id: soalId }
+    })
+
+    return NextResponse.json({ message: 'Soal deleted successfully' })
+
+  } catch (error) {
+    console.error('Error deleting soal:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }

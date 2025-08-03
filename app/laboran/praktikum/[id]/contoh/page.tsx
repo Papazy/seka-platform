@@ -25,7 +25,7 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 import { createParticipantColumns } from './columns'
 
 interface PraktikumDetail {
-  id: number
+  id: string
   nama: string
   kodePraktikum: string
   kelas: string
@@ -39,7 +39,7 @@ interface PraktikumDetail {
 }
 
 interface ParticipantData {
-  id: number
+  id: string
   type: 'peserta' | 'asisten' | 'dosen'
   nama: string
   identifier: string // npm/nip
@@ -68,7 +68,7 @@ export default function ManageParticipantsPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<{id: number, nama: string} | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{id: string, nama: string} | null>(null)
 
   useEffect(() => {
     if (id) {
@@ -145,7 +145,7 @@ export default function ManageParticipantsPage() {
     }
   }
 
-  const handleRemoveParticipant = async (participantId: number) => {
+  const handleRemoveParticipant = async (participantId: string) => {
     try {
       const response = await fetch(`/api/praktikum/${id}/participants/${participantId}`, {
         method: 'DELETE',
@@ -201,7 +201,7 @@ export default function ManageParticipantsPage() {
     }
   }
 
-  const handleChangeRole = async (participantId: number, newRole: 'peserta' | 'asisten') => {
+  const handleChangeRole = async (participantId: string, newRole: 'peserta' | 'asisten') => {
     try {
       const response = await fetch(`/api/praktikum/${id}/participants/${participantId}/change-role`, {
         method: 'PUT',
@@ -491,7 +491,7 @@ export default function ManageParticipantsPage() {
         onClose={() => setShowAddModal(false)}
         onSuccess={handleAddParticipant}
         type={activeTab}
-        praktikumId={parseInt(id)}
+        praktikumId={(id)}
       />
 
       <ImportParticipantsModal
@@ -499,7 +499,7 @@ export default function ManageParticipantsPage() {
         onClose={() => setShowImportModal(false)}
         onSuccess={handleImportSuccess}
         type={activeTab}
-        praktikumId={parseInt(id)}
+        praktikumId={(id)}
       />
 
       <ConfirmDeleteModal

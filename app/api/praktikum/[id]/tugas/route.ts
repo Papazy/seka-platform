@@ -5,7 +5,7 @@ import { verifyToken } from "@/lib/auth"
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = req.cookies.get('token')?.value
@@ -18,7 +18,7 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const praktikumId = parseInt(params.id)
+    const praktikumId = (params.id)
     const mahasiswaId = payload.id
 
     // Check if user is asisten of this praktikum
@@ -41,9 +41,6 @@ export async function POST(
       return NextResponse.json({ error: 'Data tugas tidak lengkap' }, { status: 400 })
     }
 
-    if (!soalData || soalData.length === 0) {
-      return NextResponse.json({ error: 'Minimal harus ada 1 soal' }, { status: 400 })
-    }
 
     // Create tugas and soal in transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -60,11 +57,25 @@ export async function POST(
         }
       })
 
+      // 1.5 Create tugasBahasa for each selected bahasa
+      if (tugasData.selectedBahasa && tugasData.selectedBahasa.length > 0) {
+        const tugasBahasaData = tugasData.selectedBahasa.map((idBahasa: number) => ({
+          idTugas: tugas.id,
+          idBahasa
+        }))
+
+        await tx.tugasBahasa.createMany({
+          data: tugasBahasaData
+        })
+      }
+
       // 2. Create soal for each soal data
       const createdSoal = []
       
-      for (const soalItem of soalData) {
-        const soal = await tx.soal.create({
+      if(soalData.length > 0){
+
+        for (const soalItem of soalData) {
+          const soal = await tx.soal.create({
           data: {
             idTugas: tugas.id,
             judul: soalItem.judul,
@@ -102,8 +113,9 @@ export async function POST(
             }))
           })
         }
-
+        
         createdSoal.push(soal)
+      }
       }
 
       return { tugas, soal: createdSoal }

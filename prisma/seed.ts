@@ -1,6 +1,6 @@
 // prisma/seed.ts
 import { PrismaClient } from '../app/generated/prisma/index.js'
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 const prisma = new PrismaClient()
 
 const Semester = {
@@ -19,10 +19,8 @@ async function main() {
 
   // 1. ✅ Pengaturan Sistem
   console.log('📊 Seeding system settings...')
-  await prisma.pengaturanSistem.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
+  await prisma.pengaturanSistem.create({
+    data: {
       currentSemester: Semester.GANJIL,
       currentYear: 2025,
     },
@@ -1257,9 +1255,10 @@ def bfs(graph, start):
     include: { praktikum: true }
   })
 
+  const bahasaDidukung = ['Python', 'c++','c','java']
   // Helper untuk mendapatkan bahasa Python
-  const pythonLang = await prisma.bahasaPemrograman.findUnique({
-    where: { nama: 'Python' }
+  const pythonLang = await prisma.bahasaPemrograman.findMany({
+    where: { nama: {in: bahasaDidukung} }
   })
 
   // ===== SOAL PEMROGRAMAN A =====
@@ -1297,7 +1296,7 @@ print("Hello World!")
         batasanMemoriKb: 32768,
         batasanWaktuEksekusiMs: 1000,
         templateKode: 'print("Hello World!")',
-        bobotNilai: 25,
+        bobotNilai:100,
       }
     })
 
@@ -1359,7 +1358,7 @@ print(A + B)
         batasanMemoriKb: 32768,
         batasanWaktuEksekusiMs: 1000,
         templateKode: 'A, B = map(int, input().split())\nprint(A + B)',
-        bobotNilai: 25,
+        bobotNilai:100,
       }
     })
 
@@ -1437,7 +1436,7 @@ print(luas)
         batasanMemoriKb: 32768,
         batasanWaktuEksekusiMs: 1000,
         templateKode: 'panjang, lebar = map(int, input().split())\nprint(panjang * lebar)',
-        bobotNilai: 25,
+        bobotNilai:100,
       }
     })
 
@@ -1504,7 +1503,7 @@ print(total_gaji)
         batasanMemoriKb: 32768,
         batasanWaktuEksekusiMs: 1000,
         templateKode: 'jam_kerja, upah_per_jam = map(int, input().split())\nprint(jam_kerja * upah_per_jam)',
-        bobotNilai: 25,
+        bobotNilai:100,
       }
     })
 
@@ -1578,7 +1577,7 @@ else:
         batasanMemoriKb: 32768,
         batasanWaktuEksekusiMs: 1000,
         templateKode: 'n = int(input())\nif n % 2 == 0:\n    print("GENAP")\nelse:\n    print("GANJIL")',
-        bobotNilai: 25,
+        bobotNilai:100,
       }
     })
 
@@ -1663,7 +1662,7 @@ Urutan kondisi **sangat penting**:
         batasanMemoriKb: 32768,
         batasanWaktuEksekusiMs: 1000,
         templateKode: 'nilai = int(input())\nif nilai >= 90:\n    print("A")\nelif nilai >= 80:\n    print("B")\nelif nilai >= 70:\n    print("C")\nelif nilai >= 60:\n    print("D")\nelse:\n    print("E")',
-        bobotNilai: 25,
+        bobotNilai:100,
       }
     })
 
@@ -1748,7 +1747,7 @@ print(terbesar)
         batasanMemoriKb: 32768,
         batasanWaktuEksekusiMs: 1000,
         templateKode: 'a, b, c = map(int, input().split())\nprint(max(a, b, c))',
-        bobotNilai: 25,
+        bobotNilai:100,
       }
     })
 
@@ -1828,7 +1827,7 @@ elif op == "/":
         batasanMemoriKb: 32768,
         batasanWaktuEksekusiMs: 1000,
         templateKode: 'a, op, b = input().split()\na, b = int(a), int(b)\nif op == "+":\n    print(a + b)\nelif op == "-":\n    print(a - b)\nelif op == "*":\n    print(a * b)\nelif op == "/":\n    print(a // b)',
-        bobotNilai: 25,
+        bobotNilai:100,
       }
     })
 
@@ -1851,29 +1850,404 @@ elif op == "/":
     }
   }
 
-  // ... Continue with other soal dengan format markdown yang sama ...
-  // (SDA soal akan menggunakan format yang lebih teknis dengan code examples)
+  // ===== SOAL PEMROGRAMAN B =====
+  // Tugas 1: Looping dan Perulangan
+  const progBTugas1 = tugasList.find(t => 
+    t.praktikum.kodePraktikum === 'PROG-B-2025-1' && 
+    t.judul.includes('Looping')
+  )
 
-  console.log('✅ Sample soal dan test case created successfully!')
-  console.log(`📝 Total Soal: ${await prisma.soal.count()}`)
-  console.log(`🧪 Total Test Case: ${await prisma.testCase.count()}`)
-  console.log(`📚 Total Contoh Test Case: ${await prisma.contohTestCase.count()}`)
+  if (progBTugas1) {
+    // Soal 1: Deret Bilangan
+    const soal1 = await prisma.soal.create({
+      data: {
+        idTugas: progBTugas1.id,
+        judul: 'Deret Bilangan',
+        deskripsi: 'Buatlah program yang menampilkan deret bilangan dari 1 hingga N.',
+        batasan: 'N adalah bilangan bulat positif <= 100',
+        formatInput: 'Sebuah bilangan bulat N',
+        formatOutput: 'Deret bilangan dari 1 hingga N, dipisahkan spasi',
+        batasanMemoriKb: 32768,
+        batasanWaktuEksekusiMs: 1000,
+        templateKode: 'n = int(input())\nfor i in range(1, n+1):\n    print(i, end=" ")',
+        bobotNilai:100,
+      }
+    })
 
-  console.log('✅ Seed completed successfully!')
-  console.log('\n📊 Summary:')
-  console.log(`🏛️ Fakultas: ${fakultasData.length}`)
-  console.log(`🎓 Program Studi: ${programStudiData.length}`)
-  console.log(`👑 Admin: 1`)
-  console.log(`🔬 Laboran: 1`)
-  console.log(`👨‍🏫 Dosen: ${dosenData.length}`)
-  console.log(`🎓 Mahasiswa: ${mahasiswaData.length}`)
-  console.log(`📚 Praktikum: ${praktikumData.length}`)
-  console.log(`🎯 Asisten: ${asistenAssignments.length}`)
-  console.log(`💻 Bahasa: ${languages.length}`)
-  console.log(`📝 Tugas: ${tugasData.length}`)
-  console.log(`🧩 Soal: ${await prisma.soal.count()}`)
-  console.log(`🧪 Test Case: ${await prisma.testCase.count()}`)
-  console.log('\n🔐 Default Passwords:')
+    // Test case untuk Deret Bilangan
+    const testCasesDeret = [
+      { input: '5', output: '1 2 3 4 5 ' },
+      { input: '3', output: '1 2 3 ' },
+      { input: '1', output: '1 ' },
+      { input: '10', output: '1 2 3 4 5 6 7 8 9 10 ' },
+    ]
+
+    for (const testCase of testCasesDeret) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal1.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+
+    // Soal 2: Faktorial
+    const soal2 = await prisma.soal.create({
+      data: {
+        idTugas: progBTugas1.id,
+        judul: 'Faktorial',
+        deskripsi: 'Buatlah program yang menghitung faktorial dari bilangan N.',
+        batasan: 'N adalah bilangan bulat positif <= 20',
+        formatInput: 'Sebuah bilangan bulat N',
+        formatOutput: 'Faktorial dari N',
+        batasanMemoriKb: 32768,
+        batasanWaktuEksekusiMs: 1000,
+        templateKode: 'n = int(input())\nfaktorial = 1\nfor i in range(1, n+1):\n    faktorial *= i\nprint(faktorial)',
+        bobotNilai:100,
+      }
+    })
+
+    // Test case untuk Faktorial
+    const testCasesFaktorial = [
+      { input: '5', output: '120' },
+      { input: '3', output: '6' },
+      { input: '1', output: '1' },
+      { input: '4', output: '24' },
+    ]
+
+    for (const testCase of testCasesFaktorial) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal2.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+
+    // Soal 3: Pola Bintang
+    const soal3 = await prisma.soal.create({
+      data: {
+        idTugas: progBTugas1.id,
+        judul: 'Pola Bintang',
+        deskripsi: 'Buatlah program yang menampilkan pola bintang segitiga dengan tinggi N.',
+        batasan: 'N adalah bilangan bulat positif <= 20',
+        formatInput: 'Sebuah bilangan bulat N',
+        formatOutput: 'Pola bintang segitiga dengan tinggi N',
+        batasanMemoriKb: 32768,
+        batasanWaktuEksekusiMs: 1000,
+        templateKode: 'n = int(input())\nfor i in range(1, n+1):\n    print("*" * i)',
+        bobotNilai:100,
+      }
+    })
+
+    // Test case untuk Pola Bintang
+    const testCasesPola = [
+      { 
+        input: '3', 
+        output: '*\n**\n***' 
+      },
+      { 
+        input: '4', 
+        output: '*\n**\n***\n****' 
+      },
+    ]
+
+    for (const testCase of testCasesPola) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal3.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+
+    // Soal 4: Jumlah Bilangan Genap
+    const soal4 = await prisma.soal.create({
+      data: {
+        idTugas: progBTugas1.id,
+        judul: 'Jumlah Bilangan Genap',
+        deskripsi: 'Buatlah program yang menghitung jumlah bilangan genap dari 1 hingga N.',
+        batasan: 'N adalah bilangan bulat positif <= 100',
+        formatInput: 'Sebuah bilangan bulat N',
+        formatOutput: 'Jumlah bilangan genap dari 1 hingga N',
+        batasanMemoriKb: 32768,
+        batasanWaktuEksekusiMs: 1000,
+        templateKode: 'n = int(input())\njumlah = 0\nfor i in range(2, n+1, 2):\n    jumlah += i\nprint(jumlah)',
+        bobotNilai:100,
+      }
+    })
+
+    // Test case untuk Jumlah Bilangan Genap
+    const testCasesJumlahGenap = [
+      { input: '10', output: '30' }, // 2+4+6+8+10 = 30
+      { input: '8', output: '20' },  // 2+4+6+8 = 20
+      { input: '5', output: '6' },   // 2+4 = 6
+    ]
+
+    for (const testCase of testCasesJumlahGenap) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal4.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+  }
+
+  // ===== SOAL STRUKTUR DATA A =====
+  // Tugas 1: Stack dan Queue
+  const sdaTugas1 = tugasList.find(t => 
+    t.praktikum.kodePraktikum === 'SDA-A-2025-1' && 
+    t.judul.includes('Stack')
+  )
+
+  if (sdaTugas1) {
+    // Soal 1: Implementasi Stack
+    const soal1 = await prisma.soal.create({
+      data: {
+        idTugas: sdaTugas1.id,
+        judul: 'Implementasi Stack',
+        deskripsi: 'Implementasikan stack dengan operasi push, pop, dan peek. Program akan menerima serangkaian operasi dan menampilkan hasil setiap operasi.',
+        batasan: 'Maksimal 100 operasi',
+        formatInput: 'Baris pertama berisi jumlah operasi N. N baris berikutnya berisi operasi: PUSH x, POP, atau PEEK.',
+        formatOutput: 'Untuk setiap operasi POP dan PEEK, tampilkan hasilnya. Jika stack kosong, tampilkan "EMPTY".',
+        batasanMemoriKb: 65536,
+        batasanWaktuEksekusiMs: 2000,
+        templateKode: 'stack = []\nn = int(input())\nfor _ in range(n):\n    operation = input().split()\n    if operation[0] == "PUSH":\n        stack.append(int(operation[1]))\n    elif operation[0] == "POP":\n        if stack:\n            print(stack.pop())\n        else:\n            print("EMPTY")\n    elif operation[0] == "PEEK":\n        if stack:\n            print(stack[-1])\n        else:\n            print("EMPTY")',
+        bobotNilai:100,
+      }
+    })
+
+    // Test case untuk Stack
+    const testCasesStack = [
+      { 
+        input: '5\nPUSH 10\nPUSH 20\nPEEK\nPOP\nPOP', 
+        output: '20\n20\n10' 
+      },
+      { 
+        input: '3\nPOP\nPUSH 5\nPEEK', 
+        output: 'EMPTY\n5' 
+      },
+    ]
+
+    for (const testCase of testCasesStack) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal1.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+
+    // Soal 2: Kurung Seimbang
+    const soal2 = await prisma.soal.create({
+      data: {
+        idTugas: sdaTugas1.id,
+        judul: 'Kurung Seimbang',
+        deskripsi: 'Buatlah program yang mengecek apakah kurung dalam string seimbang menggunakan stack.',
+        batasan: 'Panjang string <= 1000, hanya berisi karakter (, ), [, ], {, }',
+        formatInput: 'Sebuah string berisi karakter kurung',
+        formatOutput: 'SEIMBANG jika kurung seimbang, TIDAK SEIMBANG jika tidak',
+        batasanMemoriKb: 65536,
+        batasanWaktuEksekusiMs: 2000,
+        templateKode: 'def is_balanced(s):\n    stack = []\n    pairs = {"(": ")", "[": "]", "{": "}"}\n    for char in s:\n        if char in pairs:\n            stack.append(char)\n        elif char in pairs.values():\n            if not stack:\n                return False\n            if pairs[stack.pop()] != char:\n                return False\n    return len(stack) == 0\n\ns = input().strip()\nif is_balanced(s):\n    print("SEIMBANG")\nelse:\n    print("TIDAK SEIMBANG")',
+        bobotNilai:100,
+      }
+    })
+
+    // Test case untuk Kurung Seimbang
+    const testCasesKurung = [
+      { input: '()', output: 'SEIMBANG' },
+      { input: '([{}])', output: 'SEIMBANG' },
+      { input: '([)]', output: 'TIDAK SEIMBANG' },
+      { input: '((', output: 'TIDAK SEIMBANG' },
+    ]
+
+    for (const testCase of testCasesKurung) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal2.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+
+    // Soal 3: Implementasi Queue
+    const soal3 = await prisma.soal.create({
+      data: {
+        idTugas: sdaTugas1.id,
+        judul: 'Implementasi Queue',
+        deskripsi: 'Implementasikan queue dengan operasi enqueue, dequeue, dan front.',
+        batasan: 'Maksimal 100 operasi',
+        formatInput: 'Baris pertama berisi jumlah operasi N. N baris berikutnya berisi operasi: ENQUEUE x, DEQUEUE, atau FRONT.',
+        formatOutput: 'Untuk setiap operasi DEQUEUE dan FRONT, tampilkan hasilnya. Jika queue kosong, tampilkan "EMPTY".',
+        batasanMemoriKb: 65536,
+        batasanWaktuEksekusiMs: 2000,
+        templateKode: 'from collections import deque\nqueue = deque()\nn = int(input())\nfor _ in range(n):\n    operation = input().split()\n    if operation[0] == "ENQUEUE":\n        queue.append(int(operation[1]))\n    elif operation[0] == "DEQUEUE":\n        if queue:\n            print(queue.popleft())\n        else:\n            print("EMPTY")\n    elif operation[0] == "FRONT":\n        if queue:\n            print(queue[0])\n        else:\n            print("EMPTY")',
+        bobotNilai:100,
+      }
+    })
+
+    // Test case untuk Queue
+    const testCasesQueue = [
+      { 
+        input: '5\nENQUEUE 10\nENQUEUE 20\nFRONT\nDEQUEUE\nDEQUEUE', 
+        output: '10\n10\n20' 
+      },
+      { 
+        input: '3\nDEQUEUE\nENQUUE 5\nFRONT', 
+        output: 'EMPTY\n5' 
+      },
+    ]
+
+    for (const testCase of testCasesQueue) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal3.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+  }
+
+  // Tugas 2: Sorting Algorithm
+  const sdaTugas2 = tugasList.find(t => 
+    t.praktikum.kodePraktikum === 'SDA-A-2025-1' && 
+    t.judul.includes('Sorting')
+  )
+
+  if (sdaTugas2) {
+    // Soal 1: Bubble Sort
+    const soal1 = await prisma.soal.create({
+      data: {
+        idTugas: sdaTugas2.id,
+        judul: 'Bubble Sort',
+        deskripsi: 'Implementasikan algoritma bubble sort untuk mengurutkan array.',
+        batasan: 'Jumlah elemen <= 100, nilai elemen <= 1000',
+        formatInput: 'Baris pertama berisi jumlah elemen N. Baris kedua berisi N elemen dipisahkan spasi.',
+        formatOutput: 'Array setelah diurutkan, dipisahkan spasi',
+        batasanMemoriKb: 65536,
+        batasanWaktuEksekusiMs: 3000,
+        templateKode: 'def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]\n    return arr\n\nn = int(input())\narr = list(map(int, input().split()))\nsorted_arr = bubble_sort(arr)\nprint(" ".join(map(str, sorted_arr)))',
+        bobotNilai:100,
+      }
+    })
+
+    // Test case untuk Bubble Sort
+    const testCasesBubble = [
+      { input: '5\n64 34 25 12 22', output: '12 22 25 34 64' },
+      { input: '3\n3 1 2', output: '1 2 3' },
+      { input: '4\n1 1 1 1', output: '1 1 1 1' },
+    ]
+
+    for (const testCase of testCasesBubble) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal1.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+
+    // Soal 2: Selection Sort
+    const soal2 = await prisma.soal.create({
+      data: {
+        idTugas: sdaTugas2.id,
+        judul: 'Selection Sort',
+        deskripsi: 'Implementasikan algoritma selection sort untuk mengurutkan array.',
+        batasan: 'Jumlah elemen <= 100, nilai elemen <= 1000',
+        formatInput: 'Baris pertama berisi jumlah elemen N. Baris kedua berisi N elemen dipisahkan spasi.',
+        formatOutput: 'Array setelah diurutkan, dipisahkan spasi',
+        batasanMemoriKb: 65536,
+        batasanWaktuEksekusiMs: 3000,
+        templateKode: 'def selection_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        min_idx = i\n        for j in range(i+1, n):\n            if arr[j] < arr[min_idx]:\n                min_idx = j\n        arr[i], arr[min_idx] = arr[min_idx], arr[i]\n    return arr\n\nn = int(input())\narr = list(map(int, input().split()))\nsorted_arr = selection_sort(arr)\nprint(" ".join(map(str, sorted_arr)))',
+        bobotNilai:100,
+      }
+    })
+
+    // Test case untuk Selection Sort (sama dengan bubble sort)
+    for (const testCase of testCasesBubble) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal2.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+
+    // Soal 3: Insertion Sort
+    const soal3 = await prisma.soal.create({
+      data: {
+        idTugas: sdaTugas2.id,
+        judul: 'Insertion Sort',
+        deskripsi: 'Implementasikan algoritma insertion sort untuk mengurutkan array.',
+        batasan: 'Jumlah elemen <= 100, nilai elemen <= 1000',
+        formatInput: 'Baris pertama berisi jumlah elemen N. Baris kedua berisi N elemen dipisahkan spasi.',
+        formatOutput: 'Array setelah diurutkan, dipisahkan spasi',
+        batasanMemoriKb: 65536,
+        batasanWaktuEksekusiMs: 3000,
+        templateKode: 'def insertion_sort(arr):\n    for i in range(1, len(arr)):\n        key = arr[i]\n        j = i - 1\n        while j >= 0 and arr[j] > key:\n            arr[j + 1] = arr[j]\n            j -= 1\n        arr[j + 1] = key\n    return arr\n\nn = int(input())\narr = list(map(int, input().split()))\nsorted_arr = insertion_sort(arr)\nprint(" ".join(map(str, sorted_arr)))',
+        bobotNilai:100,
+      }
+    })
+
+    // Test case untuk Insertion Sort (sama dengan bubble sort)
+    for (const testCase of testCasesBubble) {
+      await prisma.testCase.create({
+        data: {
+          idSoal: soal3.id,
+          input: testCase.input,
+          outputDiharapkan: testCase.output,
+        }
+      })
+    }
+  }
+
+
+  // bahasa didukung untuk tugas
+
+  const allTugas = await prisma.tugas.findMany()
+  const allBahasa = await prisma.bahasaPemrograman.findMany()
+
+  for (const tugas of allTugas) {
+    await prisma.tugasBahasa.createMany({
+      data: allBahasa.map((bahasa) => ({
+        idTugas: tugas.id,
+        idBahasa: bahasa.id
+      }))
+    })
+  }
+  
+
+  console.log('Sample soal dan test case created successfully!')
+  console.log(`Total Soal: ${await prisma.soal.count()}`)
+  console.log(`Total Test Case: ${await prisma.testCase.count()}`)
+  console.log(`Total Contoh Test Case: ${await prisma.contohTestCase.count()}`)
+
+  console.log('Seed completed successfully!')
+  console.log('\n Summary:')
+  console.log(` Fakultas: ${fakultasData.length}`)
+  console.log(` Program Studi: ${programStudiData.length}`)
+  console.log(` Admin: 1`)
+  console.log(` Laboran: 1`)
+  console.log(` Dosen: ${dosenData.length}`)
+  console.log(` Mahasiswa: ${mahasiswaData.length}`)
+  console.log(` Praktikum: ${praktikumData.length}`)
+  console.log(` Asisten: ${asistenAssignments.length}`)
+  console.log(` Bahasa: ${languages.length}`)
+  console.log(` Tugas: ${tugasData.length}`)
+  console.log(` Soal: ${await prisma.soal.count()}`)
+  console.log(` Test Case: ${await prisma.testCase.count()}`)
+  console.log('\n Default Passwords:')
   console.log(`Admin: admin123`)
   console.log(`Laboran: laboran123`)
   console.log(`Dosen: dosen123`)

@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
         include: { praktikum: true },
       }),
     ])
+    
     let dataPesertaPraktikum = {}
     if(pesertaPraktikum.length > 0) {
       dataPesertaPraktikum = pesertaPraktikum.map(peserta => ({

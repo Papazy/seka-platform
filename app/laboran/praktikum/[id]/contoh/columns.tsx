@@ -12,7 +12,7 @@ import { formatDate } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 
 interface ParticipantData {
-  id: number
+  id: string
   type: 'peserta' | 'asisten' | 'dosen'
   nama: string
   identifier: string // npm/nip
@@ -28,7 +28,7 @@ interface ParticipantData {
 interface CreateColumnsProps {
   type: 'peserta' | 'asisten' | 'dosen'
   onRemove: (participant: ParticipantData) => void
-  onChangeRole?: (participantId: number, newRole: 'peserta' | 'asisten') => void
+  onChangeRole?: (participantId: string, newRole: 'peserta' | 'asisten') => void
   selectedIds: number[]
   onSelectionChange: (ids: number[]) => void
 }
@@ -45,7 +45,7 @@ export function createParticipantColumns({
     // This will be handled by the table component
   }
 
-  const handleSelectOne = (id: number, checked: boolean) => {
+  const handleSelectOne = (id: string, checked: boolean) => {
     if (checked) {
       onSelectionChange([...selectedIds, id])
     } else {

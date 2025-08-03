@@ -6,7 +6,7 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 
 interface LaboranFormProps {
   laboran?: {
-    id: number
+    id: string
     nama: string
     email: string
   }

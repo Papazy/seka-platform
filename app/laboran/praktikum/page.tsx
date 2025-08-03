@@ -24,7 +24,7 @@ import { ImportCSVModal } from '@/components/modals/ImportCSVModal'
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 
 interface PraktikumData {
-  id: number
+  id: string
   nama: string
   kodePraktikum: string
   kodeMk: string
@@ -37,7 +37,7 @@ interface PraktikumData {
   ruang: string
   isActive: boolean
   laboran: {
-    id: number
+    id: string
     nama: string
     email: string
   }
@@ -94,12 +94,12 @@ export default function PraktikumPage() {
     toast.success('Import praktikum berhasil!')
   }
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     router.push(`/laboran/praktikum/edit/${id}`)
   }
 
 
-  const confirmDelete = (id: number) => {
+  const confirmDelete = (id: string) => {
     setSelectedDeleteId(id)
     setIsModalDeleteOpen(true)
   }
@@ -128,7 +128,7 @@ export default function PraktikumPage() {
     }
   }
 
-  const handleToggleActive = async (id: number, currentStatus: boolean) => {
+  const handleToggleActive = async (id: string, currentStatus: boolean) => {
     try {
       const response = await fetch(`/api/praktikum/${id}/toggle-active`, {
         method: 'PATCH',
@@ -153,7 +153,7 @@ export default function PraktikumPage() {
 
 
 
-  const handleDetail = (id: number) => {
+  const handleDetail = (id: string) => {
     router.push(`/laboran/praktikum/${id}`)
   }
 

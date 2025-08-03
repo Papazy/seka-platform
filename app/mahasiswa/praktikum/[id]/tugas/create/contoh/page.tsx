@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -22,6 +22,7 @@ import {
   HardDrive,
   Trophy
 } from 'lucide-react';
+import { useBahasa } from '@/hooks/useBahasa';
 
 interface SoalData {
   id: string;
@@ -46,6 +47,15 @@ interface SoalData {
   }>;
 }
 
+interface BahasaPemrograman {
+  id: string;
+  nama: string;
+  ekstensi: string;
+  compiler: string;
+  versi: string;
+}
+
+
 export default function CreateTugasPage() {
   const router = useRouter();
   const params = useParams();
@@ -53,6 +63,16 @@ export default function CreateTugasPage() {
   
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('tugas');
+  const [selectedBahasa, setSelectedBahasa] = useState<number[]>([]);
+  
+  const {data: bahasaList, isLoading: bahasaLoading, error: bahasaError} = useBahasa()
+
+  // Select semua bahasa saat pertama
+  useEffect(() => {
+    if (bahasaList && bahasaList.length > 0 && selectedBahasa.length === 0) {
+      setSelectedBahasa(bahasaList.map(bahasa => bahasa.id));
+    }
+  }, [bahasaList, selectedBahasa.length]);
   
   const [tugasData, setTugasData] = useState({
     judul: '',
@@ -99,41 +119,7 @@ $$`,
   const createEmptySoal = (): SoalData => ({
     id: Date.now().toString(),
     judul: '',
-    deskripsi: `# Problem Title
-
-## Problem Statement
-Diberikan...
-
-## Input Format
-\`\`\`
-Baris pertama: integer n
-Baris kedua: n integers dipisahkan spasi
-\`\`\`
-
-## Output Format
-\`\`\`
-Satu baris berisi hasil
-\`\`\`
-
-## Constraints
-- $1 \\leq n \\leq 10^5$
-- $-10^9 \\leq a_i \\leq 10^9$
-
-## Example
-
-### Input
-\`\`\`
-3
-1 2 3
-\`\`\`
-
-### Output
-\`\`\`
-6
-\`\`\`
-
-### Explanation
-$1 + 2 + 3 = 6$`,
+    deskripsi: `# Deskripsi soal`,
     batasan: `- $1 \\leq n \\leq 10^5$
 - $-10^9 \\leq a_i \\leq 10^9$
 - Time limit: 1 second per test case`,
@@ -196,6 +182,39 @@ int main() {
     setSoalList(soalList.map(soal => 
       soal.id === soalId ? { ...soal, [field]: value } : soal
     ));
+  };
+
+  // toggle bahasa
+  const handleBahasaToggle = (bahasaId: string) => {
+    setSelectedBahasa(prev => {
+      if (prev.includes(bahasaId)) {
+        // Remove bahasa
+        const newSelection = prev.filter(id => id !== bahasaId);
+        
+        // validasi wajib plih 1 bahasa
+        if (newSelection.length === 0) {
+          toast.error('Minimal harus memilih 1 bahasa pemrograman');
+          return prev;
+        }
+        
+        return newSelection;
+      } else {
+        // add bahasa
+        return [...prev, bahasaId];
+      }
+    });
+  };
+
+  const handleSelectAllBahasa = () => {
+    if (bahasaList) {
+      setSelectedBahasa(bahasaList.map(bahasa => bahasa.id));
+    }
+  };
+
+  const handleDeselectAllBahasa = () => {
+    if (bahasaList && bahasaList.length > 0) {
+      setSelectedBahasa([bahasaList[0].id]);
+    }
   };
 
   const addContohTestCase = (soalId: string) => {
@@ -265,6 +284,11 @@ int main() {
       toast.error('Deskripsi tugas harus diisi');
       return false;
     }
+
+    if (selectedBahasa.length === 0) {
+      toast.error('Minimal harus memilih 1 bahasa pemrograman');
+      return false;
+    }
     
     const deadlineDate = new Date(tugasData.deadline);
     const now = new Date();
@@ -311,8 +335,11 @@ int main() {
 
     try {
       const payload = {
-        tugas: tugasData,
-        soal: soalList.map(({ id, ...soal }) => soal) // Remove temporary id
+        tugas: {
+          ...tugasData,
+          selectedBahasa
+        },
+        soal: soalList.map(({ id, ...soal }) => soal) 
       };
 
       const response = await fetch(`/api/praktikum/${params.id}/tugas`, {
@@ -411,6 +438,7 @@ int main() {
               >
                 Info Tugas
               </button>
+              
               <button
                 onClick={() => setActiveTab('soal')}
                 className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -448,7 +476,7 @@ int main() {
                 />
               </div>
 
-              {/* Deskripsi dengan Markdown */}
+              {/* Deskripsi  */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="block text-sm font-medium text-gray-700">
@@ -500,6 +528,10 @@ int main() {
                 )}
               </div>
 
+              
+              
+          
+
               {/* Deadline & Maksimal Submit */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -538,6 +570,7 @@ int main() {
               </div>
             </div>
           )}
+          
 
           {/* Soal Tab */}
           {activeTab === 'soal' && (

@@ -8,19 +8,19 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { use } from 'react';
 
 interface Problem {
-  id: number;
+  id: string;
   title: string;
   maxScore: number;
 }
 
 interface StudentScore {
-  userId: number;
+  userId: string;
   name: string;
   npm: string;
   totalScore: number;
   totalMaxScore: number;
   problemScores: {
-    [problemId: number]: {
+    [problemId: string]: {
       score: number;
       maxScore: number;
       status: string;
@@ -31,7 +31,7 @@ interface StudentScore {
 
 interface ScoreboardData {
   assignment: {
-    id: number;
+    id: string;
     title: string;
     class: {
       name: string;

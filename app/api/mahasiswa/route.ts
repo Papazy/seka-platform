@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password default
-    const bcrypt = require('bcryptjs')
+    const bcrypt = require('bcrypt')
     const hashedPassword = await bcrypt.hash('mahasiswa123', 10)
 
     // Buat mahasiswa baru

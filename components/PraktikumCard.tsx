@@ -1,7 +1,7 @@
 import { getCurrentYearAndSemester } from "@/lib/getCurrentYearAndSemester";
 
 interface ClassItem {
-  id: number;
+  id: string;
   nama: string;
   kodePraktikum: string;
   kelas: string;
@@ -19,7 +19,7 @@ export default function PraktikumCard({
   isGridView
 }: {
   praktikum: ClassItem;
-  onClick: (id: number) => void;
+  onClick: (id: string) => void;
   isGridView: boolean;
 }) {
   const { semester, year } = getCurrentYearAndSemester();

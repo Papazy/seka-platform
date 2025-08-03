@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = req.cookies.get('token')?.value
@@ -22,7 +22,7 @@ export async function PUT(
     }
 
     const { nama, kodeFakultas } = await req.json()
-    const fakultasId = parseInt(params.id)
+    const fakultasId = (params.id)
 
     if (!nama || !kodeFakultas) {
       return NextResponse.json({ error: 'Nama dan kode fakultas wajib diisi' }, { status: 400 })
@@ -73,7 +73,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = req.cookies.get('token')?.value
@@ -88,7 +88,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const fakultasId = parseInt(params.id)
+    const fakultasId = (params.id)
 
     // Check if fakultas has program studi
     const programStudiCount = await prisma.programStudi.count({

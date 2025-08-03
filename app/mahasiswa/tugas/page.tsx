@@ -1,5 +1,5 @@
 'use client'
-import { useTugasMahasiswa } from "@/app/hooks/useTugasMahasiswa";
+import { useTugasMahasiswa } from "@/hooks/useTugasMahasiswa";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ToggleViewMode from "@/components/ToggleViewMode";
 import { useViewMode } from "@/contexts/ViewModeContext";
@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react"
 
 interface TugasData {
-    id: number
+    id: string
     idPraktikum: number
     idAsisten: number
     judul: string
@@ -18,7 +18,7 @@ interface TugasData {
     updatedAt: string
     totalSoal : number
     praktikum : {
-        id: number
+        id: string
         nama: string
         kelas: string
     }
@@ -36,7 +36,7 @@ export default function TugasPage() {
     } =  useTugasMahasiswa()
     const router = useRouter()
     
-    const handleClick = useCallback((praktikumId: number, tugasId: number) => {
+    const handleClick = useCallback((praktikumId: string, tugasId: string) => {
         router.push(`/mahasiswa/praktikum/${praktikumId}/tugas/${tugasId}`)
     },[router] )
 
@@ -58,25 +58,7 @@ export default function TugasPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 px-8">
-                {/* Header */}
-            {/* <div className="max-w-7xl mx-auto py-8 px-8">
-                <div className="">
-                    <div className="flex flex-row items-center justify-between gap-4">
-                        <div className="relative flex-1 max-w md">
-                            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input
-                                type="text"
-                                placeholder="Cari Tugas..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] focus:border-[#3ECF8E] text-sm text-gray-700 bg-white shadow-sm"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div> */}
+               
 
             {/* Content */}
             <div className="max-w-7xl mx-auto py-4 px-8">
@@ -100,8 +82,6 @@ export default function TugasPage() {
                         
                     ))}
 
-                    {/* <TugasCard tugas={{ id: 1, nama: "Tugas 1", kelas: "A", deadline: "2025-01-29", soalCount: 5 }} />
-                    <TugasCard tugas={{ id: 3, nama: "Tugas 3", kelas: "C", deadline: "2025-02-12", soalCount: 4 }} /> */}
                 </div>
             </div>
         </div>
@@ -128,9 +108,6 @@ const TugasCard = ({ tugas, onClick }: { tugas: TugasData, onClick : () => void 
         className="bg-white flex justify-between rounded-lg shadow-sm border border-gray-200 px-4 py-4 cursor-pointer hover:shadow-md hover:border-gray-300 transition-shadow duration-200">
             <div className="">
                 <div className="text-base">{tugas.judul}</div>
-                <div className="text-sm text-gray-600 my-3">
-                    {tugas.deskripsi}
-                </div>
                 <div className="flex gap-4 text-xs text-gray-500">
                     <span>Deadline: {deadlineDate}</span>
                     <span>{tugas.totalSoal} soal</span>

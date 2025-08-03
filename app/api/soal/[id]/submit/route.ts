@@ -6,11 +6,11 @@ import { StatusSubmissionTugas } from '@/lib/enum'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
 
-    const soalId = parseInt(params.id)
+    const soalId = (params.id)
     const { sourceCode, languageId } = await request.json()
 
     if (!sourceCode || !languageId) {
@@ -100,7 +100,7 @@ export async function POST(
       language: bahasa.nama.toLowerCase()
     }
 
-    const judgeResponse = await fetch(`${process.env.JUDGE_API_URL}/judge,` {
+    const judgeResponse = await fetch(`${process.env.JUDGE_API_URL}/judge`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ export async function POST(
 
     // Create submission record
     const submission = await prisma.submission.create({
-      data: {p
+      data: {
         idSoal: soalId,
         idPeserta: peserta.id,
         idBahasa: languageId,

@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { tugasId: string } }
+  { params }: {params: Promise<{ tugasId: string }>}
 ) {
   try {
     const token = req.cookies.get('token')?.value
@@ -17,7 +17,7 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const tugasId = parseInt(params.tugasId)
+    const tugasId = (params.tugasId)
     const soalData = await req.json()
 
     // Verify user is asisten of this tugas

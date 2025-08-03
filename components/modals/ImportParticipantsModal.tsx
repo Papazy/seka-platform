@@ -12,7 +12,7 @@ interface ImportParticipantsModalProps {
   onClose: () => void
   onSuccess: () => void
   type: 'peserta' | 'asisten' | 'dosen'
-  praktikumId: number
+  praktikumId: string
 }
 
 export function ImportParticipantsModal({

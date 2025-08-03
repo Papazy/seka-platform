@@ -1,5 +1,5 @@
 export interface Laboran {
-  id: number;
+  id: string;
   nama: string;
   email: string;
   createdAt: string;

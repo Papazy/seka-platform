@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; tugasId: string } }
+  { params }: {params: Promise<{ id: string; tugasId: string }>}
 ) {
   try {
     const token = request.cookies.get('token')?.value;
@@ -18,12 +18,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const praktikumId = parseInt(params.id);
-    const tugasId = parseInt(params.tugasId);
-    
-    if (isNaN(praktikumId) || isNaN(tugasId)) {
-      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
-    }
+    const praktikumId = (params.id);
+    const tugasId = (params.tugasId);
 
     // Check if user is asisten for this praktikum
     const asisten = await prisma.asistenPraktikum.findFirst({
@@ -62,6 +58,24 @@ export async function PUT(
       return NextResponse.json({ error: 'Deadline must be in the future' }, { status: 400 });
     }
 
+    // update Tugas Bahasa
+    if (body.tugasBahasa && Array.isArray(body.tugasBahasa)) {
+      const tugasBahasaData = body.tugasBahasa.map((id: any) => ({
+        idTugas: tugasId,
+        idBahasa: id
+      }));
+
+      // Delete existing tugasBahasa
+      await prisma.tugasBahasa.deleteMany({
+        where: { idTugas: tugasId }
+      });
+
+      // Create new tugasBahasa
+      await prisma.tugasBahasa.createMany({
+        data: tugasBahasaData
+      });
+    }
+
     // Update tugas
     const updatedTugas = await prisma.tugas.update({
       where: { id: tugasId },
@@ -69,7 +83,7 @@ export async function PUT(
         judul,
         deskripsi,
         deadline: deadlineDate,
-        maksimalSubmit: maksimalSubmit || 3
+        maksimalSubmit: maksimalSubmit || 3,
       },
       include: {
         praktikum: {

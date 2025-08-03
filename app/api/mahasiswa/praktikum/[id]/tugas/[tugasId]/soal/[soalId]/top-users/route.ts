@@ -5,7 +5,7 @@ import { verifyToken } from "@/lib/auth"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string; tugasId: string; soalId: string } }
+  { params }: {params: Promise<{ id: string; tugasId: string; soalId: string }>}
 ) {
   try {
     const token = req.cookies.get('token')?.value
@@ -18,8 +18,8 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const praktikumId = parseInt(params.id)
-    const soalId = parseInt(params.soalId)
+    const praktikumId = (params.id)
+    const soalId = (params.soalId)
 
     // Get best submissions per user
     const bestSubmissions = await prisma.submission.findMany({

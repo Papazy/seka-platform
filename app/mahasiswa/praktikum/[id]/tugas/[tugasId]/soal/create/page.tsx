@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { useTugasDetail } from '@/app/hooks/useTugasDetail'
+import { useTugasDetail } from '@/hooks/useTugasDetail'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { Button } from '@/components/ui/button'
 import { Plus, Trash2, ArrowLeft } from 'lucide-react'
@@ -27,7 +27,7 @@ interface ContohTestCase {
   contohOutput: string
   penjelasanInput: string
   penjelasanOutput: string
-}
+} 
 
 interface TestCase {
   input: string
@@ -40,10 +40,10 @@ const initialSoalData: SoalFormData = {
   batasan: '',
   formatInput: '',
   formatOutput: '',
-  batasanMemoriKb: 32768,
+  batasanMemoriKb: 5120,
   batasanWaktuEksekusiMs: 1000,
   templateKode: '',
-  bobotNilai: 25,
+  bobotNilai: 100,
   contohTestCase: [
     {
       contohInput: '',
@@ -122,7 +122,7 @@ export default function CreateSoalPage() {
       return
     }
 
-    if (soalData.testCase.length === 0 || !soalData.testCase[0].input.trim()) {
+    if (soalData.testCase.length > 0 && !soalData.testCase[0].outputDiharapkan.trim()) {
       toast.error('Minimal harus ada 1 test case')
       return
     }
@@ -572,7 +572,6 @@ export default function CreateSoalPage() {
                                 rows={6}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-mono text-sm"
                                 placeholder="Input untuk test case..."
-                                required
                               />
                             </div>
                             <div>
@@ -585,7 +584,6 @@ export default function CreateSoalPage() {
                                 rows={6}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-mono text-sm"
                                 placeholder="Output yang diharapkan..."
-                                required
                               />
                             </div>
                           </div>

@@ -1,11 +1,12 @@
 'use client';
 
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { UserRole } from "@/lib/enum";
 import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface User { 
-  id: number;
+  id: string;
   nama: string;
   email: string;
   role: UserRole;
@@ -17,9 +18,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
 }
-
 
 const AuthContext = createContext<AuthContextType| undefined>(undefined);
 
@@ -29,35 +28,17 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
 
   const router = useRouter()
 
-  useEffect(()=>{
-    fetchUser();
-  }, []);
-
-  const fetchUser = async () => {
-    try{
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-      })
-      const data = await response.json();
-      if (!response.ok) {
-        console.error(data)
-        throw new Error('Failed to fetch user data');
-      }
-      if (data.error) {
-        console.error('Authentication error:', data.error);
-        setUser(null);
-      } else {
-        setUser(data.user);
-      }
-    }catch(error: any) {
-      console.error('Error checking authentication:', error);
-      router.push('/login');
-      router.refresh();
+  const {data: userData, error} = useCurrentUser();
+  useEffect(()=> {
+    if (userData) {
+      setUser(userData);
+      setIsLoading(false);
+    } else if (error) {
+      // console.error('Error fetching user data:', error);
       setUser(null);
-    }finally{
       setIsLoading(false);
     }
-  }
+  }, [userData, error]);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
@@ -126,12 +107,10 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     }
   }
 
-  const refreshUser = async () => {
-   await fetchUser();
-  };
+
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
 

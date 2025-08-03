@@ -120,7 +120,7 @@ export default function EditPraktikumPage() {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'tahun' ? parseInt(value) || 0 : value
+      [name]: name === 'tahun' ? (value) || 0 : value
     }))
     
     // Clear error when user starts typing

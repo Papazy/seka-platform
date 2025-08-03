@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  const idPraktikum = params.id;
+export async function DELETE(req: NextRequest, { params }: {params: Promise<{ id: string }>}) {
+  const { id } = await params;
   const { userIds, type } = await req.json();
 
   try {
@@ -13,7 +13,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
 
     const praktikum = await prisma.praktikum.findUnique({
-      where: { id: parseInt(idPraktikum) },
+      where: { id: (idPraktikum) },
       select: {
         id: true,
         nama: true,

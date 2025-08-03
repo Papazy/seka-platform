@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, {params} : {params: {id: string}}) {
+export async function GET(req: NextRequest, {params} : {params: Promise<{id: string}>}) {
   try{
     const idPraktikum  = params.id;
     
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, {params} : {params: {id: string}}) {
     console.log('id praktikum: ', idPraktikum)
     if(idPraktikum){
       const praktikum = await prisma.praktikum.findUnique({
-        where: {id: parseInt(idPraktikum)},
+        where: {id: (idPraktikum)},
         select: {
           nama: true,
           kelas: true,

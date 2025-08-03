@@ -8,7 +8,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 
 
 interface ClassData {
-  id: number;
+  id: string;
   name: string;
   classCode: string;
   semester: string;
@@ -22,7 +22,7 @@ interface ClassData {
 }
 
 interface Assignment {
-  id: number;
+  id: string;
   title: string;
   description: string;
   dueDate: string;
@@ -33,11 +33,11 @@ interface Assignment {
 }
 
 interface ClassMember {
-  userId: number;
+  userId: string;
   roleInClass: 'STUDENT' | 'DOSEN' | 'ASSISTANT';
   createdAt: string;
   user: {
-    id: number;
+    id: string;
     name: string;
     email: string;
     role: string;
@@ -46,7 +46,7 @@ interface ClassMember {
 }
 
 interface Announcement {
-  id: number;
+  id: string;
   title: string;
   description: string;
   createdAt: string;

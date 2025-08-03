@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import ToggleViewMode from "@/components/ToggleViewMode";
 import { getCurrentYearAndSemester } from "@/lib/getCurrentYearAndSemester";
-import { usePraktikumMahasiswa } from "@/app/hooks/usePraktikumMahasiswa";
+import { usePraktikumMahasiswa } from "@/hooks/usePraktikumMahasiswa";
 import { useViewMode } from "@/contexts/ViewModeContext";
 
 type ViewMode = 'grid' | 'list';
@@ -65,7 +65,7 @@ export default function PraktikumPage() {
 
   
 
-  const handleClassClick = (id: number) => {
+  const handleClassClick = (id: string) => {
     router.push(`/mahasiswa/praktikum/${id}`);
   }
 

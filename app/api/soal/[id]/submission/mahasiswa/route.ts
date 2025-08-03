@@ -2,9 +2,9 @@ import { verifyToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, {params} : {params: {id: string}}){
+export async function GET(req: NextRequest, {params} : {params: Promise<{id: string}>}){
   try{
-    const soalId = parseInt(params.id);
+    const soalId = (params.id);
     const token = req.cookies.get('token')?.value
 
     if(!token){

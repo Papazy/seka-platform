@@ -7,7 +7,7 @@ export function getCurrentUser(req: Request){
     throw new Error('Unauthorized')
   }
   return {
-    id: parseInt(userId),
+    id: (userId),
     role: userRole
   }
 } 

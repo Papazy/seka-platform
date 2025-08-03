@@ -8,7 +8,7 @@ import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 interface User {
-  id: number
+  id: string
   nama: string
   identifier: string // npm/nip
   email: string
@@ -24,7 +24,7 @@ interface AddParticipantModalProps {
   onClose: () => void
   handleAddParticipants: (data: any) => void
   type: 'peserta' | 'asisten' | 'dosen'
-  praktikumId: number
+  praktikumId: string
 }
 
 export function AddParticipantModal({
@@ -87,7 +87,7 @@ export function AddParticipantModal({
     }
   }
 
-  const handleRemoveUser = (userId: number) => {
+  const handleRemoveUser = (userId: string) => {
     setSelectedUsers(selectedUsers.filter(u => u.id !== userId))
   }
 

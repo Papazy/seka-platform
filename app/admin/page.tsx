@@ -21,7 +21,7 @@ interface DashboardStats {
 }
 
 interface RecentActivity {
-  id: number
+  id: string
   type: 'laboran' | 'fakultas' | 'program_studi'
   action: 'created' | 'updated'
   name: string

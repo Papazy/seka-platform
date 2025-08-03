@@ -9,7 +9,7 @@ import { use } from 'react';
 
 
 interface AssignmentData {
-  id: number;
+  id: string;
   title: string;
   description: string;
   dueDate: string;
@@ -17,7 +17,7 @@ interface AssignmentData {
   isPublished: boolean;
   createdAt: string;
   class: {
-    id: number;
+    id: string;
     name: string;
     classCode: string;
   };
@@ -34,7 +34,7 @@ interface AssignmentData {
 }
 
 interface Problem {
-  id: number;
+  id: string;
   title: string;
   description: string;
   maxScore: number;
@@ -47,7 +47,7 @@ interface Problem {
   passedTests: number;
   totalTests: number;
   sampleTestCases: Array<{
-    id: number;
+    id: string;
     input: string;
     expectedOutput: string;
   }>;
@@ -173,7 +173,7 @@ export default function AssignmentDetail({ params } : {params: Promise<{id: stri
     }
   };
 
-  const handleProblemClick = (problemId: number) => {
+  const handleProblemClick = (problemId: string) => {
     router.push(`/class/${classId}/assignment/${assignmentId}/problem/${problemId}`);
   };
 

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { UserRole } from './enum';
 
 export interface TokenPayload {
-  id: number;
+  id: string;
   email: string;
   nama: string;
   role: string;
@@ -34,12 +34,12 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
 }
 
 export async function hashPassword(password: string) {
-  const bcrypt = (await import('bcryptjs')).default
+  const bcrypt = (await import('bcrypt')).default
   return bcrypt.hash(password, 10)
 }
 
 export async function comparePassword(password: string, hash: string){
-  const bcrypt = (await import('bcryptjs')).default
+  const bcrypt = (await import('bcrypt')).default
   return bcrypt.compare(password, hash)
 }
 

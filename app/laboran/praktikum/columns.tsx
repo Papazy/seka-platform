@@ -15,7 +15,7 @@ import { formatTime } from '@/lib/utils'
 import Link from 'next/link'
 
 interface PraktikumData {
-  id: number
+  id: string
   nama: string
   kodePraktikum: string
   kodeMk: string
@@ -28,7 +28,7 @@ interface PraktikumData {
   ruang: string
   isActive: boolean
   laboran: {
-    id: number
+    id: string
     nama: string
     email: string
   }
@@ -41,10 +41,10 @@ interface PraktikumData {
 }
 
 interface ColumnActionsProps {
-  onEdit: (id: number) => void
-  onDelete: (id: number) => void
-  onToggleActive: (id: number, currentStatus: boolean) => void
-  onDetail: (id: number) => void
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
+  onToggleActive: (id: string, currentStatus: boolean) => void
+  onDetail: (id: string) => void
 }
 
 export const createPraktikumColumns = ({ onEdit, onDelete, onToggleActive, onDetail }: ColumnActionsProps): ColumnDef<PraktikumData>[] => [

@@ -6,7 +6,7 @@ import { validatePraktikumForm } from '@/lib/validations/praktikum'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = request.cookies.get('token')?.value
@@ -19,7 +19,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const praktikumId = parseInt(params.id)
+    const praktikumId = (params.id)
 
     // Cek apakah praktikum ada
     const praktikum = await prisma.praktikum.findUnique({
@@ -47,7 +47,7 @@ export async function DELETE(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = request.cookies.get('token')?.value
@@ -60,7 +60,7 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const praktikumId = parseInt(params.id)
+    const praktikumId = (params.id)
 
     const praktikum = await prisma.praktikum.findUnique({
       where: { id: praktikumId },
@@ -129,7 +129,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: {params: Promise<{ id: string }>}
 ) {
   try {
     const token = request.cookies.get('token')?.value
@@ -142,7 +142,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const praktikumId = parseInt(params.id)
+    const praktikumId = (params.id)
     const body = await request.json()
     
     // Validasi input

@@ -22,12 +22,12 @@ import { ImportCSVModal } from '@/components/modals/ImportCSVModal'
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 
 interface MahasiswaData {
-  id: number
+  id: string
   npm: string
   nama: string
   email: string
   programStudi: {
-    id: number
+    id: string
     nama: string
     kodeProdi: string
     fakultas: {
@@ -119,12 +119,12 @@ export default function MahasiswaPage() {
     }
   }
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     router.push(`/laboran/mahasiswa/edit/${id}`)
   }
 
 
-  const confirmDelete = (id: number) => {
+  const confirmDelete = (id: string) => {
     setIsOpenModalDelete(true)
     setSelectedDeleteId(id)
   }
@@ -150,11 +150,11 @@ export default function MahasiswaPage() {
     }
   }
 
-  const handleDetail = (id: number) => {
+  const handleDetail = (id: string) => {
     router.push(`/laboran/mahasiswa/${id}`)
   }
 
-  const handleAssignPraktikum = (id: number) => {
+  const handleAssignPraktikum = (id: string) => {
     router.push(`/laboran/mahasiswa/${id}/assign-praktikum`)
   }
 

@@ -23,7 +23,7 @@ interface LaboranStats {
 }
 
 interface RecentPraktikum {
-  id: number
+  id: string
   nama: string
   kelas: string
   isActive: boolean
@@ -33,7 +33,7 @@ interface RecentPraktikum {
 }
 
 interface RecentTugas {
-  id: number
+  id: string
   judul: string
   deadline: string
   praktikum: {
