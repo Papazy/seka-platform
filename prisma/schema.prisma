@@ -76,7 +76,7 @@ model Laboran {
   // Relations
   admin     Admin       @relation(fields: [idAdmin], references: [id], onDelete: Cascade)
   praktikum Praktikum[]
-
+  @@index([idAdmin])
   @@map("laboran")
 }
 
@@ -97,6 +97,7 @@ model Dosen {
   // Relations
   dosenPraktikum DosenPraktikum[]
 
+  @@index([programStudiId])
   @@map("dosen")
 }
 
@@ -117,6 +118,7 @@ model Mahasiswa {
   programStudiId String @map("program_studi_id")
   programStudi ProgramStudi @relation(fields: [programStudiId], references: [id], onDelete: Cascade)
 
+  @@index([programStudiId])
   @@map("mahasiswa")
 }
 
@@ -148,6 +150,8 @@ model Praktikum {
   pesertaPraktikum PesertaPraktikum[]
   tugas            Tugas[]
 
+  @@index([idLaboran])
+
   @@map("praktikum")
 }
 
@@ -163,6 +167,7 @@ model DosenPraktikum {
   dosen     Dosen     @relation(fields: [idDosen], references: [id], onDelete: Cascade)
   praktikum Praktikum @relation(fields: [idPraktikum], references: [id], onDelete: Cascade)
 
+  @@index([idDosen, idPraktikum])
   @@unique([idDosen, idPraktikum])
   @@map("dosen_praktikum")
 }
@@ -180,6 +185,7 @@ model AsistenPraktikum {
   praktikum Praktikum @relation(fields: [idPraktikum], references: [id], onDelete: Cascade)
   tugas     Tugas[]
 
+  @@index([idMahasiswa, idPraktikum])
   @@unique([idMahasiswa, idPraktikum])
   @@map("asisten_praktikum")
 }
@@ -198,6 +204,7 @@ model PesertaPraktikum {
   submission Submission[]
   nilaiTugas NilaiTugas[]
 
+  @@index([idMahasiswa, idPraktikum])
   @@unique([idMahasiswa, idPraktikum])
   @@map("peserta_praktikum")
 }
@@ -222,6 +229,8 @@ model Tugas {
   nilaiTugas NilaiTugas[]
   tugasBahasa TugasBahasa[]
 
+
+  @@index([idPraktikum, idAsisten])
   @@map("tugas")
 }
 
@@ -248,6 +257,7 @@ model Soal {
   testCase        TestCase[]
   submission      Submission[]
 
+  @@index([idTugas])
   @@map("soal")
 }
 
@@ -265,6 +275,7 @@ model ContohTestCase {
   // Relations
   soal Soal @relation(fields: [idSoal], references: [id], onDelete: Cascade)
 
+  @@index([idSoal])
   @@map("contoh_test_case")
 }
 
@@ -281,6 +292,7 @@ model TestCase {
   soal           Soal             @relation(fields: [idSoal], references: [id], onDelete: Cascade)
   testCaseResult TestCaseResult[]
 
+  @@index([idSoal])
   @@map("test_case")
 }
 
@@ -334,6 +346,7 @@ model Submission {
   bahasa         BahasaPemrograman   @relation(fields: [idBahasa], references: [id])
   testCaseResult TestCaseResult[]
 
+  @@index([idSoal, idPeserta, idBahasa])
   @@map("submission")
 }
 
@@ -353,6 +366,7 @@ model TestCaseResult {
   submission Submission @relation(fields: [idSubmission], references: [id], onDelete: Cascade)
   testCase   TestCase   @relation(fields: [idTestCase], references: [id], onDelete: Cascade)
 
+  @@index([idSubmission, idTestCase])
   @@unique([idSubmission, idTestCase])
   @@map("test_case_result")
 }
@@ -371,6 +385,7 @@ model NilaiTugas {
   peserta PesertaPraktikum @relation(fields: [idPeserta], references: [id], onDelete: Cascade)
   tugas   Tugas            @relation(fields: [idTugas], references: [id], onDelete: Cascade)
 
+  @@index([idPeserta, idTugas])
   @@unique([idPeserta, idTugas])
   @@map("nilai_tugas")
 }
@@ -412,6 +427,8 @@ model ProgramStudi {
 
   mahasiswa Mahasiswa[]
   dosen Dosen[]
+
+  @@index([idFakultas])
   @@map("program_studi")
 }
 
