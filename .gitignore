@@ -45,3 +45,5 @@ next-env.d.ts
 /temp/
 
 ANALYSIS.md
+GEMINI.md
+REFACTOR*.md
