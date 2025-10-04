@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface Assignment {
   id: string;
@@ -14,12 +14,17 @@ interface AssignmentListProps {
   onDelete: (assignmentId: string) => void;
 }
 
-const AssignmentList: React.FC<AssignmentListProps> = ({ assignments, isAssistant, onEdit, onDelete }) => {
+const AssignmentList: React.FC<AssignmentListProps> = ({
+  assignments,
+  isAssistant,
+  onEdit,
+  onDelete,
+}) => {
   return (
     <div className="mt-6">
       <h2 className="text-xl font-bold">Assignments</h2>
       <ul className="list-disc pl-5">
-        {assignments.map((assignment) => (
+        {assignments.map(assignment => (
           <li key={assignment.id} className="mb-4">
             <div className="flex justify-between items-center">
               <div>

@@ -1,32 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest){
+export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   const protectedRoutes = [
-    '/dashboard',
-    '/admin',
-    '/laboran',
-    '/dosen',
-    '/mahasiswa',
-    '/asisten',
-    '/praktikum',
-  ]
+    "/dashboard",
+    "/admin",
+    "/laboran",
+    "/dosen",
+    "/mahasiswa",
+    "/asisten",
+    "/praktikum",
+  ];
 
-  const isProtected = protectedRoutes.some(route=> pathname.startsWith(route));
+  const isProtected = protectedRoutes.some(route => pathname.startsWith(route));
 
   if (!isProtected) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get('token')?.value;
+  const token = req.cookies.get("token")?.value;
 
-  if(!token) {
-    return NextResponse.redirect(new URL('/login', req.url));
+  if (!token) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!api/auth|_next|favicon.ico|public|login).*)'], 
-}
+  matcher: [
+    '/admin/:path*',
+    '/laboran/:path*',
+    '/dosen/:path*',
+    '/mahasiswa/:path*',
+  ],
+};

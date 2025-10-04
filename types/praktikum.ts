@@ -7,6 +7,6 @@ interface Praktikum {
   tahun: number;
   jadwalHari: string;
   ruang: string;
-  role: 'peserta' | 'asisten';
+  role: "peserta" | "asisten";
   isActive: boolean;
 }

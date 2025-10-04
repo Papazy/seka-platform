@@ -37,7 +37,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-green-primary: #3ECF8E;
+  --color-green-primary: #3ecf8e;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -56,7 +56,8 @@
 } */
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(12deg);
   }
   50% {
@@ -65,7 +66,8 @@
 }
 
 @keyframes float-delayed {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(-12deg);
   }
   50% {
@@ -105,7 +107,7 @@
 }
 
 [data-panel-resize-handle-active] {
-  background-color: #3ECF8E !important;
+  background-color: #3ecf8e !important;
 }
 
 /* Custom scrollbar untuk panel */

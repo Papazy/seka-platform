@@ -1,47 +1,50 @@
 // app/api/mahasiswa/praktikum/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { verifyToken } from "@/lib/auth"
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { verifyToken } from "@/lib/auth";
 
 export async function GET(
   req: NextRequest,
-  { params }: {params: Promise<{ id: string }>}
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const token = req.cookies.get('token')?.value
+    const token = req.cookies.get("token")?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const payload = await verifyToken(token)
-    if (!payload ) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = (params.id)
-    const mahasiswaId = payload.id
+    const praktikumId = params.id;
+    const mahasiswaId = payload.id;
 
-    //  Check apakah mahasiswa terdaftar 
+    //  Check apakah mahasiswa terdaftar
     const [pesertaCheck, asistenCheck] = await Promise.all([
       prisma.pesertaPraktikum.findFirst({
         where: {
           idPraktikum: praktikumId,
-          idMahasiswa: mahasiswaId
-        }
+          idMahasiswa: mahasiswaId,
+        },
       }),
       prisma.asistenPraktikum.findFirst({
         where: {
           idPraktikum: praktikumId,
-          idMahasiswa: mahasiswaId
-        }
-      })
-    ])
+          idMahasiswa: mahasiswaId,
+        },
+      }),
+    ]);
 
     if (!pesertaCheck && !asistenCheck) {
-      return NextResponse.json({ error: 'Akses ditolak untuk praktikum ini' }, { status: 403 })
+      return NextResponse.json(
+        { error: "Akses ditolak untuk praktikum ini" },
+        { status: 403 },
+      );
     }
 
-    const userRole = asistenCheck ? 'asisten' : 'peserta'
+    const userRole = asistenCheck ? "asisten" : "peserta";
 
     // Fetch detail praktikum sesuai schema
     const praktikum = await prisma.praktikum.findUnique({
@@ -50,91 +53,97 @@ export async function GET(
         dosenPraktikum: {
           include: {
             dosen: {
-              select: { nama: true, nip: true, email: true }
-            }
-          }
+              select: { nama: true, nip: true, email: true },
+            },
+          },
         },
         pesertaPraktikum: {
           include: {
             mahasiswa: {
-              select: { nama: true, npm: true, email: true }
-            }
-          }
+              select: { nama: true, npm: true, email: true },
+            },
+          },
         },
         asistenPraktikum: {
           include: {
             mahasiswa: {
-              select: { nama: true, npm: true, email: true }
-            }
-          }
+              select: { nama: true, npm: true, email: true },
+            },
+          },
         },
         tugas: {
-          orderBy: { deadline: 'desc' },
+          orderBy: { deadline: "desc" },
           include: {
             asisten: {
               include: {
                 mahasiswa: {
-                  select: { nama: true }
-                }
-              }
+                  select: { nama: true },
+                },
+              },
             },
             soal: {
               select: {
                 id: true,
                 judul: true,
-                bobotNilai: true
-              }
+                bobotNilai: true,
+              },
             },
             // Untuk peserta: ambil nilai mereka
-            ...(userRole === 'peserta' && {
+            ...(userRole === "peserta" && {
               nilaiTugas: {
                 where: { idPeserta: pesertaCheck?.id },
                 select: {
                   totalNilai: true,
-                  createdAt: true
-                }
-              }
+                  createdAt: true,
+                },
+              },
             }),
             // Untuk asisten: hitung submission count
             _count: {
               select: {
-                nilaiTugas: true
-              }
-            }
-          }
+                nilaiTugas: true,
+              },
+            },
+          },
         },
         _count: {
           select: {
             pesertaPraktikum: true,
-            tugas: true
-          }
-        }
-      }
-    })
+            tugas: true,
+          },
+        },
+      },
+    });
 
     if (!praktikum) {
-      return NextResponse.json({ error: 'Praktikum not found' }, { status: 404 })
+      return NextResponse.json(
+        { error: "Praktikum not found" },
+        { status: 404 },
+      );
     }
 
-    const getTotalSoalSubmitted = async (tugasId: string, pesertaId: string | null): Promise<number> => {
-      if (userRole !== 'peserta' || !pesertaId) {
-        return 0
+    const getTotalSoalSubmitted = async (
+      tugasId: string,
+      pesertaId: string | null,
+    ): Promise<number> => {
+      if (userRole !== "peserta" || !pesertaId) {
+        return 0;
       }
       const submittedSoalIds = await prisma.submission.findMany({
         where: {
           idPeserta: pesertaId,
           soal: {
-            idTugas: tugasId
-          }
+            idTugas: tugasId,
+          },
         },
         select: {
-          idSoal: true
+          idSoal: true,
         },
-        distinct: ['idSoal'] // distinct
-      })
+        distinct: ["idSoal"], // distinct
+      });
 
-      return submittedSoalIds.length
-    }
+      return submittedSoalIds.length;
+    };
 
     // Format jam sesuai schema (DateTime -> HH:mm)
     const formatTime = (datetime: Date) => {
@@ -142,8 +151,11 @@ export async function GET(
     };
 
     const tugasData = await Promise.all(
-      praktikum.tugas.map(async (t) => {
-        const totalSoalSubmitted = await getTotalSoalSubmitted(t.id, pesertaCheck?.id || null)
+      praktikum.tugas.map(async t => {
+        const totalSoalSubmitted = await getTotalSoalSubmitted(
+          t.id,
+          pesertaCheck?.id || null,
+        );
         return {
           id: t.id,
           judul: t.judul,
@@ -155,14 +167,17 @@ export async function GET(
           totalSoal: t.soal.length,
           totalSoalSubmitted,
           // Untuk asisten: jumlah yang sudah submit
-          submissionCount: userRole === 'asisten' ? t._count.nilaiTugas : 0,
+          submissionCount: userRole === "asisten" ? t._count.nilaiTugas : 0,
           // Status untuk peserta
-          status: userRole === 'peserta' 
-            ? (t.nilaiTugas?.[0] ? 'submitted' : 'not_submitted')
-            : null
-        }
-      })
-    )
+          status:
+            userRole === "peserta"
+              ? t.nilaiTugas?.[0]
+                ? "submitted"
+                : "not_submitted"
+              : null,
+        };
+      }),
+    );
 
     // format data
     const response = {
@@ -184,30 +199,35 @@ export async function GET(
         nama: p.mahasiswa.nama,
         npm: p.mahasiswa.npm,
         email: p.mahasiswa.email,
-        joinedAt: p.createdAt
+        joinedAt: p.createdAt,
       })),
       asisten: praktikum.asistenPraktikum.map(a => ({
         id: a.id,
         nama: a.mahasiswa.nama,
         npm: a.mahasiswa.npm,
         email: a.mahasiswa.email,
-        joinedAt: a.createdAt
+        joinedAt: a.createdAt,
       })),
       tugas: tugasData,
       stats: {
         totalPeserta: praktikum._count.pesertaPraktikum,
         totalAsisten: praktikum.asistenPraktikum.length,
         totalTugas: praktikum._count.tugas,
-        completedTasks: userRole === 'peserta' 
-          ? praktikum.tugas.filter(t => t.nilaiTugas && t.nilaiTugas.length > 0).length
-          : 0
-      }
-    }
+        completedTasks:
+          userRole === "peserta"
+            ? praktikum.tugas.filter(
+                t => t.nilaiTugas && t.nilaiTugas.length > 0,
+              ).length
+            : 0,
+      },
+    };
 
-    return NextResponse.json(response)
-
+    return NextResponse.json(response);
   } catch (error) {
-    console.error('Error fetching praktikum detail:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    console.error("Error fetching praktikum detail:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

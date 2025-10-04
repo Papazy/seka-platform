@@ -1,51 +1,51 @@
 // components/forms/LaboranForm.tsx
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { useState } from "react";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { Laboran } from "@/types";
 
 interface LaboranFormProps {
-  laboran?: {
-    id: string
-    nama: string
-    email: string
-  }
-  onSubmit: (data: { nama: string; email: string; password?: string }) => void
-  onCancel: () => void
-  isSubmitting?: boolean
-  isEditing?: boolean
+  laboran?: Laboran
+  onSubmit: (data: { nama: string; email: string; password?: string }) => void;
+  onCancel: () => void;
+  isSubmitting?: boolean;
+  isEditing?: boolean;
 }
 
-export default function LaboranForm({ 
-  laboran, 
-  onSubmit, 
-  onCancel, 
+export default function LaboranForm({
+  laboran,
+  onSubmit,
+  onCancel,
   isSubmitting = false,
-  isEditing = false
+  isEditing = false,
 }: LaboranFormProps) {
   const [formData, setFormData] = useState({
-    nama: laboran?.nama || '',
-    email: laboran?.email || '',
-    password: ''
-  })
-  const [showPassword, setShowPassword] = useState(false)
+    nama: laboran?.nama || "",
+    email: laboran?.email || "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-  }
+    e.preventDefault();
+    onSubmit(formData);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
-    }))
-  }
+      [e.target.name]: e.target.value,
+    }));
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="nama" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="nama"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Nama Lengkap
         </label>
         <input
@@ -61,7 +61,10 @@ export default function LaboranForm({
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Email
         </label>
         <input
@@ -77,35 +80,37 @@ export default function LaboranForm({
       </div>
 
       {!isEditing && (
-
         <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-          Password {laboran && '(Kosongkan jika tidak ingin mengubah)'}
-        </label>
-        <div className="relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent"
-            placeholder="Masukkan password"
-            required={!laboran}
-          />
-          <button
-            type="button"
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-            onClick={() => setShowPassword(!showPassword)}
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
-            {showPassword ? (
-              <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-            ) : (
-              <EyeIcon className="h-5 w-5 text-gray-400" />
-            )}
-          </button>
+            Password {laboran && "(Kosongkan jika tidak ingin mengubah)"}
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent"
+              placeholder="Masukkan password"
+              required={!laboran}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+              ) : (
+                <EyeIcon className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+          </div>
         </div>
-      </div>
       )}
 
       <div className="flex justify-end space-x-3 pt-4">
@@ -121,9 +126,9 @@ export default function LaboranForm({
           disabled={isSubmitting}
           className="px-4 py-2 text-sm font-medium text-white bg-[#3ECF8E] border border-transparent rounded-lg hover:bg-[#2EBF7B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3ECF8E] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Menyimpan...' : laboran ? 'Perbarui' : 'Tambah'}
+          {isSubmitting ? "Menyimpan..." : laboran ? "Perbarui" : "Tambah"}
         </button>
       </div>
     </form>
-  )
+  );
 }

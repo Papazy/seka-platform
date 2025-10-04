@@ -1,57 +1,56 @@
 // app/laboran/dosen/columns.tsx
-'use client'
+"use client";
 
-import { ColumnDef } from '@tanstack/react-table'
-import { Button } from '@/components/ui/button'
-import { 
-  PencilIcon, 
-  TrashIcon, 
+import { ColumnDef } from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
+import {
+  PencilIcon,
+  TrashIcon,
   EyeIcon,
-  BookOpenIcon,
-  UserGroupIcon,
   PlusIcon,
-  PhoneIcon
-} from '@heroicons/react/24/outline'
-import { formatDate } from '@/lib/utils'
+} from "@heroicons/react/24/outline";
 
 interface DosenData {
-  id: string
-  nip: string
-  nama: string
-  email: string
-  jabatan: string
+  id: string;
+  nip: string;
+  nama: string;
+  email: string;
+  jabatan: string;
   programStudi: {
-    id: string
-    nama: string
-    kodeProdi: string
+    id: string;
+    nama: string;
+    kodeProdi: string;
     fakultas: {
-      nama: string
-      kodeFakultas: string
-    }
-  }
+      nama: string;
+      kodeFakultas: string;
+    };
+  };
   _count: {
-    dosenPraktikum: number
-  }
-  createdAt: string
+    dosenPraktikum: number;
+  };
+  createdAt: string;
 }
 interface ColumnActionsProps {
-  onEdit: (id: string) => void
-  onDelete: (id: string) => void
-  onDetail: (id: string) => void
-  onAssignPraktikum: (id: string) => void
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+  onDetail: (id: string) => void;
+  onAssignPraktikum: (id: string) => void;
 }
 
-export const createDosenColumns = ({ onEdit, onDelete, onDetail, onAssignPraktikum }: ColumnActionsProps): ColumnDef<DosenData>[] => [
+export const createDosenColumns = ({
+  onEdit,
+  onDelete,
+  onDetail,
+  onAssignPraktikum,
+}: ColumnActionsProps): ColumnDef<DosenData>[] => [
   {
-    header: 'No',
-    id: 'no',
-    cell: ({row}) => (
-      <div className="text-center">{row.index + 1}</div>
-    )
+    header: "No",
+    id: "no",
+    cell: ({ row }) => <div className="text-center">{row.index + 1}</div>,
   },
   {
-    accessorKey: 'nip',
-    header: 'NIP',
+    accessorKey: "nip",
+    header: "NIP",
     cell: ({ row }) => (
       <div>
         <button
@@ -61,40 +60,43 @@ export const createDosenColumns = ({ onEdit, onDelete, onDetail, onAssignPraktik
           {row.original.nip}
         </button>
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'nama',
-    header: 'Nama',
+    accessorKey: "nama",
+    header: "Nama",
     cell: ({ row }) => (
       <div className="max-w-xs">
         <p className="font-medium text-sm text-gray-900">{row.original.nama}</p>
         <p className="text-xs text-gray-500">{row.original.email}</p>
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'programStudi',
-    header: 'Program Studi',
+    accessorKey: "programStudi",
+    header: "Program Studi",
     cell: ({ row }) => (
       <div className="text-xs">
-        <p className="font-medium text-sm text-gray-900">{row.original.programStudi.nama}</p>
+        <p className="font-medium text-sm text-gray-900">
+          {row.original.programStudi.nama}
+        </p>
         <p className="text-gray-500">
-          {row.original.programStudi.kodeProdi} • {row.original.programStudi.fakultas.kodeFakultas}
+          {row.original.programStudi.kodeProdi} •{" "}
+          {row.original.programStudi.fakultas.kodeFakultas}
         </p>
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'jabatan',
-    header: 'Jabatan',
+    accessorKey: "jabatan",
+    header: "Jabatan",
     cell: ({ row }) => (
       <div className="text-sm">
         <div className="flex items-center">
           <span className="text-gray-500 ml-1">{row.original.jabatan}</span>
         </div>
       </div>
-    )
+    ),
   },
   // {
   //   accessorKey: 'createdAt',
@@ -106,8 +108,8 @@ export const createDosenColumns = ({ onEdit, onDelete, onDetail, onAssignPraktik
   //   )
   // },
   {
-    id: 'actions',
-    header: 'Aksi',
+    id: "actions",
+    header: "Aksi",
     cell: ({ row }) => (
       <div className="flex items-center space-x-2">
         <Button
@@ -143,6 +145,6 @@ export const createDosenColumns = ({ onEdit, onDelete, onDetail, onAssignPraktik
           <TrashIcon className="h-4 w-4" />
         </Button>
       </div>
-    )
-  }
-]
+    ),
+  },
+];

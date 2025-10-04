@@ -1,175 +1,188 @@
 // app/laboran/mahasiswa/page.tsx
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { DataTable } from '@/components/ui/data-table'
-import { createMahasiswaColumns } from './columns'
-import { Button } from '@/components/ui/button'
-import { 
-  PlusIcon, 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { DataTable } from "@/components/ui/data-table";
+import { createMahasiswaColumns } from "./columns";
+import { Button } from "@/components/ui/button";
+import {
+  PlusIcon,
   UsersIcon,
   DocumentArrowUpIcon,
-  DocumentArrowDownIcon,
   MagnifyingGlassIcon,
-  FunnelIcon,
-  UserGroupIcon,
-  AcademicCapIcon
-} from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
-import Link from 'next/link'
-import { ImportCSVModal } from '@/components/modals/ImportCSVModal'
-import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
+} from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
+import Link from "next/link";
+import { ImportCSVModal } from "@/components/modals/ImportCSVModal";
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
+
+interface ProgramStudi {
+  id: string;
+  nama: string;
+  kodeProdi: string;
+  fakultas: {
+    id: string;
+    nama: string;
+    kodeFakultas: string;
+  };
+}
+
+interface Fakultas {
+  id: string;
+  nama: string;
+  kodeFakultas: string;
+}
 
 interface MahasiswaData {
-  id: string
-  npm: string
-  nama: string
-  email: string
+  id: string;
+  npm: string;
+  nama: string;
+  email: string;
   programStudi: {
-    id: string
-    nama: string
-    kodeProdi: string
+    id: string;
+    nama: string;
+    kodeProdi: string;
     fakultas: {
-      nama: string
-      kodeFakultas: string
-    }
-  }
+      nama: string;
+      kodeFakultas: string;
+    };
+  };
   _count: {
-    pesertaPraktikum: number
-    asistenPraktikum: number
-  }
-  createdAt: string
+    pesertaPraktikum: number;
+    asistenPraktikum: number;
+  };
+  createdAt: string;
 }
 
 export default function MahasiswaPage() {
-  const [data, setData] = useState<MahasiswaData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterProdi, setFilterProdi] = useState<string>('')
-  const [filterFakultas, setFilterFakultas] = useState<string>('')
-  const [showImportModal, setShowImportModal] = useState(false)
-  const [programStudiList, setProgramStudiList] = useState<any[]>([])
-  const [fakultasList, setFakultasList] = useState<any[]>([])
-  const [isOpenModalDelete, setIsOpenModalDelete] = useState(false)
-  const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null)
-  const router = useRouter()
+  const [data, setData] = useState<MahasiswaData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterProdi, setFilterProdi] = useState<string>("");
+  const [filterFakultas, setFilterFakultas] = useState<string>("");
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [programStudiList, setProgramStudiList] = useState<ProgramStudi[]>([]);
+  const [fakultasList, setFakultasList] = useState<Fakultas[]>([]);
+  const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
+  const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    fetchMahasiswa()
-    fetchProgramStudi()
-    fetchFakultas()
-  }, [])
+    fetchMahasiswa();
+    fetchProgramStudi();
+    fetchFakultas();
+  }, []);
 
-  useEffect(()=>{
-    console.log("Fakultas Data: ", fakultasList)
-    console.log("programStudi Data: ", programStudiList)
-  },[fakultasList, programStudiList])
+  useEffect(() => {
+    console.log("Fakultas Data: ", fakultasList);
+    console.log("programStudi Data: ", programStudiList);
+  }, [fakultasList, programStudiList]);
 
   const fetchMahasiswa = async () => {
     try {
-      setLoading(true)
-      const response = await fetch('/api/mahasiswa', {
-        credentials: 'include'
-      })
-      
+      setLoading(true);
+      const response = await fetch("/api/mahasiswa", {
+        credentials: "include",
+      });
+
       if (response.ok) {
-        const result = await response.json()
-        setData(result.data || [])
+        const result = await response.json();
+        setData(result.data || []);
       } else {
-        toast.error('Gagal mengambil data mahasiswa')
+        toast.error("Gagal mengambil data mahasiswa");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat mengambil data')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat mengambil data");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const fetchProgramStudi = async () => {
     try {
-      const response = await fetch('/api/program-studi', {
-        credentials: 'include'
-      })
-      
+      const response = await fetch("/api/program-studi", {
+        credentials: "include",
+      });
+
       if (response.ok) {
-        const result = await response.json()
-        console.log("Program Studi Result: ", result)
-        setProgramStudiList(result.programStudi || [])
+        const result = await response.json();
+        console.log("Program Studi Result: ", result);
+        setProgramStudiList(result.programStudi || []);
       }
     } catch (error) {
-      console.error('Error fetching program studi:', error)
+      console.error("Error fetching program studi:", error);
     }
-  }
+  };
 
   const fetchFakultas = async () => {
     try {
-      const response = await fetch('/api/fakultas', {
-        credentials: 'include'
-      })
-      
+      const response = await fetch("/api/fakultas", {
+        credentials: "include",
+      });
+
       if (response.ok) {
-        const result = await response.json()
-        console.log("Fakultas Result: ", result)
-        setFakultasList(result.fakultas || [])
+        const result = await response.json();
+        console.log("Fakultas Result: ", result);
+        setFakultasList(result.fakultas || []);
       }
     } catch (error) {
-      console.error('Error fetching fakultas:', error)
+      console.error("Error fetching fakultas:", error);
     }
-  }
+  };
 
   const handleEdit = (id: string) => {
-    router.push(`/laboran/mahasiswa/edit/${id}`)
-  }
-
+    router.push(`/laboran/mahasiswa/edit/${id}`);
+  };
 
   const confirmDelete = (id: string) => {
-    setIsOpenModalDelete(true)
-    setSelectedDeleteId(id)
-  }
+    setIsOpenModalDelete(true);
+    setSelectedDeleteId(id);
+  };
 
   const handleDelete = async () => {
-
     try {
       const response = await fetch(`/api/mahasiswa/${selectedDeleteId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      })
+        method: "DELETE",
+        credentials: "include",
+      });
 
       if (response.ok) {
-        toast.success('Mahasiswa berhasil dihapus')
-        setData(prevData => prevData.filter(item => item.id !== selectedDeleteId))
+        toast.success("Mahasiswa berhasil dihapus");
+        setData(prevData =>
+          prevData.filter(item => item.id !== selectedDeleteId),
+        );
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Gagal menghapus mahasiswa')
+        const error = await response.json();
+        toast.error(error.error || "Gagal menghapus mahasiswa");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat menghapus mahasiswa')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat menghapus mahasiswa");
     }
-  }
+  };
 
   const handleDetail = (id: string) => {
-    router.push(`/laboran/mahasiswa/${id}`)
-  }
+    router.push(`/laboran/mahasiswa/${id}`);
+  };
 
   const handleAssignPraktikum = (id: string) => {
-    router.push(`/laboran/mahasiswa/${id}/assign-praktikum`)
-  }
+    router.push(`/laboran/mahasiswa/${id}/assign-praktikum`);
+  };
 
   const handleImportSuccess = () => {
-    setShowImportModal(false)
-    fetchMahasiswa()
-    toast.success('Import mahasiswa berhasil!')
-  }
+    setShowImportModal(false);
+    fetchMahasiswa();
+    toast.success("Import mahasiswa berhasil!");
+  };
 
   // const handleExport = async () => {
   //   try {
   //     const response = await fetch('/api/mahasiswa/export', {
   //       credentials: 'include'
   //     })
-      
+
   //     if (response.ok) {
   //       const blob = await response.blob()
   //       const url = window.URL.createObjectURL(blob)
@@ -192,25 +205,30 @@ export default function MahasiswaPage() {
 
   // Filter data
   const filteredData = data.filter(item => {
-    const matchesSearch = 
+    const matchesSearch =
       item.npm.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.programStudi.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.programStudi.fakultas.nama.toLowerCase().includes(searchTerm.toLowerCase())
+      item.programStudi.fakultas.nama
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
-    const matchesProdi = !filterProdi || item.programStudi.id.toString() === filterProdi
-    const matchesFakultas = !filterFakultas || item.programStudi.fakultas.kodeFakultas === filterFakultas
+    const matchesProdi =
+      !filterProdi || item.programStudi.id.toString() === filterProdi;
+    const matchesFakultas =
+      !filterFakultas ||
+      item.programStudi.fakultas.kodeFakultas === filterFakultas;
 
-    return matchesSearch && matchesProdi && matchesFakultas
-  })
+    return matchesSearch && matchesProdi && matchesFakultas;
+  });
 
-  const columns = createMahasiswaColumns({ 
-    onEdit: handleEdit, 
+  const columns = createMahasiswaColumns({
+    onEdit: handleEdit,
     onDelete: confirmDelete,
     onDetail: handleDetail,
-    onAssignPraktikum: handleAssignPraktikum
-  })
+    onAssignPraktikum: handleAssignPraktikum,
+  });
 
   if (loading) {
     return (
@@ -220,7 +238,7 @@ export default function MahasiswaPage() {
           <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -267,7 +285,9 @@ export default function MahasiswaPage() {
           <div className="flex items-center">
             <UsersIcon className="h-8 w-8 text-blue-500" />
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Total Mahasiswa</p>
+              <p className="text-sm font-medium text-gray-500">
+                Total Mahasiswa
+              </p>
               <p className="text-2xl font-bold text-gray-900">{data.length}</p>
             </div>
           </div>
@@ -285,18 +305,18 @@ export default function MahasiswaPage() {
                 type="text"
                 placeholder="Cari mahasiswa berdasarkan NPM, nama, email, atau program studi..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent text-xs"
               />
             </div>
           </div>
-          
+
           {/* Filters */}
           <div className="flex gap-3 text-xs">
             <select
               value={filterFakultas}
-              onChange={(e) => {
-                setFilterFakultas(e.target.value)
+              onChange={e => {
+                setFilterFakultas(e.target.value);
                 // setFilterProdi('') // Reset prodi filter when fakultas changes
               }}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent text-xs"
@@ -308,15 +328,19 @@ export default function MahasiswaPage() {
                 </option>
               ))}
             </select>
-            
+
             <select
               value={filterProdi}
-              onChange={(e) => setFilterProdi(e.target.value)}
+              onChange={e => setFilterProdi(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent text-xs"
             >
               <option value="">Semua Program Studi</option>
               {programStudiList
-                .filter(prodi => !filterFakultas || prodi.fakultas.kodeFakultas === filterFakultas)
+                .filter(
+                  prodi =>
+                    !filterFakultas ||
+                    prodi.fakultas.kodeFakultas === filterFakultas,
+                )
                 .map(prodi => (
                   <option key={prodi.id} value={prodi.id}>
                     {prodi.nama}
@@ -331,9 +355,9 @@ export default function MahasiswaPage() {
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="p-6">
           {filteredData.length > 0 ? (
-            <DataTable 
-              columns={columns} 
-              data={filteredData} 
+            <DataTable
+              columns={columns}
+              data={filteredData}
               searchPlaceholder="Cari mahasiswa..."
               showSearch={false} // Karena sudah ada search custom
             />
@@ -341,13 +365,14 @@ export default function MahasiswaPage() {
             <div className="text-center py-12">
               <UsersIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm || filterProdi || filterFakultas ? 'Tidak ada hasil' : 'Belum ada mahasiswa'}
+                {searchTerm || filterProdi || filterFakultas
+                  ? "Tidak ada hasil"
+                  : "Belum ada mahasiswa"}
               </h3>
               <p className="text-gray-500 mb-4">
-                {searchTerm || filterProdi || filterFakultas 
-                  ? 'Coba ubah kriteria pencarian atau filter'
-                  : 'Mulai dengan menambahkan mahasiswa atau import dari CSV'
-                }
+                {searchTerm || filterProdi || filterFakultas
+                  ? "Coba ubah kriteria pencarian atau filter"
+                  : "Mulai dengan menambahkan mahasiswa atau import dari CSV"}
               </p>
               {!searchTerm && !filterProdi && !filterFakultas && (
                 <div className="flex justify-center space-x-3">
@@ -381,24 +406,34 @@ export default function MahasiswaPage() {
         endpoint="/api/mahasiswa/import"
         templateEndpoint="/api/mahasiswa/template"
         sampleData={[
-          { npm: '2108107010001', nama: 'Ahmad', email: 'john@mhs.usk.ac.id', programStudiId: '1' },
-          { npm: '2108107010002', nama: 'Ismail', email: 'jane@mhs.usk.ac.id', programStudiId: '1' }
+          {
+            npm: "2108107010001",
+            nama: "Ahmad",
+            email: "john@mhs.usk.ac.id",
+            programStudiId: "1",
+          },
+          {
+            npm: "2108107010002",
+            nama: "Ismail",
+            email: "jane@mhs.usk.ac.id",
+            programStudiId: "1",
+          },
         ]}
         columns={[
-          { key: 'npm', label: 'NPM' },
-          { key: 'nama', label: 'Nama' },
-          { key: 'email', label: 'Email' },
-          { key: 'programStudi', label: 'Program Studi' }
+          { key: "npm", label: "NPM" },
+          { key: "nama", label: "Nama" },
+          { key: "email", label: "Email" },
+          { key: "programStudi", label: "Program Studi" },
         ]}
       />
 
-      <ConfirmDeleteModal 
+      <ConfirmDeleteModal
         isOpen={isOpenModalDelete}
-        onClose={()=> setIsOpenModalDelete(false)}
+        onClose={() => setIsOpenModalDelete(false)}
         onConfirm={handleDelete}
         title="Hapus Mahasiswa"
         message="Apakah Anda yakin ingin menghapus mahasiswa ini? Tindakan ini tidak dapat dibatalkan."
       />
     </div>
-  )
+  );
 }

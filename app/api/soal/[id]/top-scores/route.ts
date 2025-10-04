@@ -1,48 +1,52 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  { params }: {params: Promise<{ id: string }>}
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const soalId = (params.id)
-    
+    const soalId = params.id;
+
     // Get top 10 submissions for this soal with highest scores
     const topSubmissions = await prisma.submission.findMany({
       where: {
-        idSoal: soalId
+        idSoal: soalId,
       },
       include: {
         peserta: {
           include: {
-            mahasiswa: true
-          }
-        }
+            mahasiswa: true,
+          },
+        },
       },
       orderBy: [
-        { score: 'desc' },
-        { submittedAt: 'asc' } // Earlier submission wins if same score
+        { score: "desc" },
+        { submittedAt: "asc" }, // Earlier submission wins if same score
       ],
-      take: 10
-    })
+      take: 10,
+    });
 
     // Group by student and get their best submission
-    const bestSubmissionsByStudent = new Map()
-    
+    const bestSubmissionsByStudent = new Map();
+
     topSubmissions.forEach(submission => {
-      const studentKey = submission.peserta.mahasiswa.npm
-      if (!bestSubmissionsByStudent.has(studentKey) || 
-          bestSubmissionsByStudent.get(studentKey).score < submission.score) {
-        bestSubmissionsByStudent.set(studentKey, submission)
+      const studentKey = submission.peserta.mahasiswa.npm;
+      if (
+        !bestSubmissionsByStudent.has(studentKey) ||
+        bestSubmissionsByStudent.get(studentKey).score < submission.score
+      ) {
+        bestSubmissionsByStudent.set(studentKey, submission);
       }
-    })
+    });
 
     // Convert to array and sort again
     const topScores = Array.from(bestSubmissionsByStudent.values())
       .sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score
-        return new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime()
+        if (b.score !== a.score) return b.score - a.score;
+        return (
+          new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime()
+        );
       })
       .slice(0, 5)
       .map((submission, index) => ({
@@ -50,16 +54,15 @@ export async function GET(
         nama: submission.peserta.mahasiswa.nama,
         npm: submission.peserta.mahasiswa.npm,
         score: submission.score,
-        submittedAt: submission.submittedAt.toISOString()
-      }))
+        submittedAt: submission.submittedAt.toISOString(),
+      }));
 
-    return NextResponse.json(topScores)
-    
+    return NextResponse.json(topScores);
   } catch (error) {
-    console.error('Error fetching top scores:', error)
+    console.error("Error fetching top scores:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch top scores' },
-      { status: 500 }
-    )
+      { error: "Failed to fetch top scores" },
+      { status: 500 },
+    );
   }
 }

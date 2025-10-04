@@ -1,49 +1,49 @@
 // components/ui/modal.tsx
-'use client'
+"use client";
 
-import { Fragment, useEffect } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { Fragment, useEffect } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface ModalProps {
-  isOpen: boolean
-  onClose: () => void
-  title: string
-  children: React.ReactNode
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
-export default function Modal({ 
-  isOpen, 
-  onClose, 
-  title, 
-  children, 
-  size = 'md' 
+export default function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  size = "md",
 }: ModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose()
+      if (e.key === "Escape") {
+        onClose();
       }
-    }
+    };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'hidden'
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'unset'
-    }
-  }, [isOpen, onClose])
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen, onClose]);
 
   const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl'
-  }
+    sm: "max-w-md",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
+  };
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -71,9 +71,14 @@ export default function Modal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className={`w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all`}>
+              <Dialog.Panel
+                className={`w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all`}
+              >
                 <div className="flex items-center justify-between mb-4">
-                  <Dialog.Title as="h3" className="text-lg font-semibold text-gray-900">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-semibold text-gray-900"
+                  >
                     {title}
                   </Dialog.Title>
                   <button
@@ -91,5 +96,5 @@ export default function Modal({
         </div>
       </Dialog>
     </Transition>
-  )
+  );
 }

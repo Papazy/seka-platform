@@ -1,16 +1,16 @@
-import React from 'react';
-import { useRouter } from 'next/router';
-import ClassInfo from '../components/ClassInfo';
-import AssignmentList from '../components/AssignmentList';
-import AssistantPanel from '../components/AssistantPanel';
-import StudentView from '../components/StudentView';
-import { useAuth } from '../../lib/auth';
+import React from "react";
+import { useRouter } from "next/router";
+import ClassInfo from "../components/ClassInfo";
+import AssignmentList from "../components/AssignmentList";
+import AssistantPanel from "../components/AssistantPanel";
+import StudentView from "../components/StudentView";
+import { useAuth } from "../../lib/auth";
 
 const PraktikumPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user } = useAuth(); // Assuming useAuth provides user info
-  const isAssistant = user?.role === 'assistant';
+  const isAssistant = user?.role === "assistant";
 
   // Fetch class and assignment data based on the ID
   // This is a placeholder for your data fetching logic

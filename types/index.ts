@@ -1,1 +1,1 @@
-export * from './laboran'
+export * from "./laboran";

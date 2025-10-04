@@ -1,51 +1,55 @@
-import {ColumnDef} from '@tanstack/react-table';
-import { Laboran } from '@/types';
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { ColumnDef } from "@tanstack/react-table";
+import { Laboran } from "@/types";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-interface ColumnActionsProps{
+interface ColumnActionsProps {
   onEdit: (laboran: Laboran) => void;
   onDelete: (id: string) => void;
 }
 
-
-export const createLaboranColumns = ({ onEdit, onDelete }: ColumnActionsProps): ColumnDef<Laboran>[] => [
+export const createLaboranColumns = ({
+  onEdit,
+  onDelete,
+}: ColumnActionsProps): ColumnDef<Laboran>[] => [
   {
-    id: 'no',
-    header: 'No',
+    id: "no",
+    header: "No",
     cell: ({ row }) => (
       <span className="text-sm text-gray-600 font-medium">{row.index + 1}</span>
-    )
+    ),
   },
   {
-    accessorKey: 'nama',
-    header: 'Nama',
+    accessorKey: "nama",
+    header: "Nama",
     cell: ({ row }) => (
-        <span className="font-medium text-gray-900 text-sm">{row.original.nama}</span>
-    )
+      <span className="font-medium text-gray-900 text-sm">
+        {row.original.nama}
+      </span>
+    ),
   },
   {
-    accessorKey: 'email',
-    header: 'Email',
+    accessorKey: "email",
+    header: "Email",
     cell: ({ row }) => (
       <span className="text-sm text-gray-600">{row.original.email}</span>
-    )
+    ),
   },
   {
-    accessorKey: 'createdAt',
-    header: 'Dibuat',
+    accessorKey: "createdAt",
+    header: "Dibuat",
     cell: ({ row }) => (
       <span className="text-sm text-gray-500">
-        {new Date(row.original.createdAt).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
+        {new Date(row.original.createdAt).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
         })}
       </span>
-    )
+    ),
   },
   {
-    id: 'actions',
-    header: 'Actions',
+    id: "actions",
+    header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center space-x-2">
         <button
@@ -63,6 +67,6 @@ export const createLaboranColumns = ({ onEdit, onDelete }: ColumnActionsProps): 
           <TrashIcon className="h-4 w-4" />
         </button>
       </div>
-    )
-  }
-]
+    ),
+  },
+];

@@ -1,21 +1,23 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, {params} : {params: Promise<{tugasId: string}>}) {
-  const {tugasId}  = await params;
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ tugasId: string }> },
+) {
+  const { tugasId } = await params;
 
   try {
-
     const bahasa = await prisma.tugasBahasa.findMany({
       where: {
-        idTugas: (tugasId)
+        idTugas: tugasId,
       },
       include: {
-        bahasa: true
-      }
-    })
+        bahasa: true,
+      },
+    });
 
-    const formatResponse = bahasa.map((item) => ({
+    const formatResponse = bahasa.map((item: any) => ({
       id: item.idBahasa,
       nama: item.bahasa.nama,
       ekstensi: item.bahasa.ekstensi,
@@ -25,10 +27,12 @@ export async function GET(req: NextRequest, {params} : {params: Promise<{tugasId
       updatedAt: item.bahasa.updatedAt.toISOString(),
     }));
 
-    return NextResponse.json(formatResponse, {status: 200,})
-
+    return NextResponse.json(formatResponse, { status: 200 });
   } catch (error) {
-    console.error('Error fetching bahasa:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error fetching bahasa:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

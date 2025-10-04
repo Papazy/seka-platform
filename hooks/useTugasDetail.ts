@@ -1,5 +1,5 @@
 // app/hooks/useTugasDetail.ts
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export interface TugasDetailResponse {
   id: string;
@@ -9,19 +9,18 @@ export interface TugasDetailResponse {
   maksimalSubmit: number;
   createdAt: string;
   isOverdue: boolean;
-  userRole: 'peserta' | 'asisten';
-  tugasBahasa: 
-      Array<{
-        idTugas: number
-        idBahasa: number
-        bahasa: {
-          id: string;
-          nama: string
-          ekstensi: string
-          compiler: string
-          versi: string
-        }
-      }>;
+  userRole: "peserta" | "asisten";
+  tugasBahasa: Array<{
+    idTugas: number;
+    idBahasa: number;
+    bahasa: {
+      id: string;
+      nama: string;
+      ekstensi: string;
+      compiler: string;
+      versi: string;
+    };
+  }>;
   praktikum: {
     nama: string;
     kodePraktikum: string;
@@ -43,7 +42,7 @@ export interface TugasDetailResponse {
     batasanWaktuEksekusiMs: number;
     templateKode: string;
     bobotNilai: number;
-    
+
     contohTestCase: Array<{
       id: string;
       contohInput: string;
@@ -90,76 +89,76 @@ interface ApiError {
 
 const fetchTugasDetail = async (
   praktikumId: string,
-  tugasId: string
+  tugasId: string,
 ): Promise<TugasDetailResponse> => {
   const response = await fetch(
     `/api/mahasiswa/praktikum/${praktikumId}/tugas/${tugasId}`,
     {
-      method: 'GET',
-      credentials: 'include',
+      method: "GET",
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-    }
-  )
+    },
+  );
 
   if (!response.ok) {
-    let errorMessage = 'Failed to fetch tugas detail'
-    
+    let errorMessage = "Failed to fetch tugas detail";
+
     try {
-      const errorData = await response.json()
-      errorMessage = errorData.error || errorMessage
+      const errorData = await response.json();
+      errorMessage = errorData.error || errorMessage;
     } catch {
       // If JSON parsing fails, use status text
-      errorMessage = response.statusText || errorMessage
+      errorMessage = response.statusText || errorMessage;
     }
-    
-    const error = new Error(errorMessage) as Error & { status: number }
-    error.status = response.status
-    throw error
+
+    const error = new Error(errorMessage) as Error & { status: number };
+    error.status = response.status;
+    throw error;
   }
 
-  const data = await response.json()
-  return data
-}
+  const data = await response.json();
+  return data;
+};
 
 export const useTugasDetail = (
   praktikumId: string,
   tugasId: string,
-  enabled = true
+  enabled = true,
 ) => {
   return useQuery<TugasDetailResponse, ApiError>({
-    queryKey: ['tugas-detail', praktikumId, tugasId],
+    queryKey: ["tugas-detail", praktikumId, tugasId],
     queryFn: () => fetchTugasDetail(praktikumId, tugasId),
     enabled: enabled && !!praktikumId && !!tugasId,
     staleTime: 2 * 60 * 1000, // 2 menit
     gcTime: 10 * 60 * 1000, // 10 menit (formerly cacheTime)
     retry: (failureCount, error) => {
       if (error.status && error.status >= 400 && error.status < 500) {
-        return false
+        return false;
       }
-      return failureCount < 2
+      return failureCount < 2;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
-  })
-}
+  });
+};
 
 // Helper hook for invalidating tugas detail cache
 export const useInvalidateTugasDetail = () => {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return {
     invalidateById: (praktikumId: string, tugasId: string) => {
       queryClient.invalidateQueries({
-        queryKey: ['tugas-detail', praktikumId, tugasId]
-      })
+        queryKey: ["tugas-detail", praktikumId, tugasId],
+      });
     },
     invalidateAll: () => {
       queryClient.invalidateQueries({
-        queryKey: ['tugas-detail']
-      })
-    }
-  }
-}
+        queryKey: ["tugas-detail"],
+      });
+    },
+  };
+};

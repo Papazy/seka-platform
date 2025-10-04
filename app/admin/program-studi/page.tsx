@@ -1,143 +1,159 @@
 // app/admin/program-studi/page.tsx
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { DataTable } from '@/components/ui/data-table'
-import Modal from '@/components/ui/modal'
-import { createProgramStudiColumns } from './columns'
-import { PlusIcon, AcademicCapIcon } from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
+import { useState, useEffect } from "react";
+import { DataTable } from "@/components/ui/data-table";
+import Modal from "@/components/ui/modal";
+import { createProgramStudiColumns } from "./columns";
+import { PlusIcon, AcademicCapIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
 
 interface Fakultas {
-  id: string
-  nama: string
-  kodeFakultas: string
+  id: string;
+  nama: string;
+  kodeFakultas: string;
 }
 
 interface ProgramStudi {
-  id: string
-  nama: string
-  kodeProdi: string
-  idFakultas: number
-  fakultas: Fakultas
+  id: string;
+  nama: string;
+  kodeProdi: string;
+  idFakultas: number;
+  fakultas: Fakultas;
   _count: {
-    mahasiswa: number
-    dosen: number
-  }
-  createdAt: string
-  updatedAt: string
+    mahasiswa: number;
+    dosen: number;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function ProgramStudiPage() {
-  const [data, setData] = useState<ProgramStudi[]>([])
-  const [fakultasList, setFakultasList] = useState<Fakultas[]>([])
-  const [loading, setLoading] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingProgramStudi, setEditingProgramStudi] = useState<ProgramStudi | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [data, setData] = useState<ProgramStudi[]>([]);
+  const [fakultasList, setFakultasList] = useState<Fakultas[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProgramStudi, setEditingProgramStudi] =
+    useState<ProgramStudi | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const [prodiResponse, fakultasResponse] = await Promise.all([
-        fetch('/api/program-studi', { credentials: 'include' }),
-        fetch('/api/fakultas', { credentials: 'include' })
-      ])
+        fetch("/api/program-studi", { credentials: "include" }),
+        fetch("/api/fakultas", { credentials: "include" }),
+      ]);
 
       if (prodiResponse.ok && fakultasResponse.ok) {
         const [prodiResult, fakultasResult] = await Promise.all([
           prodiResponse.json(),
-          fakultasResponse.json()
-        ])
-        
-        setData(prodiResult.programStudi)
-        setFakultasList(fakultasResult.fakultas)
+          fakultasResponse.json(),
+        ]);
+
+        setData(prodiResult.programStudi);
+        setFakultasList(fakultasResult.fakultas);
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
-      toast.error('Gagal memuat data program studi')
+      console.error("Error fetching data:", error);
+      toast.error("Gagal memuat data program studi");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleAdd = () => {
-    setEditingProgramStudi(null)
-    setIsModalOpen(true)
-  }
+    setEditingProgramStudi(null);
+    setIsModalOpen(true);
+  };
 
   const handleEdit = (programStudi: ProgramStudi) => {
-    setEditingProgramStudi(programStudi)
-    setIsModalOpen(true)
-  }
+    setEditingProgramStudi(programStudi);
+    setIsModalOpen(true);
+  };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Apakah Anda yakin ingin menghapus program studi ini?')) {
+    if (confirm("Apakah Anda yakin ingin menghapus program studi ini?")) {
       try {
         const response = await fetch(`/api/program-studi/${id}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        })
+          method: "DELETE",
+          credentials: "include",
+        });
 
         if (response.ok) {
-          setData(data.filter(prodi => prodi.id !== id))
+          setData(data.filter(prodi => prodi.id !== id));
         } else {
-          const error = await response.json()
-          toast.error(error.error)
+          const error = await response.json();
+          toast.error(error.error);
         }
       } catch (error) {
-        console.error('Error deleting program studi:', error)
-        toast.error('Gagal menghapus program studi')
+        console.error("Error deleting program studi:", error);
+        toast.error("Gagal menghapus program studi");
       }
     }
-  }
+  };
 
-  const handleSubmit = async (formData: { nama: string; kodeProdi: string; idFakultas: number }) => {
-    setIsSubmitting(true)
+  const handleSubmit = async (formData: {
+    nama: string;
+    kodeProdi: string;
+    idFakultas: number;
+  }) => {
+    setIsSubmitting(true);
     try {
-      const url = editingProgramStudi ? `/api/program-studi/${editingProgramStudi.id}` : '/api/program-studi'
-      const method = editingProgramStudi ? 'PUT' : 'POST'
+      const url = editingProgramStudi
+        ? `/api/program-studi/${editingProgramStudi.id}`
+        : "/api/program-studi";
+      const method = editingProgramStudi ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
-        body: JSON.stringify(formData)
-      })
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
 
       if (response.ok) {
-        const result = await response.json()
-        
+        const result = await response.json();
+
         if (editingProgramStudi) {
-          setData(data.map(prodi => 
-            prodi.id === editingProgramStudi.id ? result.programStudi : prodi
-          ))
+          setData(
+            data.map(prodi =>
+              prodi.id === editingProgramStudi.id ? result.programStudi : prodi,
+            ),
+          );
         } else {
-          setData([result.programStudi, ...data])
+          setData([result.programStudi, ...data]);
         }
-        
-        setIsModalOpen(false)
-        setEditingProgramStudi(null)
-        toast.success(editingProgramStudi ? 'Program studi berhasil diperbarui' : 'Program studi berhasil ditambahkan')
+
+        setIsModalOpen(false);
+        setEditingProgramStudi(null);
+        toast.success(
+          editingProgramStudi
+            ? "Program studi berhasil diperbarui"
+            : "Program studi berhasil ditambahkan",
+        );
       } else {
-        const error = await response.json()
-        toast.error(error.error)
+        const error = await response.json();
+        toast.error(error.error);
       }
     } catch (error) {
-      console.error('Error submitting form:', error)
-      toast.error('Gagal menyimpan data')
+      console.error("Error submitting form:", error);
+      toast.error("Gagal menyimpan data");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const columns = createProgramStudiColumns({ onEdit: handleEdit, onDelete: handleDelete })
+  const columns = createProgramStudiColumns({
+    onEdit: handleEdit,
+    onDelete: handleDelete,
+  });
 
   if (loading) {
     return (
@@ -149,34 +165,35 @@ export default function ProgramStudiPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Kelola Program Studi</h1>
-        <p className="mt-2 text-gray-600">
-          Kelola semua program studi di SEKA
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Kelola Program Studi
+        </h1>
+        <p className="mt-2 text-gray-600">Kelola semua program studi di SEKA</p>
       </div>
 
       {/* Stats Cards */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-green-primary bg-opacity-10 rounded-lg flex items-center justify-center">
-                <AcademicCapIcon className="w-6 h-6 text-white" />
-              </div>
-            </div>
-            <div className="ml-4">
-              <div className="text-sm font-medium text-gray-500">Total Program Studi</div>
-              <div className="text-2xl font-bold text-gray-900">{data.length}</div>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <div className="w-12 h-12 bg-green-primary bg-opacity-10 rounded-lg flex items-center justify-center">
+              <AcademicCapIcon className="w-6 h-6 text-white" />
             </div>
           </div>
-
-        
-
+          <div className="ml-4">
+            <div className="text-sm font-medium text-gray-500">
+              Total Program Studi
+            </div>
+            <div className="text-2xl font-bold text-gray-900">
+              {data.length}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Table Section */}
@@ -184,8 +201,12 @@ export default function ProgramStudiPage() {
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Data Program Studi</h2>
-              <p className="text-sm text-gray-500">Kelola semua program studi di sistem</p>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Data Program Studi
+              </h2>
+              <p className="text-sm text-gray-500">
+                Kelola semua program studi di sistem
+              </p>
             </div>
             <button
               onClick={handleAdd}
@@ -199,11 +220,18 @@ export default function ProgramStudiPage() {
 
         <div className="p-6">
           {data.length > 0 ? (
-            <DataTable columns={columns} data={data} searchPlaceholder="Cari program studi berdasarkan nama atau fakultas" searchableColumns={['nama', 'fakultas']} />
+            <DataTable
+              columns={columns}
+              data={data}
+              searchPlaceholder="Cari program studi berdasarkan nama atau fakultas"
+              searchableColumns={["nama", "fakultas"]}
+            />
           ) : (
             <div className="text-center py-12">
               <AcademicCapIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">Tidak ada program studi</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                Tidak ada program studi
+              </h3>
               <p className="mt-1 text-sm text-gray-500">
                 Mulai dengan menambahkan program studi baru.
               </p>
@@ -225,10 +253,12 @@ export default function ProgramStudiPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => {
-          setIsModalOpen(false)
-          setEditingProgramStudi(null)
+          setIsModalOpen(false);
+          setEditingProgramStudi(null);
         }}
-        title={editingProgramStudi ? 'Edit Program Studi' : 'Tambah Program Studi'}
+        title={
+          editingProgramStudi ? "Edit Program Studi" : "Tambah Program Studi"
+        }
         size="md"
       >
         <ProgramStudiForm
@@ -236,53 +266,63 @@ export default function ProgramStudiPage() {
           fakultasList={fakultasList}
           onSubmit={handleSubmit}
           onCancel={() => {
-            setIsModalOpen(false)
-            setEditingProgramStudi(null)
+            setIsModalOpen(false);
+            setEditingProgramStudi(null);
           }}
           isSubmitting={isSubmitting}
         />
       </Modal>
     </div>
-  )
+  );
 }
 
 // Program Studi Form Component
-function ProgramStudiForm({ 
-  programStudi, 
+function ProgramStudiForm({
+  programStudi,
   fakultasList,
-  onSubmit, 
-  onCancel, 
-  isSubmitting = false 
+  onSubmit,
+  onCancel,
+  isSubmitting = false,
 }: {
-  programStudi?: ProgramStudi | null
-  fakultasList: Fakultas[]
-  onSubmit: (data: { nama: string; kodeProdi: string; idFakultas: number }) => void
-  onCancel: () => void
-  isSubmitting?: boolean
+  programStudi?: ProgramStudi | null;
+  fakultasList: Fakultas[];
+  onSubmit: (data: {
+    nama: string;
+    kodeProdi: string;
+    idFakultas: number;
+  }) => void;
+  onCancel: () => void;
+  isSubmitting?: boolean;
 }) {
   const [formData, setFormData] = useState({
-    nama: programStudi?.nama || '',
-    kodeProdi: programStudi?.kodeProdi || '',
-    idFakultas: programStudi?.idFakultas || 0
-  })
+    nama: programStudi?.nama || "",
+    kodeProdi: programStudi?.kodeProdi || "",
+    idFakultas: programStudi?.idFakultas || 0,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-  }
+    e.preventDefault();
+    onSubmit(formData);
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const value = e.target.name === 'idFakultas' ? (e.target.value) : e.target.value
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const value =
+      e.target.name === "idFakultas" ? e.target.value : e.target.value;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: value
-    }))
-  }
+      [e.target.name]: value,
+    }));
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="nama" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="nama"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Nama Program Studi
         </label>
         <input
@@ -298,7 +338,10 @@ function ProgramStudiForm({
       </div>
 
       <div>
-        <label htmlFor="kodeProdi" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="kodeProdi"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Kode Program Studi
         </label>
         <input
@@ -314,7 +357,10 @@ function ProgramStudiForm({
       </div>
 
       <div>
-        <label htmlFor="idFakultas" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="idFakultas"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Fakultas
         </label>
         <select
@@ -347,9 +393,9 @@ function ProgramStudiForm({
           disabled={isSubmitting}
           className="px-4 py-2 text-sm font-medium text-white bg-[#3ECF8E] border border-transparent rounded-lg hover:bg-[#2EBF7B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3ECF8E] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Menyimpan...' : programStudi ? 'Perbarui' : 'Tambah'}
+          {isSubmitting ? "Menyimpan..." : programStudi ? "Perbarui" : "Tambah"}
         </button>
       </div>
     </form>
-  )
+  );
 }

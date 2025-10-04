@@ -1,9 +1,9 @@
 // app/laboran/praktikum/[id]/page.tsx
-'use client'
+"use client";
 
-import { useState, useEffect, useMemo } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect, useMemo } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   ArrowLeftIcon,
   PencilIcon,
@@ -11,168 +11,168 @@ import {
   AcademicCapIcon,
   UsersIcon,
   UserGroupIcon,
-
-} from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
-import Link from 'next/link'
-import { formatTime, formatDate } from '@/lib/utils'
-import { DataTable } from '@/components/ui/data-table'
+} from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
+import Link from "next/link";
+import { formatTime, formatDate } from "@/utils/utils";
+import { DataTable } from "@/components/ui/data-table";
 // import { createPraktikanColumns } from './columns'
-import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
-import { createMahasiswaColumns, createDosenColumns } from './columns'
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
+import { createMahasiswaColumns, createDosenColumns } from "./columns";
 
 interface PraktikumDetail {
-  id: string
-  nama: string
-  kodePraktikum: string
-  kodeMk: string
-  kelas: string
-  semester: 'GANJIL' | 'GENAP'
-  tahun: number
-  jadwalHari: string
-  jadwalJamMasuk: string
-  jadwalJamSelesai: string
-  ruang: string
-  isActive: boolean
-  pesertaPraktikum: PesertaPraktikum[] | []
-  asistenPraktikum: PesertaPraktikum[] | []
-  dosenPraktikum: DosenPraktikum[] | []
+  id: string;
+  nama: string;
+  kodePraktikum: string;
+  kodeMk: string;
+  kelas: string;
+  semester: "GANJIL" | "GENAP";
+  tahun: number;
+  jadwalHari: string;
+  jadwalJamMasuk: string;
+  jadwalJamSelesai: string;
+  ruang: string;
+  isActive: boolean;
+  pesertaPraktikum: PesertaPraktikum[] | [];
+  asistenPraktikum: PesertaPraktikum[] | [];
+  dosenPraktikum: DosenPraktikum[] | [];
   laboran: {
-    id: string
-    nama: string
-    email: string
-  }
+    id: string;
+    nama: string;
+    email: string;
+  };
   _count: {
-    pesertaPraktikum: number
-    asistenPraktikum: number
-    dosenPraktikum: number
-    tugas: number
-  }
-  createdAt: string
-  updatedAt: string
+    pesertaPraktikum: number;
+    asistenPraktikum: number;
+    dosenPraktikum: number;
+    tugas: number;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface PesertaPraktikum {
-  id: string
-  mahasiswa: MahasiswaData
+  id: string;
+  mahasiswa: MahasiswaData;
 }
 
 interface DosenPraktikum {
-  id: string
-  dosen: DosenData
+  id: string;
+  dosen: DosenData;
 }
 
 interface MahasiswaData {
-  nama: string
-  npm: string
+  nama: string;
+  npm: string;
 }
 
 interface DosenData {
-  nama: string
-  nip: string
+  nama: string;
+  nip: string;
 }
 
 export default function DetailPraktikumPage() {
-  const router = useRouter()
-  const params = useParams()
-  const id = params.id as string
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
 
-  const [praktikum, setPraktikum] = useState<PraktikumDetail | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [isShowModalDelete, setIsShowModalDelete] = useState(false)
-  const [activeTab, setActiveTab] = useState<"peserta" | "asisten" | "dosen">("peserta")
-  const columns = useMemo(()=>{
-    if(activeTab === 'dosen'){
-      return createDosenColumns()
+  const [praktikum, setPraktikum] = useState<PraktikumDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isShowModalDelete, setIsShowModalDelete] = useState(false);
+  const [activeTab, setActiveTab] = useState<"peserta" | "asisten" | "dosen">(
+    "peserta",
+  );
+  const columns = useMemo(() => {
+    if (activeTab === "dosen") {
+      return createDosenColumns();
     }
 
-    return createMahasiswaColumns()
-  },[activeTab])
+    return createMahasiswaColumns();
+  }, [activeTab]);
 
   useEffect(() => {
     if (id) {
-      fetchPraktikum()
+      fetchPraktikum();
     }
-  }, [id])
+  }, [id]);
 
   useEffect(() => {
-    console.log('Setelah berubah Praktikum : ', praktikum)
-  }, [praktikum])
+    console.log("Setelah berubah Praktikum : ", praktikum);
+  }, [praktikum]);
 
   const fetchPraktikum = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await fetch(`/api/praktikum/${id}`, {
-        credentials: 'include'
-      })
+        credentials: "include",
+      });
 
       if (response.ok) {
-        const result = await response.json()
-        setPraktikum(result.data)
+        const result = await response.json();
+        setPraktikum(result.data);
       } else {
-        toast.error('Gagal mengambil data praktikum')
-        router.push('/laboran/praktikum')
+        toast.error("Gagal mengambil data praktikum");
+        router.push("/laboran/praktikum");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat mengambil data')
-      router.push('/laboran/praktikum')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat mengambil data");
+      router.push("/laboran/praktikum");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-
-  }
+  };
 
   const confirmDelete = async () => {
-    setIsShowModalDelete(true)
-  }
-
+    setIsShowModalDelete(true);
+  };
 
   const handleDelete = async () => {
-
     try {
       const response = await fetch(`/api/praktikum/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      })
+        method: "DELETE",
+        credentials: "include",
+      });
 
       if (response.ok) {
-        toast.success('Praktikum berhasil dihapus')
-        router.push('/laboran/praktikum')
+        toast.success("Praktikum berhasil dihapus");
+        router.push("/laboran/praktikum");
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Gagal menghapus praktikum')
+        const error = await response.json();
+        toast.error(error.error || "Gagal menghapus praktikum");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat menghapus praktikum')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat menghapus praktikum");
     }
-  }
+  };
 
   const handleToggleActive = async () => {
-    if (!praktikum) return
+    if (!praktikum) return;
 
     try {
       const response = await fetch(`/api/praktikum/${id}/toggle-active`, {
-        method: 'PATCH',
-        credentials: 'include',
+        method: "PATCH",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ isActive: !praktikum.isActive })
-      })
+        body: JSON.stringify({ isActive: !praktikum.isActive }),
+      });
 
       if (response.ok) {
-        toast.success(`Praktikum ${!praktikum.isActive ? 'diaktifkan' : 'dinonaktifkan'}`)
-        fetchPraktikum()
+        toast.success(
+          `Praktikum ${!praktikum.isActive ? "diaktifkan" : "dinonaktifkan"}`,
+        );
+        fetchPraktikum();
       } else {
-        toast.error('Gagal mengubah status praktikum')
+        toast.error("Gagal mengubah status praktikum");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan");
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -186,58 +186,51 @@ export default function DetailPraktikumPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!praktikum) {
     return (
       <div className="p-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Praktikum tidak ditemukan</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Praktikum tidak ditemukan
+          </h1>
           <Link href="/laboran/praktikum">
             <Button>Kembali ke Daftar Praktikum</Button>
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   const getActiveData = () => {
-    if(!praktikum) return []
+    if (!praktikum) return [];
 
-    if(activeTab === 'peserta'){
-      return praktikum.pesertaPraktikum.map(
-        p => ({
-          nama: p.mahasiswa.nama,
-          npm: p.mahasiswa.npm
-        })
-      )
+    if (activeTab === "peserta") {
+      return praktikum.pesertaPraktikum.map(p => ({
+        nama: p.mahasiswa.nama,
+        npm: p.mahasiswa.npm,
+      }));
     }
-    if(activeTab === 'asisten'){
-      return praktikum.asistenPraktikum.map(
-        p => ({
-          nama: p.mahasiswa.nama,
-          npm: p.mahasiswa.npm
-        })
-      )
+    if (activeTab === "asisten") {
+      return praktikum.asistenPraktikum.map(p => ({
+        nama: p.mahasiswa.nama,
+        npm: p.mahasiswa.npm,
+      }));
     }
 
-    if(activeTab === 'dosen'){
-      return praktikum.dosenPraktikum.map(
-        p => ({
-          nama: p.dosen.nama,
-          nip: p.dosen.nip
-        })
-      )
+    if (activeTab === "dosen") {
+      return praktikum.dosenPraktikum.map(p => ({
+        nama: p.dosen.nama,
+        nip: p.dosen.nip,
+      }));
     }
 
-    return []
-  }
+    return [];
+  };
 
-  
-
-
-  const data = getActiveData()
+  const data = getActiveData();
 
   return (
     <div className="p-4 lg:p-8">
@@ -263,14 +256,22 @@ export default function DetailPraktikumPage() {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-3">
-            <Link href={`/laboran/praktikum/${praktikum.id}/manage-participants`}>
-              <Button variant="outline" className='text-blue-600 hover:text-blue-700' >
-              + Partisipan
+            <Link
+              href={`/laboran/praktikum/${praktikum.id}/manage-participants`}
+            >
+              <Button
+                variant="outline"
+                className="text-blue-600 hover:text-blue-700"
+              >
+                + Partisipan
               </Button>
             </Link>
 
             <Link href={`/laboran/praktikum/edit/${praktikum.id}`}>
-              <Button variant="outline" className="text-green-600 hover:text-green-700">
+              <Button
+                variant="outline"
+                className="text-green-600 hover:text-green-700"
+              >
                 <PencilIcon className="h-4 w-4 mr-2" />
                 Edit
               </Button>
@@ -288,11 +289,14 @@ export default function DetailPraktikumPage() {
 
         {/* Status Badge */}
         <div className="flex items-center space-x-3">
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${praktikum.isActive
-            ? 'bg-green-100 text-green-800'
-            : 'bg-gray-100 text-gray-800'
-            }`}>
-            {praktikum.isActive ? 'Aktif' : 'Tidak Aktif'}
+          <span
+            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+              praktikum.isActive
+                ? "bg-green-100 text-green-800"
+                : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {praktikum.isActive ? "Aktif" : "Tidak Aktif"}
           </span>
           <span className="text-sm text-gray-500">
             Dibuat {formatDate(praktikum.createdAt)}
@@ -307,7 +311,9 @@ export default function DetailPraktikumPage() {
             <UsersIcon className="h-10 w-10 text-green-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Peserta</p>
-              <p className="text-3xl font-bold text-gray-900">{praktikum._count.pesertaPraktikum}</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {praktikum._count.pesertaPraktikum}
+              </p>
             </div>
           </div>
         </div>
@@ -316,7 +322,9 @@ export default function DetailPraktikumPage() {
             <AcademicCapIcon className="h-10 w-10 text-green-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Asisten</p>
-              <p className="text-3xl font-bold text-gray-900">{praktikum._count.asistenPraktikum}</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {praktikum._count.asistenPraktikum}
+              </p>
             </div>
           </div>
         </div>
@@ -325,11 +333,12 @@ export default function DetailPraktikumPage() {
             <UserGroupIcon className="h-10 w-10 text-green-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Dosen</p>
-              <p className="text-3xl font-bold text-gray-900">{praktikum._count.dosenPraktikum}</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {praktikum._count.dosenPraktikum}
+              </p>
             </div>
           </div>
         </div>
-
       </div>
 
       {/* Detail Information */}
@@ -338,26 +347,40 @@ export default function DetailPraktikumPage() {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center mb-6">
             {/* <BookOpenIcon className="h-5 w-5 text-blue-500 mr-2" /> */}
-            <h2 className="text-lg font-semibold text-gray-900">Informasi Dasar</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Informasi Dasar
+            </h2>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-500">Nama Praktikum</label>
+              <label className="block text-sm font-medium text-gray-500">
+                Nama Praktikum
+              </label>
               <p className="mt-1 text-sm text-gray-900">{praktikum.nama}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500">Kode Praktikum</label>
-                <p className="mt-1 text-sm font-mono font-medium text-gray-900">{praktikum.kodePraktikum}</p>
+                <label className="block text-sm font-medium text-gray-500">
+                  Kode Praktikum
+                </label>
+                <p className="mt-1 text-sm font-mono font-medium text-gray-900">
+                  {praktikum.kodePraktikum}
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500">Kode Mata Kuliah</label>
-                <p className="mt-1 text-sm font-mono font-medium text-gray-900">{praktikum.kodeMk}</p>
+                <label className="block text-sm font-medium text-gray-500">
+                  Kode Mata Kuliah
+                </label>
+                <p className="mt-1 text-sm font-mono font-medium text-gray-900">
+                  {praktikum.kodeMk}
+                </p>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500">Kelas</label>
+              <label className="block text-sm font-medium text-gray-500">
+                Kelas
+              </label>
               <p className="mt-1">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                   {praktikum.kelas}
@@ -371,72 +394,91 @@ export default function DetailPraktikumPage() {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center mb-6">
             {/* <CalendarIcon className="h-5 w-5 text-purple-500 mr-2" /> */}
-            <h2 className="text-lg font-semibold text-gray-900">Jadwal & Lokasi</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Jadwal & Lokasi
+            </h2>
           </div>
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500">Semester</label>
-                <p className="mt-1 text-sm text-gray-900">{praktikum.semester}</p>
+                <label className="block text-sm font-medium text-gray-500">
+                  Semester
+                </label>
+                <p className="mt-1 text-sm text-gray-900">
+                  {praktikum.semester}
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500">Tahun</label>
+                <label className="block text-sm font-medium text-gray-500">
+                  Tahun
+                </label>
                 <p className="mt-1 text-sm text-gray-900">{praktikum.tahun}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="">
-
-                <label className="block text-sm font-medium text-gray-500">Hari</label>
-                <p className="mt-1 text-sm text-gray-900">{praktikum.jadwalHari}</p>
+                <label className="block text-sm font-medium text-gray-500">
+                  Hari
+                </label>
+                <p className="mt-1 text-sm text-gray-900">
+                  {praktikum.jadwalHari}
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500">Waktu</label>
+                <label className="block text-sm font-medium text-gray-500">
+                  Waktu
+                </label>
                 <div className="mt-1 flex items-center">
                   {/* <ClockIcon className="h-4 w-4 text-gray-400 mr-2" /> */}
-                  <p className="text-sm font-mono text-gray-900">{formatTime(praktikum.jadwalJamMasuk)} - {formatTime(praktikum.jadwalJamSelesai)}</p>
+                  <p className="text-sm font-mono text-gray-900">
+                    {formatTime(praktikum.jadwalJamMasuk)} -{" "}
+                    {formatTime(praktikum.jadwalJamSelesai)}
+                  </p>
                 </div>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500">Ruang</label>
+              <label className="block text-sm font-medium text-gray-500">
+                Ruang
+              </label>
               <p className="mt-1 text-sm text-gray-900">{praktikum.ruang}</p>
             </div>
           </div>
         </div>
       </div>
 
-
-
       <div className="bg-white rounded-lg shadow-sm border-gray-200 border mt-6">
         <div className="bg-white border-b border-gray-200 mb-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav className="flex space-x-8">
               <button
-                onClick={() => setActiveTab('peserta')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'peserta'
-                    ? 'border-[#3ECF8E] text-[#3ECF8E]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                onClick={() => setActiveTab("peserta")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "peserta"
+                    ? "border-[#3ECF8E] text-[#3ECF8E]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
               >
                 Peserta ({praktikum._count.pesertaPraktikum})
               </button>
               <button
-                onClick={() => setActiveTab('asisten')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'asisten'
-                    ? 'border-[#3ECF8E] text-[#3ECF8E]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                onClick={() => setActiveTab("asisten")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "asisten"
+                    ? "border-[#3ECF8E] text-[#3ECF8E]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
               >
                 Asisten ({praktikum._count.asistenPraktikum})
               </button>
               <button
-                onClick={() => setActiveTab('dosen')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'dosen'
-                    ? 'border-[#3ECF8E] text-[#3ECF8E]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                onClick={() => setActiveTab("dosen")}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "dosen"
+                    ? "border-[#3ECF8E] text-[#3ECF8E]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
               >
                 Dosen ({praktikum._count.dosenPraktikum})
               </button>
@@ -449,7 +491,9 @@ export default function DetailPraktikumPage() {
             <DataTable columns={columns} data={data} />
           ) : (
             <div className="text-center p-6">
-              <p className="text-sm text-gray-500">Belum ada data pada tab ini.</p>
+              <p className="text-sm text-gray-500">
+                Belum ada data pada tab ini.
+              </p>
             </div>
           )}
         </div>
@@ -464,10 +508,7 @@ export default function DetailPraktikumPage() {
         isLoading={loading}
       />
 
-
-
       {/* Management Information */}
-
 
       {/* Quick Actions */}
       {/* <div className="mt-8 bg-white rounded-lg shadow-sm border p-6">
@@ -500,5 +541,5 @@ export default function DetailPraktikumPage() {
         </div>
       </div> */}
     </div>
-  )
+  );
 }

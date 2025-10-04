@@ -1,17 +1,17 @@
 // ts/ui/ConfirmDeleteModal.tsx
-'use client'
+"use client";
 
-import Modal from '../ui/modal'
-import { useState } from 'react'
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import Modal from "../ui/modal";
+import { useState } from "react";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 interface ConfirmDeleteModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => Promise<void> | void
-  title?: string
-  message?: string
-  isLoading?: boolean
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void> | void;
+  title?: string;
+  message?: string;
+  isLoading?: boolean;
 }
 
 export default function ConfirmDeleteModal({
@@ -22,14 +22,14 @@ export default function ConfirmDeleteModal({
   message = "Apakah Anda yakin ingin menghapus data ini?",
   isLoading = false,
 }: ConfirmDeleteModalProps) {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
-    setLoading(true)
-    await onConfirm()
-    setLoading(false)
-    onClose()
-  }
+    setLoading(true);
+    await onConfirm();
+    setLoading(false);
+    onClose();
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
@@ -54,5 +54,5 @@ export default function ConfirmDeleteModal({
         </button>
       </div>
     </Modal>
-  )
+  );
 }

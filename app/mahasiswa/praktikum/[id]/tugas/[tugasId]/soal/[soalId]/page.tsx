@@ -1,24 +1,22 @@
-'use client'
-import { useSoal } from '@/hooks/useSoal'
-import MarkdownRenderer from '@/components/MarkdownRenderer'
-import { useParams, useRouter } from 'next/navigation'
-import { useState, useRef, useEffect } from 'react'
-import LoadingSpinner from '@/components/LoadingSpinner'
-import { Bahasa, useBahasa } from '@/hooks/useBahasa'
-import toast from 'react-hot-toast'
-import { Clipboard, Edit } from 'lucide-react'
-import { useBahasaTugas } from '@/hooks/useBahasaTugas'
-import { Button } from '@/components/ui/button'
-import { useSubmissionsSoalMahasiswa } from '@/hooks/useSubmissionsSoalMahasiswa'
-import { Submission } from '@/types/submission'
-import { useRolePraktikum } from '@/contexts/RolePraktikumContext'
-import  AsistenSubmissions  from '@/components/AsistenSubmission'
-import TopScoreSidebar from '@/components/TopScoreSidebar'
-
-
+"use client";
+import { useSoal } from "@/hooks/useSoal";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { useParams, useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { Bahasa, useBahasa } from "@/hooks/useBahasa";
+import toast from "react-hot-toast";
+import { Clipboard, Edit } from "lucide-react";
+import { useBahasaTugas } from "@/hooks/useBahasaTugas";
+import { Button } from "@/components/ui/button";
+import { useSubmissionsSoalMahasiswa } from "@/hooks/useSubmissionsSoalMahasiswa";
+import { Submission } from "@/types/submission";
+import { useRolePraktikum } from "@/contexts/RolePraktikumContext";
+import AsistenSubmissions from "@/components/AsistenSubmission";
+import TopScoreSidebar from "@/components/TopScoreSidebar";
 
 interface TestResult {
-  status: 'finished' | 'compile_error' | 'runtime_error';
+  status: "finished" | "compile_error" | "runtime_error";
   total_case: number;
   total_case_benar: number;
   results?: Array<{
@@ -32,7 +30,7 @@ interface TestResult {
   error_message?: string;
 }
 
-export type RolePraktikum = 'ASISTEN' | 'PESERTA';
+export type RolePraktikum = "ASISTEN" | "PESERTA";
 
 interface TopScore {
   rank: number;
@@ -43,22 +41,30 @@ interface TopScore {
 }
 
 export default function SoalPage() {
-  const params = useParams()
-  const [activeTab, setActiveTab] = useState<'soal' | 'submission'>('soal')
-  const router = useRouter()
+  const params = useParams();
+  const [activeTab, setActiveTab] = useState<"soal" | "submission">("soal");
+  const router = useRouter();
 
-  const { data: soalData, isLoading: soalLoading } = useSoal(params.soalId as string)
-  const { data: bahasaData, isLoading: bahasaLoading } = useBahasaTugas(params.tugasId as string)
-  const { data: submissionsData, isLoading: submissionsLoading, refetch: refetchSubmission } = useSubmissionsSoalMahasiswa(params.soalId as string)
+  const { data: soalData, isLoading: soalLoading } = useSoal(
+    params.soalId as string,
+  );
+  const { data: bahasaData, isLoading: bahasaLoading } = useBahasaTugas(
+    params.tugasId as string,
+  );
+  const {
+    data: submissionsData,
+    isLoading: submissionsLoading,
+    refetch: refetchSubmission,
+  } = useSubmissionsSoalMahasiswa(params.soalId as string);
 
-  const { isAsisten } = useRolePraktikum()
-  const [role, setRole] = useState<RolePraktikum>('PESERTA')
+  const { isAsisten } = useRolePraktikum();
+  const [role, setRole] = useState<RolePraktikum>("PESERTA");
 
   useEffect(() => {
     if (isAsisten(params.id as string)) {
-      setRole('ASISTEN')
+      setRole("ASISTEN");
     }
-  }, [isAsisten, params.id])
+  }, [isAsisten, params.id]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,32 +74,35 @@ export default function SoalPage() {
           <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
 
-        
-
         {/* Main Content */}
         <div className="flex-1 bg-white border border-gray-200 shadow-sm rounded-lg">
-          {role === 'ASISTEN' ? (
+          {role === "ASISTEN" ? (
             activeTab === "soal" ? (
               <div className=" flex flex-col">
-      <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
-          {activeTab === 'soal' ? (soalData?.judul || 'Loading...') : 'Riwayat Submission'}
-        </h2>
-        {role === 'ASISTEN' && (
-          <Button
-            onClick={() => router.push(`/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}/soal/${params.soalId}/edit`)}
-            className="bg-green-primary hover:bg-green-700 text-white cursor-pointer "
-          >
-            <Edit /> Edit
-          </Button>
-        )}
-      </div>
+                <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    {activeTab === "soal"
+                      ? soalData?.judul || "Loading..."
+                      : "Riwayat Submission"}
+                  </h2>
+                  {role === "ASISTEN" && (
+                    <Button
+                      onClick={() =>
+                        router.push(
+                          `/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}/soal/${params.soalId}/edit`,
+                        )
+                      }
+                      className="bg-green-primary hover:bg-green-700 text-white cursor-pointer "
+                    >
+                      <Edit /> Edit
+                    </Button>
+                  )}
+                </div>
 
-      <div className="flex-1 px-6 py-4">
-              <SoalContent soal={soalData} />
-            </div>
-            </div>
-
+                <div className="flex-1 px-6 py-4">
+                  <SoalContent soal={soalData} />
+                </div>
+              </div>
             ) : (
               <AsistenSubmissions
                 praktikumId={params.id as string}
@@ -111,7 +120,6 @@ export default function SoalPage() {
               soal={soalData}
               submissions={submissionsData}
               submissionsLoading={submissionsLoading}
-              
               role={role}
               params={params}
             />
@@ -137,19 +145,18 @@ export default function SoalPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
 
 // Left Sidebar
 const LeftSidebar = ({
   activeTab,
-  setActiveTab
+  setActiveTab,
 }: {
-  activeTab: 'soal' | 'submission',
-  setActiveTab: (tab: 'soal' | 'submission') => void
+  activeTab: "soal" | "submission";
+  setActiveTab: (tab: "soal" | "submission") => void;
 }) => {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="bg-white rounded-lg border p-4">
@@ -164,27 +171,29 @@ const LeftSidebar = ({
       </div>
       <nav className="space-y-2">
         <button
-          onClick={() => setActiveTab('soal')}
-          className={`w-full text-sm text-left px-3 py-2 rounded ${activeTab === 'soal'
-            ? 'bg-blue-100 text-blue-700 font-medium'
-            : 'text-gray-700 hover:bg-gray-100'
-            }`}
+          onClick={() => setActiveTab("soal")}
+          className={`w-full text-sm text-left px-3 py-2 rounded ${
+            activeTab === "soal"
+              ? "bg-blue-100 text-blue-700 font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
         >
           Soal
         </button>
         <button
-          onClick={() => setActiveTab('submission')}
-          className={`w-full text-sm text-left px-3 py-2 rounded ${activeTab === 'submission'
-            ? 'bg-blue-100 text-blue-700 font-medium'
-            : 'text-gray-700 hover:bg-gray-100'
-            }`}
+          onClick={() => setActiveTab("submission")}
+          className={`w-full text-sm text-left px-3 py-2 rounded ${
+            activeTab === "submission"
+              ? "bg-blue-100 text-blue-700 font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
         >
           Submission
         </button>
       </nav>
     </div>
-  )
-}
+  );
+};
 
 // Content Area
 const ContentArea = ({
@@ -193,27 +202,32 @@ const ContentArea = ({
   submissions,
   submissionsLoading,
   role,
-  params
+  params,
 }: {
-  activeTab: 'soal' | 'submission',
-  soal: any,
-  submissions?: Submission[],
-  submissionsLoading: boolean,
-  role: RolePraktikum
-  params: { id: string, tugasId: string, soalId: string }
+  activeTab: "soal" | "submission";
+  soal: any;
+  submissions?: Submission[];
+  submissionsLoading: boolean;
+  role: RolePraktikum;
+  params: { id: string; tugasId: string; soalId: string };
 }) => {
-
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className=" flex flex-col">
       <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">
-          {activeTab === 'soal' ? (soal?.judul || 'Loading...') : 'Riwayat Submission'}
+          {activeTab === "soal"
+            ? soal?.judul || "Loading..."
+            : "Riwayat Submission"}
         </h2>
-        {role === 'ASISTEN' && (
+        {role === "ASISTEN" && (
           <Button
-            onClick={() => router.push(`/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}/soal/${params.soalId}/edit`)}
+            onClick={() =>
+              router.push(
+                `/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}/soal/${params.soalId}/edit`,
+              )
+            }
             className="bg-green-primary hover:bg-green-700 text-white cursor-pointer "
           >
             <Edit /> Edit
@@ -222,11 +236,18 @@ const ContentArea = ({
       </div>
 
       <div className="flex-1 px-6 py-4">
-        {activeTab === 'soal' ? <SoalContent soal={soal} /> : <SubmissionContent submissions={submissions} submissionsLoading={submissionsLoading} />}
+        {activeTab === "soal" ? (
+          <SoalContent soal={soal} />
+        ) : (
+          <SubmissionContent
+            submissions={submissions}
+            submissionsLoading={submissionsLoading}
+          />
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 // Soal Content
 const SoalContent = ({ soal }: { soal: any }) => {
@@ -297,12 +318,11 @@ const SoalContent = ({ soal }: { soal: any }) => {
           </div>
         </section>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
-
       {/* Problem Description */}
       <section>
         <h3 className="text-sm font-semibold text-gray-900 mb-3">Deskripsi</h3>
@@ -312,9 +332,11 @@ const SoalContent = ({ soal }: { soal: any }) => {
       </section>
 
       {/* Input Format */}
-      {soal.formatInput && soal.formatInput.trim() !== '-' && (
+      {soal.formatInput && soal.formatInput.trim() !== "-" && (
         <section>
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Format Input</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">
+            Format Input
+          </h3>
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
             <pre className="text-sm text-gray-800 whitespace-pre-wrap">
               {soal.formatInput}
@@ -324,9 +346,11 @@ const SoalContent = ({ soal }: { soal: any }) => {
       )}
 
       {/* Output Format */}
-      {soal.formatOutput && soal.formatOutput.trim() !== '-' && (
+      {soal.formatOutput && soal.formatOutput.trim() !== "-" && (
         <section>
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Format Output</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">
+            Format Output
+          </h3>
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
             <pre className="text-sm text-gray-800 whitespace-pre-wrap">
               {soal.formatOutput}
@@ -336,7 +360,7 @@ const SoalContent = ({ soal }: { soal: any }) => {
       )}
 
       {/* Constraints */}
-      {soal.batasan && soal.batasan.trim() !== '-' && (
+      {soal.batasan && soal.batasan.trim() !== "-" && (
         <section>
           <h3 className="text-sm font-semibold text-gray-900 mb-3">Batasan</h3>
           <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -350,32 +374,38 @@ const SoalContent = ({ soal }: { soal: any }) => {
       {/* Sample Test Cases */}
       {soal.contohTestCase && soal.contohTestCase.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Contoh Test Case</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">
+            Contoh Test Case
+          </h3>
           <div className="space-y-4">
             {soal.contohTestCase.map((tc: any, idx: number) => {
-              if (!tc.contohOutput || tc.contohOutput === '-') return null
+              if (!tc.contohOutput || tc.contohOutput === "-") return null;
               const handleCopy = async (text: string, label: string) => {
                 try {
-                  await navigator.clipboard.writeText(text)
-                  toast.success(`${label} berhasil disalin`)
+                  await navigator.clipboard.writeText(text);
+                  toast.success(`${label} berhasil disalin`);
                 } catch {
-                  toast.error(`Gagal menyalin ${label}`)
+                  toast.error(`Gagal menyalin ${label}`);
                 }
-              }
+              };
 
               return (
                 <div key={tc.id} className="border border-gray-200 rounded-lg">
                   <div className="bg-gray-100 px-4 py-2 border-b border-gray-200">
-                    <h4 className="font-medium text-sm text-gray-900">Test Case #{idx + 1}</h4>
+                    <h4 className="font-medium text-sm text-gray-900">
+                      Test Case #{idx + 1}
+                    </h4>
                   </div>
                   <div className="p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <label className="block text-xs font-medium text-gray-700 mb-2">Input:</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">
+                            Input:
+                          </label>
                           <Button
                             variant="outline"
-                            onClick={() => handleCopy(tc.contohInput, 'Input')}
+                            onClick={() => handleCopy(tc.contohInput, "Input")}
                             className="text-gray-500 hover:text-green-700 flex items-center gap-1 text-xs"
                             title="Copy Input"
                           >
@@ -390,10 +420,14 @@ const SoalContent = ({ soal }: { soal: any }) => {
                       </div>
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <label className="block text-xs font-medium text-gray-700 mb-2">Output:</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">
+                            Output:
+                          </label>
                           <Button
                             variant="outline"
-                            onClick={() => handleCopy(tc.contohOutput, 'Output')}
+                            onClick={() =>
+                              handleCopy(tc.contohOutput, "Output")
+                            }
                             className="text-gray-500 hover:text-green-700 flex items-center gap-1 text-xs"
                             title="Copy Output"
                           >
@@ -407,21 +441,24 @@ const SoalContent = ({ soal }: { soal: any }) => {
                         </div>
                       </div>
                     </div>
-                    {tc.penjelasanInput && tc.penjelasanInput.trim() !== '-' && (
-                      <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded p-3">
-                        <p className="text-sm text-yellow-800">{tc.penjelasanInput}</p>
-                      </div>
-                    )}
+                    {tc.penjelasanInput &&
+                      tc.penjelasanInput.trim() !== "-" && (
+                        <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded p-3">
+                          <p className="text-sm text-yellow-800">
+                            {tc.penjelasanInput}
+                          </p>
+                        </div>
+                      )}
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </section>
       )}
     </div>
-  )
-}
+  );
+};
 
 // Right Sidebar
 const RightSidebar = ({
@@ -429,20 +466,25 @@ const RightSidebar = ({
   soal,
   activeTab,
   setActiveTab,
-  refetchSubmission
+  refetchSubmission,
 }: {
   bahasa: Bahasa[];
   soal?: any;
-  activeTab: 'soal' | 'submission';
-  setActiveTab: (tab: 'submission' | 'soal') => void;
+  activeTab: "soal" | "submission";
+  setActiveTab: (tab: "submission" | "soal") => void;
   refetchSubmission: () => void;
 }) => {
-  return activeTab === 'soal' ? (
-    <SubmitJawabanSidebar bahasa={bahasa} soal={soal} setActiveTab={setActiveTab} refetchSubmission={refetchSubmission} />
+  return activeTab === "soal" ? (
+    <SubmitJawabanSidebar
+      bahasa={bahasa}
+      soal={soal}
+      setActiveTab={setActiveTab}
+      refetchSubmission={refetchSubmission}
+    />
   ) : (
     <TopScoreSidebar soalId={soal.id as string} />
-  )
-}
+  );
+};
 
 // Submit Jawaban Sidebar
 const SubmitJawabanSidebar = ({
@@ -453,162 +495,161 @@ const SubmitJawabanSidebar = ({
 }: {
   bahasa: Bahasa[];
   soal?: any;
-  setActiveTab: (tab: 'submission' | 'soal') => void;
+  setActiveTab: (tab: "submission" | "soal") => void;
   refetchSubmission: () => void;
 }) => {
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('')
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [testResult, setTestResult] = useState<TestResult | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Collapse states
-  const [isTemplateExpanded, setIsTemplateExpanded] = useState(true)
-  const [isSubmitExpanded, setIsSubmitExpanded] = useState(true)
-  const [isResultExpanded, setIsResultExpanded] = useState(true)
+  const [isTemplateExpanded, setIsTemplateExpanded] = useState(true);
+  const [isSubmitExpanded, setIsSubmitExpanded] = useState(true);
+  const [isResultExpanded, setIsResultExpanded] = useState(true);
 
   // Set default language when data loads
   useEffect(() => {
     if (bahasa.length > 0 && !selectedLanguage) {
-      const cppLang = bahasa.find(b => b.nama.toLowerCase().includes('c++')) || bahasa[0]
-      setSelectedLanguage(cppLang.id.toString())
+      const cppLang =
+        bahasa.find(b => b.nama.toLowerCase().includes("c++")) || bahasa[0];
+      setSelectedLanguage(cppLang.id.toString());
     }
-  }, [bahasa])
+  }, [bahasa]);
 
   // Handle file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
-      setUploadedFile(file)
-      toast.success(`File ${file.name} berhasil dipilih`)
+      setUploadedFile(file);
+      toast.success(`File ${file.name} berhasil dipilih`);
     }
-  }
+  };
 
   // Copy template code to clipboard
   const handleCopyTemplate = async () => {
-    if (soal?.templateKode && soal.templateKode !== '-') {
+    if (soal?.templateKode && soal.templateKode !== "-") {
       try {
-        await navigator.clipboard.writeText(soal.templateKode)
-        toast.success('Template code berhasil disalin ke clipboard')
+        await navigator.clipboard.writeText(soal.templateKode);
+        toast.success("Template code berhasil disalin ke clipboard");
       } catch (err) {
-        toast.error('Gagal menyalin template code')
+        toast.error("Gagal menyalin template code");
       }
     }
-  }
+  };
 
   // Handle test
   const handleTest = async () => {
     if (!uploadedFile) {
-      toast.error('Silakan uplod filter terlebih dahulu')
-      return
+      toast.error("Silakan uplod filter terlebih dahulu");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-
-
       // read text file
-      const fileContent = await new Promise<string>((resolve) => {
-        const reader = new FileReader()
-        reader.onload = (e) => resolve(e.target?.result as string)
-        reader.readAsText(uploadedFile)
-      })
+      const fileContent = await new Promise<string>(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target?.result as string);
+        reader.readAsText(uploadedFile);
+      });
 
       const response = await fetch(`/api/soal/${soal.id}/test`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           sourceCode: fileContent,
-          languageId: (selectedLanguage),
-        })
-      })
+          languageId: selectedLanguage,
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error('Gagal eksekusi kode')
+        throw new Error("Gagal eksekusi kode");
       }
 
-      const result = await response.json()
-      console.log(result)
-      setTestResult(result)
-      toast.success('Tes berhasil dijalankan')
-
+      const result = await response.json();
+      console.log(result);
+      setTestResult(result);
+      toast.success("Tes berhasil dijalankan");
     } catch (error) {
-      console.error(error || 'Gagal tes kode')
-      toast.error(error instanceof Error ? error?.message : 'Gagal tes kode')
+      console.error(error || "Gagal tes kode");
+      toast.error(error instanceof Error ? error?.message : "Gagal tes kode");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-
-  }
+  };
 
   // Handle submit
   const handleSubmit = async () => {
     if (!uploadedFile) {
-      toast.error('Silakan pilih file terlebih dahulu')
-      return
+      toast.error("Silakan pilih file terlebih dahulu");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      const fileContent = await new Promise<string>((resolve) => {
-        const reader = new FileReader()
-        reader.onload = (e) => resolve(e.target?.result as string)
-        reader.readAsText(uploadedFile)
-      })
+      const fileContent = await new Promise<string>(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target?.result as string);
+        reader.readAsText(uploadedFile);
+      });
 
       const response = await fetch(`/api/soal/${soal.id}/submit`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           sourceCode: fileContent,
-          languageId: (selectedLanguage)
-        })
-      })
+          languageId: selectedLanguage,
+        }),
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Submit failed')
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Submit failed");
       }
 
       // Handle successful submission
-      refetchSubmission()
-      const result = await response.json()
-      toast.success(`Submit berhasil! Score: ${result.score}`)
+      refetchSubmission();
+      const result = await response.json();
+      toast.success(`Submit berhasil! Score: ${result.score}`);
 
       // Reset form
-      setUploadedFile(null)
+      setUploadedFile(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = "";
       }
-      setActiveTab('submission');
-
+      setActiveTab("submission");
     } catch (error) {
-      console.error('Error submitting code:', error)
-      toast.error(error instanceof Error ? error.message : 'Gagal submit jawaban')
+      console.error("Error submitting code:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Gagal submit jawaban",
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
-
       {/* Template Code Section */}
-      {soal?.templateKode && soal.templateKode !== '-' && (
+      {soal?.templateKode && soal.templateKode !== "-" && (
         <div className="bg-white rounded-lg border border-green-200">
           <button
             onClick={() => setIsTemplateExpanded(!isTemplateExpanded)}
             className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-green-100 rounded-t-lg transition-colors"
           >
-            <h2 className="text-base font-medium text-gray-800">Template Code</h2>
+            <h2 className="text-base font-medium text-gray-800">
+              Template Code
+            </h2>
             <span className="text-gray-700 text-sm">
-              {isTemplateExpanded ? '−' : '+'}
+              {isTemplateExpanded ? "−" : "+"}
             </span>
           </button>
 
@@ -636,9 +677,11 @@ const SubmitJawabanSidebar = ({
           onClick={() => setIsSubmitExpanded(!isSubmitExpanded)}
           className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-green-100 rounded-t-lg transition-colors"
         >
-          <h2 className="text-base font-medium text-gray-800">Submit Jawaban</h2>
+          <h2 className="text-base font-medium text-gray-800">
+            Submit Jawaban
+          </h2>
           <span className="text-gray-700 text-sm">
-            {isSubmitExpanded ? '−' : '+'}
+            {isSubmitExpanded ? "−" : "+"}
           </span>
         </button>
 
@@ -651,10 +694,10 @@ const SubmitJawabanSidebar = ({
               </label>
               <select
                 value={selectedLanguage}
-                onChange={(e) => setSelectedLanguage(e.target.value)}
+                onChange={e => setSelectedLanguage(e.target.value)}
                 className="w-full px-3 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-300 focus:border-green-400 text-sm bg-white"
               >
-                {bahasa.map((b) => (
+                {bahasa.map(b => (
                   <option key={b.id} value={b.id}>
                     {b.nama} ({b.compiler} {b.versi})
                   </option>
@@ -689,7 +732,7 @@ const SubmitJawabanSidebar = ({
                 disabled={isLoading || !uploadedFile}
                 className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
               >
-                {isLoading ? 'Running...' : 'Tes Kode'}
+                {isLoading ? "Running..." : "Tes Kode"}
               </button>
               <button
                 onClick={handleSubmit}
@@ -709,7 +752,7 @@ const SubmitJawabanSidebar = ({
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
             <span className="ml-2 text-sm text-green-700">
-              {testResult ? 'Testing kode...' : 'Processing...'}
+              {testResult ? "Testing kode..." : "Processing..."}
             </span>
           </div>
         </div>
@@ -724,7 +767,7 @@ const SubmitJawabanSidebar = ({
           >
             <h3 className="text-base font-medium text-gray-800">Hasil Test</h3>
             <span className="text-gray-700 text-sm">
-              {isResultExpanded ? '−' : '+'}
+              {isResultExpanded ? "−" : "+"}
             </span>
           </button>
 
@@ -733,20 +776,29 @@ const SubmitJawabanSidebar = ({
               {/* Status Summary */}
               <div className="bg-white rounded-lg p-3 border border-green-100">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-800">Status:</span>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${testResult.status === 'finished'
-                    ? 'bg-green-100 text-gray-800'
-                    : testResult.status === 'compile_error'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                    {testResult.status === 'finished' ? 'Selesai' :
-                      testResult.status === 'compile_error' ? 'Compile Error' : 'Runtime Error'}
+                  <span className="text-sm font-medium text-gray-800">
+                    Status:
+                  </span>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      testResult.status === "finished"
+                        ? "bg-green-100 text-gray-800"
+                        : testResult.status === "compile_error"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {testResult.status === "finished"
+                      ? "Selesai"
+                      : testResult.status === "compile_error"
+                        ? "Compile Error"
+                        : "Runtime Error"}
                   </span>
                 </div>
-                {testResult.status === 'finished' && (
+                {testResult.status === "finished" && (
                   <div className="text-sm text-gray-700">
-                    Test Case: {testResult.total_case_benar}/{testResult.total_case} berhasil
+                    Test Case: {testResult.total_case_benar}/
+                    {testResult.total_case} berhasil
                   </div>
                 )}
               </div>
@@ -754,7 +806,9 @@ const SubmitJawabanSidebar = ({
               {/* Error Message */}
               {testResult.error_message && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <h4 className="text-sm font-medium text-red-800 mb-2">Error:</h4>
+                  <h4 className="text-sm font-medium text-red-800 mb-2">
+                    Error:
+                  </h4>
                   <pre className="text-xs text-red-700 whitespace-pre-wrap font-mono bg-white p-2 rounded border overflow-x-auto">
                     {testResult.error_message}
                   </pre>
@@ -764,18 +818,31 @@ const SubmitJawabanSidebar = ({
               {/* Test Cases Results */}
               {testResult.results && testResult.results.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium text-gray-800">Detail Test Cases:</h4>
+                  <h4 className="text-sm font-medium text-gray-800">
+                    Detail Test Cases:
+                  </h4>
                   {testResult.results.map((result, index) => (
-                    <div key={index} className={`border rounded-lg p-3 ${result.passed ? 'border-green-200 bg-white' : 'border-red-200 bg-red-50'
-                      }`}>
+                    <div
+                      key={index}
+                      className={`border rounded-lg p-3 ${
+                        result.passed
+                          ? "border-green-200 bg-white"
+                          : "border-red-200 bg-red-50"
+                      }`}
+                    >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-800">Test Case {index + 1}</span>
+                        <span className="text-sm font-medium text-gray-800">
+                          Test Case {index + 1}
+                        </span>
                         <div className="flex items-center space-x-2">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${result.passed
-                            ? 'bg-green-100 text-gray-800'
-                            : 'bg-red-100 text-red-800'
-                            }`}>
-                            {result.passed ? 'PASS' : 'FAIL'}
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
+                              result.passed
+                                ? "bg-green-100 text-gray-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {result.passed ? "PASS" : "FAIL"}
                           </span>
                           <span className="text-xs text-gray-700">
                             {result.execution_time.toFixed(3)}s
@@ -785,17 +852,34 @@ const SubmitJawabanSidebar = ({
 
                       <div className="grid grid-cols-1 gap-2 text-xs">
                         <div>
-                          <span className="font-medium text-green-700">Input:</span>
-                          <pre className="bg-white p-2 rounded border border-green-100 mt-1 overflow-x-auto">{result.input}</pre>
+                          <span className="font-medium text-green-700">
+                            Input:
+                          </span>
+                          <pre className="bg-white p-2 rounded border border-green-100 mt-1 overflow-x-auto">
+                            {result.input}
+                          </pre>
                         </div>
                         <div>
-                          <span className="font-medium text-green-700">Expected:</span>
-                          <pre className="bg-white p-2 rounded border border-green-100 mt-1 overflow-x-auto">{result.expected_output}</pre>
+                          <span className="font-medium text-green-700">
+                            Expected:
+                          </span>
+                          <pre className="bg-white p-2 rounded border border-green-100 mt-1 overflow-x-auto">
+                            {result.expected_output}
+                          </pre>
                         </div>
                         <div>
-                          <span className="font-medium text-green-700">Actual:</span>
-                          <pre className={`p-2 rounded border mt-1 overflow-x-auto ${result.passed ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-200'
-                            }`}>{result.actual_output}</pre>
+                          <span className="font-medium text-green-700">
+                            Actual:
+                          </span>
+                          <pre
+                            className={`p-2 rounded border mt-1 overflow-x-auto ${
+                              result.passed
+                                ? "bg-green-50 border-green-100"
+                                : "bg-red-50 border-red-200"
+                            }`}
+                          >
+                            {result.actual_output}
+                          </pre>
                         </div>
                       </div>
                     </div>
@@ -807,71 +891,72 @@ const SubmitJawabanSidebar = ({
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 // Top Score Sidebar with Real Data
-
 
 // Submission Content with Real Data
 const SubmissionContent = ({
   submissions,
-  submissionsLoading
+  submissionsLoading,
 }: {
-  submissions?: Submission[],
-  submissionsLoading: boolean
+  submissions?: Submission[];
+  submissionsLoading: boolean;
 }) => {
-  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null)
-  const [currentView, setCurrentView] = useState('list')
-
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<Submission | null>(null);
+  const [currentView, setCurrentView] = useState("list");
 
   const getStatusText = (status: string) => {
     const statusMap: { [key: string]: string } = {
-      'ACCEPTED': 'AC',
-      'WRONG_ANSWER': 'WA',
-      'TIME_LIMIT_EXCEEDED': 'TLE',
-      'COMPILATION_ERROR': 'CE',
-      'RUNTIME_ERROR': 'RE',
-      'PARTIAL': 'PA'
-    }
-    return statusMap[status] || status
-  }
+      ACCEPTED: "AC",
+      WRONG_ANSWER: "WA",
+      TIME_LIMIT_EXCEEDED: "TLE",
+      COMPILATION_ERROR: "CE",
+      RUNTIME_ERROR: "RE",
+      PARTIAL: "PA",
+    };
+    return statusMap[status] || status;
+  };
 
   const getStatusColor = (status: string) => {
     const colorMap: { [key: string]: string } = {
-      'ACCEPTED': 'bg-green-600 text-white',
-      'WRONG_ANSWER': 'bg-red-600 text-white',
-      'TIME_LIMIT_EXCEEDED': 'bg-orange-600 text-white',
-      'COMPILATION_ERROR': 'bg-purple-600 text-white',
-      'RUNTIME_ERROR': 'bg-pink-600 text-white',
-      'PARTIAL': 'bg-yellow-600 text-white'
-    }
-    return colorMap[status] || 'bg-gray-600 text-white'
-  }
+      ACCEPTED: "bg-green-600 text-white",
+      WRONG_ANSWER: "bg-red-600 text-white",
+      TIME_LIMIT_EXCEEDED: "bg-orange-600 text-white",
+      COMPILATION_ERROR: "bg-purple-600 text-white",
+      RUNTIME_ERROR: "bg-pink-600 text-white",
+      PARTIAL: "bg-yellow-600 text-white",
+    };
+    return colorMap[status] || "bg-gray-600 text-white";
+  };
 
   if (submissionsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner />
       </div>
-    )
+    );
   }
 
-  if (currentView === 'detail' && selectedSubmission) {
+  if (currentView === "detail" && selectedSubmission) {
     return (
       <div className="space-y-6">
         <div>
           <button
-            onClick={() => setCurrentView('list')}
+            onClick={() => setCurrentView("list")}
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 mb-4"
           >
             Kembali
           </button>
-          <h3 className="text-base font-semibold">Submission #{selectedSubmission.id}</h3>
+          <h3 className="text-base font-semibold">
+            Submission #{selectedSubmission.id}
+          </h3>
           <p className="text-xs text-gray-600 mt-1">
-            Submitted: {new Date(selectedSubmission.submittedAt).toLocaleString('id-ID')} |
+            Submitted:{" "}
+            {new Date(selectedSubmission.submittedAt).toLocaleString("id-ID")} |
             Language: {selectedSubmission.bahasa.nama} |
-
           </p>
         </div>
 
@@ -882,13 +967,20 @@ const SubmissionContent = ({
               <h4 className="font-semibold">Score & Results</h4>
             </div>
             <div className="p-4">
-              <div className="text-xl font-bold mb-4">{selectedSubmission.score}/100</div>
+              <div className="text-xl font-bold mb-4">
+                {selectedSubmission.score}/100
+              </div>
               <div className="space-y-2">
                 {selectedSubmission.testCaseResult.map((result, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 border rounded"
+                  >
                     <span className="text-xs">Test #{index + 1}</span>
                     <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 text-xs rounded ${getStatusColor(result.status)}`}>
+                      <span
+                        className={`px-2 py-1 text-xs rounded ${getStatusColor(result.status)}`}
+                      >
                         {getStatusText(result.status)}
                       </span>
                       <span className="text-xs text-gray-500">
@@ -919,7 +1011,7 @@ const SubmissionContent = ({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -935,46 +1027,66 @@ const SubmissionContent = ({
           <table className="w-full">
             <thead className="bg-gray-100">
               <tr className="border-b">
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">ID</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">At</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">Lang</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">Verdict</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">Score</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
+                  ID
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
+                  At
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
+                  Lang
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
+                  Verdict
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
+                  Score
+                </th>
               </tr>
             </thead>
             <tbody>
-              {submissions.map((submission) => {
-                const verdict = submission.testCaseResult.every(r => r.status === 'ACCEPTED') ? 'ACCEPTED' :
-                  submission.testCaseResult.some(r => r.status === 'ACCEPTED') ? 'PARTIAL' : 'WRONG_ANSWER'
+              {submissions.map(submission => {
+                const verdict = submission.testCaseResult.every(
+                  r => r.status === "ACCEPTED",
+                )
+                  ? "ACCEPTED"
+                  : submission.testCaseResult.some(r => r.status === "ACCEPTED")
+                    ? "PARTIAL"
+                    : "WRONG_ANSWER";
 
                 return (
                   <tr
                     key={submission.id}
                     className="border-b hover:bg-gray-50 cursor-pointer"
                     onClick={() => {
-                      setSelectedSubmission(submission)
-                      setCurrentView('detail')
+                      setSelectedSubmission(submission);
+                      setCurrentView("detail");
                     }}
                   >
                     <td className="px-4 py-3 text-xs">{submission.id}</td>
                     <td className="px-4 py-3 text-xs text-gray-600">
-                      {new Date(submission.submittedAt).toLocaleString('id-ID')}
+                      {new Date(submission.submittedAt).toLocaleString("id-ID")}
                     </td>
-                    <td className="px-4 py-3 text-xs">{submission.bahasa.nama}</td>
+                    <td className="px-4 py-3 text-xs">
+                      {submission.bahasa.nama}
+                    </td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-1 text-xs rounded ${getStatusColor(verdict)}`}>
+                      <span
+                        className={`px-2 py-1 text-xs rounded ${getStatusColor(verdict)}`}
+                      >
                         {getStatusText(verdict)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs font-medium">{submission.score}</td>
+                    <td className="px-4 py-3 text-xs font-medium">
+                      {submission.score}
+                    </td>
                   </tr>
-                )
+                );
               })}
             </tbody>
           </table>
         </div>
       )}
     </div>
-  )
-}
-
+  );
+};

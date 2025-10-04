@@ -1,22 +1,20 @@
 // app/api/laboran/praktikum/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { verifyToken } from '@/lib/auth'
-import { getCurrentYearAndSemester } from '@/lib/getCurrentYearAndSemester'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { verifyToken } from "@/lib/auth";
+import { getCurrentYearAndSemester } from "@/lib/getCurrentYearAndSemester";
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = request.cookies.get("token")?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const payload = await verifyToken(token)
-    if (!payload || payload.role !== 'LABORAN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const payload = await verifyToken(token);
+    if (!payload || payload.role !== "LABORAN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-
-
 
     const praktikum = await prisma.praktikum.findMany({
       include: {
@@ -24,69 +22,87 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             nama: true,
-            email: true
-          }
+            email: true,
+          },
         },
         _count: {
           select: {
             pesertaPraktikum: true,
             asistenPraktikum: true,
             dosenPraktikum: true,
-            tugas: true
-          }
-        }
+            tugas: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
-    })
+        createdAt: "desc",
+      },
+    });
 
     // set aktif atau tidak berdasarkan tahun dan semester sekarang
-    const currentData = getCurrentYearAndSemester()
-    
-    praktikum.forEach((p) => {
-      p.isActive = p.tahun === currentData.year && p.semester === currentData.semester
-    })
+    const currentData = getCurrentYearAndSemester();
 
-    return NextResponse.json({ data: praktikum })
+    praktikum.forEach(p => {
+      p.isActive =
+        p.tahun === currentData.year && p.semester === currentData.semester;
+    });
+
+    return NextResponse.json({ data: praktikum });
   } catch (error) {
-    console.error('Error fetching praktikum:', error)
+    console.error("Error fetching praktikum:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = request.cookies.get("token")?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const payload = await verifyToken(token)
-    if (!payload || payload.role !== 'LABORAN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const payload = await verifyToken(token);
+    if (!payload || payload.role !== "LABORAN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const body = await request.json()
-    
+    const body = await request.json();
+
     // Validasi input
-    const requiredFields = ['nama', 'kodePraktikum', 'kodeMk', 'kelas', 'semester', 'tahun', 'jadwalHari', 'jadwalJamMasuk', 'jadwalJamSelesai', 'ruang']
+    const requiredFields = [
+      "nama",
+      "kodePraktikum",
+      "kodeMk",
+      "kelas",
+      "semester",
+      "tahun",
+      "jadwalHari",
+      "jadwalJamMasuk",
+      "jadwalJamSelesai",
+      "ruang",
+    ];
     for (const field of requiredFields) {
       if (!body[field]) {
-        return NextResponse.json({ error: `Field ${field} is required` }, { status: 400 })
+        return NextResponse.json(
+          { error: `Field ${field} is required` },
+          { status: 400 },
+        );
       }
     }
 
     // Cek apakah kode praktikum sudah ada
     const existingPraktikum = await prisma.praktikum.findUnique({
-      where: { kodePraktikum: body.kodePraktikum }
-    })
+      where: { kodePraktikum: body.kodePraktikum },
+    });
 
     if (existingPraktikum) {
-      return NextResponse.json({ error: 'Kode praktikum sudah digunakan' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Kode praktikum sudah digunakan" },
+        { status: 400 },
+      );
     }
 
     // Buat praktikum baru dengan laboran yang sedang login
@@ -95,33 +111,33 @@ export async function POST(request: NextRequest) {
         ...body,
         idLaboran: payload.id,
         jadwalJamMasuk: new Date(body.jadwalJamMasuk),
-        jadwalJamSelesai: new Date(body.jadwalJamSelesai)
+        jadwalJamSelesai: new Date(body.jadwalJamSelesai),
       },
       include: {
         laboran: {
           select: {
             id: true,
             nama: true,
-            email: true
-          }
+            email: true,
+          },
         },
         _count: {
           select: {
             pesertaPraktikum: true,
             asistenPraktikum: true,
             dosenPraktikum: true,
-            tugas: true
-          }
-        }
-      }
-    })
+            tugas: true,
+          },
+        },
+      },
+    });
 
-    return NextResponse.json({ data: praktikum })
+    return NextResponse.json({ data: praktikum });
   } catch (error) {
-    console.error('Error creating praktikum:', error)
+    console.error("Error creating praktikum:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

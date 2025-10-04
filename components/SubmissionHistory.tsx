@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const SubmissionHistory = () => {
   // Mock data for submission history
@@ -44,11 +44,13 @@ const SubmissionHistory = () => {
             </tr>
           </thead>
           <tbody>
-            {submissions.map((submission) => (
+            {submissions.map(submission => (
               <tr key={submission.id} className="border-b">
                 <td className="py-2 px-4">{submission.assignment}</td>
                 <td className="py-2 px-4">{submission.submittedAt}</td>
-                <td className={`py-2 px-4 ${submission.status === "Correct" ? "text-green-600" : submission.status === "Incorrect" ? "text-red-600" : "text-yellow-600"}`}>
+                <td
+                  className={`py-2 px-4 ${submission.status === "Correct" ? "text-green-600" : submission.status === "Incorrect" ? "text-red-600" : "text-yellow-600"}`}
+                >
                   {submission.status}
                 </td>
               </tr>

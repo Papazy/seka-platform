@@ -1,61 +1,70 @@
 // app/admin/program-studi/columns.tsx
-import { ColumnDef } from '@tanstack/react-table'
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { ColumnDef } from "@tanstack/react-table";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 interface Fakultas {
-  id: string
-  nama: string
-  kodeFakultas: string
+  id: string;
+  nama: string;
+  kodeFakultas: string;
 }
 
 interface ProgramStudi {
-  id: string
-  nama: string
-  kodeProdi: string
-  idFakultas: number
-  fakultas: Fakultas
+  id: string;
+  nama: string;
+  kodeProdi: string;
+  idFakultas: number;
+  fakultas: Fakultas;
   _count: {
-    mahasiswa: number
-    dosen: number
-  }
-  createdAt: string
-  updatedAt: string
+    mahasiswa: number;
+    dosen: number;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ColumnActionsProps {
-  onEdit: (programStudi: ProgramStudi) => void
-  onDelete: (id: string) => void
+  onEdit: (programStudi: ProgramStudi) => void;
+  onDelete: (id: string) => void;
 }
 
-export const createProgramStudiColumns = ({ onEdit, onDelete }: ColumnActionsProps): ColumnDef<ProgramStudi>[] => [
+export const createProgramStudiColumns = ({
+  onEdit,
+  onDelete,
+}: ColumnActionsProps): ColumnDef<ProgramStudi>[] => [
   {
-    id: 'no',
-    header: 'No',
+    id: "no",
+    header: "No",
     cell: ({ row }) => (
       <span className="text-sm text-gray-600 font-medium">{row.index + 1}</span>
-    )
+    ),
   },
   {
-    accessorKey: 'nama',
-    header: 'Program Studi',
+    accessorKey: "nama",
+    header: "Program Studi",
     cell: ({ row }) => (
       <div className="flex items-center space-x-3">
         <div>
           <span className="font-medium text-gray-900">{row.original.nama}</span>
-          <p className="text-sm text-gray-500">Kode: {row.original.kodeProdi}</p>
+          <p className="text-sm text-gray-500">
+            Kode: {row.original.kodeProdi}
+          </p>
         </div>
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'fakultas',
-    header: 'Fakultas',
+    accessorKey: "fakultas",
+    header: "Fakultas",
     cell: ({ row }) => (
       <div>
-        <span className="text-sm font-medium text-gray-900">{row.original.fakultas.nama}</span>
-        <p className="text-xs text-gray-500">({row.original.fakultas.kodeFakultas})</p>
+        <span className="text-sm font-medium text-gray-900">
+          {row.original.fakultas.nama}
+        </span>
+        <p className="text-xs text-gray-500">
+          ({row.original.fakultas.kodeFakultas})
+        </p>
       </div>
-    )
+    ),
   },
   // {
   //   accessorKey: '_count',
@@ -80,21 +89,21 @@ export const createProgramStudiColumns = ({ onEdit, onDelete }: ColumnActionsPro
   //   )
   // },
   {
-    accessorKey: 'createdAt',
-    header: 'Dibuat',
+    accessorKey: "createdAt",
+    header: "Dibuat",
     cell: ({ row }) => (
       <span className="text-sm text-gray-500">
-        {new Date(row.original.createdAt).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
+        {new Date(row.original.createdAt).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
         })}
       </span>
-    )
+    ),
   },
   {
-    id: 'actions',
-    header: 'Actions',
+    id: "actions",
+    header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center space-x-2">
         <button
@@ -112,6 +121,6 @@ export const createProgramStudiColumns = ({ onEdit, onDelete }: ColumnActionsPro
           <TrashIcon className="h-4 w-4" />
         </button>
       </div>
-    )
-  }
-]
+    ),
+  },
+];

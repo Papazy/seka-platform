@@ -1,17 +1,10 @@
-import { useTopScoreSoal } from "@/hooks/useTopScoreSoal"
-import { useParams } from "next/navigation"
+import { useTopScoreSoal } from "@/hooks/useTopScoreSoal";
+import { useParams } from "next/navigation";
 
-const TopScoreSidebar = ({soalId} : {soalId: string}) => {
+const TopScoreSidebar = ({ soalId }: { soalId: string }) => {
+  const params = useParams();
 
-  const params = useParams()
-
-
-
-  const {
-    data: topScores,
-    isLoading,
-    error,
-  } = useTopScoreSoal(soalId);
+  const { data: topScores, isLoading, error } = useTopScoreSoal(soalId);
 
   if (isLoading) {
     return (
@@ -27,7 +20,7 @@ const TopScoreSidebar = ({soalId} : {soalId: string}) => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -42,36 +35,49 @@ const TopScoreSidebar = ({soalId} : {soalId: string}) => {
           </div>
         ) : (
           <div className="space-y-3">
-            {topScores.map((student : any, index: number) => (
-              <div key={student.npm} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            {topScores.map((student: any, index: number) => (
+              <div
+                key={student.npm}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${index === 0 ? 'bg-gray-100 text-gray-800' :
-                    index === 1 ? 'bg-gray-100 text-gray-800' :
-                      index === 2 ? 'bg-gray-100 text-gray-800' :
-                        'bg-gray-100 text-gray-800'
-                    }`}>
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                      index === 0
+                        ? "bg-gray-100 text-gray-800"
+                        : index === 1
+                          ? "bg-gray-100 text-gray-800"
+                          : index === 2
+                            ? "bg-gray-100 text-gray-800"
+                            : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
                     {index + 1}
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{student.nama}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {student.nama}
+                    </div>
                     <div className="text-xs text-gray-500">{student.npm}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-900">{student.score}</div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    {student.score}
+                  </div>
                   <div className="text-xs text-gray-500">
                     {(() => {
-                      const submittedDate = new Date(student.submittedAt)
-                      const now = new Date()
-                      const diffMs = now.getTime() - submittedDate.getTime()
-                      const diffMinutes = Math.floor(diffMs / (1000 * 60))
-                      const diffHours = Math.floor(diffMinutes / 60)
-                      const diffDays = Math.floor(diffHours / 24)
+                      const submittedDate = new Date(student.submittedAt);
+                      const now = new Date();
+                      const diffMs = now.getTime() - submittedDate.getTime();
+                      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                      const diffHours = Math.floor(diffMinutes / 60);
+                      const diffDays = Math.floor(diffHours / 24);
 
-                      if (diffDays > 0) return `${diffDays} hari lalu`
-                      if (diffHours > 0) return `${diffHours} jam lalu`
-                      if (diffMinutes > 0) return `${diffMinutes} menit lalu`
-                      return 'Baru saja'
+                      if (diffDays > 0) return `${diffDays} hari lalu`;
+                      if (diffHours > 0) return `${diffHours} jam lalu`;
+                      if (diffMinutes > 0) return `${diffMinutes} menit lalu`;
+                      return "Baru saja";
                     })()}
                   </div>
                 </div>
@@ -81,7 +87,7 @@ const TopScoreSidebar = ({soalId} : {soalId: string}) => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default TopScoreSidebar;

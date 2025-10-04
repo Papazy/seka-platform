@@ -1,55 +1,58 @@
 // app/api/mahasiswa/praktikum/[id]/tugas/[tugasId]/route.ts
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { verifyToken } from "@/lib/auth"
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { verifyToken } from "@/lib/auth";
 
 export async function GET(
   req: NextRequest,
-  { params }: {params: Promise<{ id: string; tugasId: string }>}
+  { params }: { params: Promise<{ id: string; tugasId: string }> },
 ) {
   try {
-    const token = req.cookies.get('token')?.value
+    const token = req.cookies.get("token")?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const payload = await verifyToken(token)
+    const payload = await verifyToken(token);
     if (!payload) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = (params.id)
-    const tugasId = (params.tugasId)
-    const mahasiswaId = payload.id
+    const praktikumId = params.id;
+    const tugasId = params.tugasId;
+    const mahasiswaId = payload.id;
 
     // ✅ Check akses ke praktikum
     const [pesertaCheck, asistenCheck] = await Promise.all([
       prisma.pesertaPraktikum.findFirst({
         where: {
           idPraktikum: praktikumId,
-          idMahasiswa: mahasiswaId
-        }
+          idMahasiswa: mahasiswaId,
+        },
       }),
       prisma.asistenPraktikum.findFirst({
         where: {
           idPraktikum: praktikumId,
-          idMahasiswa: mahasiswaId
-        }
-      })
-    ])
+          idMahasiswa: mahasiswaId,
+        },
+      }),
+    ]);
 
     if (!pesertaCheck && !asistenCheck) {
-      return NextResponse.json({ error: 'Access denied to this praktikum' }, { status: 403 })
+      return NextResponse.json(
+        { error: "Access denied to this praktikum" },
+        { status: 403 },
+      );
     }
 
-    const userRole = asistenCheck ? 'asisten' : 'peserta'
-    const pesertaId = pesertaCheck?.id
+    const userRole = asistenCheck ? "asisten" : "peserta";
+    const pesertaId = pesertaCheck?.id;
 
     // ✅ Fetch detail tugas sesuai schema
     const tugas = await prisma.tugas.findFirst({
       where: {
         id: tugasId,
-        idPraktikum: praktikumId
+        idPraktikum: praktikumId,
       },
       include: {
         praktikum: {
@@ -58,111 +61,111 @@ export async function GET(
             kodePraktikum: true,
             kelas: true,
             id: true,
-          }
+          },
         },
         asisten: {
           include: {
             mahasiswa: {
-              select: { nama: true, npm: true }
-            }
-          }
+              select: { nama: true, npm: true },
+            },
+          },
         },
-        tugasBahasa : {
+        tugasBahasa: {
           include: {
-            bahasa: true
-          }
+            bahasa: true,
+          },
         },
         soal: {
-          orderBy: { id: 'asc' },
+          orderBy: { id: "asc" },
           include: {
             contohTestCase: true,
             testCase: true,
             // Untuk peserta: ambil submission mereka saja
-            ...(userRole === 'peserta' && {
+            ...(userRole === "peserta" && {
               submission: {
                 where: { idPeserta: pesertaId },
-                orderBy: { submittedAt: 'desc' },
+                orderBy: { submittedAt: "desc" },
                 include: {
                   bahasa: {
-                    select: { nama: true, ekstensi: true }
+                    select: { nama: true, ekstensi: true },
                   },
                   testCaseResult: {
                     include: {
-                      testCase: true
-                    }
-                  }
-                }
-              }
+                      testCase: true,
+                    },
+                  },
+                },
+              },
             }),
             // Untuk asisten: hitung total submission per soal
             _count: {
               select: {
-                submission: true
-              }
-            }
-          }
+                submission: true,
+              },
+            },
+          },
         },
         // Nilai tugas untuk peserta
-        ...(userRole === 'peserta' && {
+        ...(userRole === "peserta" && {
           nilaiTugas: {
             where: { idPeserta: pesertaId },
             select: {
               totalNilai: true,
               createdAt: true,
-              updatedAt: true
-            }
-          }
+              updatedAt: true,
+            },
+          },
         }),
         // Stats untuk asisten
-        ...(userRole === 'asisten' && {
+        ...(userRole === "asisten" && {
           _count: {
             select: {
-              nilaiTugas: true
-            }
-          }
-        })
-      }
-    })
+              nilaiTugas: true,
+            },
+          },
+        }),
+      },
+    });
 
     if (!tugas) {
-      return NextResponse.json({ error: 'Tugas not found' }, { status: 404 })
+      return NextResponse.json({ error: "Tugas not found" }, { status: 404 });
     }
 
     // ✅ Check deadline
-    const isOverdue = new Date() > new Date(tugas.deadline)
+    const isOverdue = new Date() > new Date(tugas.deadline);
 
     // ✅ Calculate stats for asisten
-    let submissionStats = null
-    if (userRole === 'asisten') {
+    let submissionStats = null;
+    if (userRole === "asisten") {
       const allSubmissions = await prisma.submission.findMany({
         where: {
           soal: {
-            idTugas: tugasId
-          }
+            idTugas: tugasId,
+          },
         },
         include: {
           peserta: {
             include: {
               mahasiswa: {
-                select: { nama: true, npm: true }
-              }
-            }
+                select: { nama: true, npm: true },
+              },
+            },
           },
           soal: {
-            select: { judul: true, bobotNilai: true }
-          }
-        }
-      })
+            select: { judul: true, bobotNilai: true },
+          },
+        },
+      });
 
-      const uniqueSubmitters = new Set(allSubmissions.map(s => s.idPeserta))
-      
+      const uniqueSubmitters = new Set(allSubmissions.map(s => s.idPeserta));
+
       submissionStats = {
         totalSubmissions: allSubmissions.length,
         uniqueSubmitters: uniqueSubmitters.size,
         totalPeserta: await prisma.pesertaPraktikum.count({
-          where: { idPraktikum: praktikumId }
-        })
-      }
+          where: { idPraktikum: praktikumId },
+        }),
+      };
     }
 
     // ✅ Transform data untuk frontend
@@ -179,18 +182,20 @@ export async function GET(
       praktikum: tugas.praktikum,
       pembuat: {
         nama: tugas.asisten.mahasiswa.nama,
-        npm: tugas.asisten.mahasiswa.npm
+        npm: tugas.asisten.mahasiswa.npm,
       },
       soal: tugas.soal.map(s => {
         // Calculate user's best score for this soal (peserta only)
-        let bestSubmission = null
-        let userSubmissions = []
-        
-        if (userRole === 'peserta' && s.submission) {
-          userSubmissions = s.submission
-          bestSubmission = s.submission.reduce((best, current) => 
-            current.score > (best?.score || 0) ? current : best
-          , null)
+        let bestSubmission = null;
+        let userSubmissions = [];
+
+        if (userRole === "peserta" && s.submission) {
+          userSubmissions = s.submission;
+          bestSubmission = s.submission.reduce(
+            (best, current) =>
+              current.score > (best?.score || 0) ? current : best,
+            null,
+          );
         }
 
         return {
@@ -209,11 +214,11 @@ export async function GET(
             contohInput: tc.contohInput,
             contohOutput: tc.contohOutput,
             penjelasanInput: tc.penjelasanInput,
-            penjelasanOutput: tc.penjelasanOutput
+            penjelasanOutput: tc.penjelasanOutput,
           })),
           totalTestCase: s.testCase.length,
           // Untuk peserta
-          ...(userRole === 'peserta' && {
+          ...(userRole === "peserta" && {
             userSubmissions: userSubmissions.map(sub => ({
               id: sub.id,
               score: sub.score,
@@ -224,34 +229,37 @@ export async function GET(
                 status: tcr.status,
                 outputDihasilkan: tcr.outputDihasilkan,
                 waktuEksekusiMs: tcr.waktuEksekusiMs,
-                memoriKb: tcr.memoriKb
-              }))
+                memoriKb: tcr.memoriKb,
+              })),
             })),
             bestScore: bestSubmission?.score || 0,
             submissionCount: userSubmissions.length,
-            canSubmit: userSubmissions.length < tugas.maksimalSubmit && !isOverdue
+            canSubmit:
+              userSubmissions.length < tugas.maksimalSubmit && !isOverdue,
           }),
           // Untuk asisten
-          ...(userRole === 'asisten' && {
-            totalSubmissions: s._count.submission
-          })
-        }
+          ...(userRole === "asisten" && {
+            totalSubmissions: s._count.submission,
+          }),
+        };
       }),
       // Nilai total untuk peserta
-      ...(userRole === 'peserta' && {
+      ...(userRole === "peserta" && {
         nilaiTugas: tugas.nilaiTugas?.[0] || null,
-        totalBobot: tugas.soal.reduce((sum, s) => sum + s.bobotNilai, 0)
+        totalBobot: tugas.soal.reduce((sum, s) => sum + s.bobotNilai, 0),
       }),
       // Stats untuk asisten
-      ...(userRole === 'asisten' && {
-        submissionStats
-      })
-    }
+      ...(userRole === "asisten" && {
+        submissionStats,
+      }),
+    };
 
-    return NextResponse.json(response)
-
+    return NextResponse.json(response);
   } catch (error) {
-    console.error('Error fetching tugas detail:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    console.error("Error fetching tugas detail:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

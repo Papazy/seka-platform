@@ -42,26 +42,30 @@ interface RekapNilai {
     totalTugasSelesai: number;
     totalTugas: number;
   }>;
-  userRole: 'peserta' | 'asisten';
+  userRole: "peserta" | "asisten";
 }
 
-
-const fetchRekapPraktikum = async (praktikumId: string): Promise<RekapNilai> => {
-  const response = await fetch(`/api/mahasiswa/praktikum/${praktikumId}/rekap`, {
-    credentials: 'include',
-  });
+const fetchRekapPraktikum = async (
+  praktikumId: string,
+): Promise<RekapNilai> => {
+  const response = await fetch(
+    `/api/mahasiswa/praktikum/${praktikumId}/rekap`,
+    {
+      credentials: "include",
+    },
+  );
 
   if (!response.ok) {
-    throw new Error('Gagal mengambil data rekap praktikum');
+    throw new Error("Gagal mengambil data rekap praktikum");
   }
-  
+
   const data = await response.json();
   return data;
-}
+};
 
 export const useRekapPraktikum = (praktikumId: string, enabled = true) => {
   return useQuery({
-    queryKey: ['rekapPraktikum', praktikumId],
+    queryKey: ["rekapPraktikum", praktikumId],
     queryFn: () => fetchRekapPraktikum(praktikumId),
     enabled,
   });

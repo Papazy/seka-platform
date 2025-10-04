@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
+  // output   = "../node_modules/@prisma/client"
 }
 
 datasource db {
@@ -44,6 +44,21 @@ enum SubmissionTugasStatus {
 enum Semester {
   GANJIL
   GENAP
+}
+
+// 0. User
+model User {
+  id    String @id @default(ulid())
+  email String @unique
+  name  String
+  password String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+   // Relasi wajib untuk NextAuth
+  accounts Account[]
+  sessions Session[]
 }
 
 // 1. Admin

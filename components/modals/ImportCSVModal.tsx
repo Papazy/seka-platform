@@ -1,28 +1,33 @@
 // components/modals/ImportCSVModal.tsx
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { 
-  DocumentArrowUpIcon, 
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  DocumentArrowUpIcon,
   DocumentArrowDownIcon,
   XMarkIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  EyeIcon
-} from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
+  EyeIcon,
+} from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
 
 interface ImportCSVModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSuccess: () => void
-  title: string
-  endpoint: string
-  templateEndpoint: string
-  sampleData: any[]
-  columns: { key: string; label: string }[]
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  title: string;
+  endpoint: string;
+  templateEndpoint: string;
+  sampleData: any[];
+  columns: { key: string; label: string }[];
 }
 
 export function ImportCSVModal({
@@ -33,133 +38,142 @@ export function ImportCSVModal({
   endpoint,
   templateEndpoint,
   sampleData,
-  columns
+  columns,
 }: ImportCSVModalProps) {
-  const [file, setFile] = useState<File | null>(null)
-  const [uploading, setUploading] = useState(false)
-  const [preview, setPreview] = useState<any[]>([])
-  const [errors, setErrors] = useState<string[]>([])
-  const [showPreview, setShowPreview] = useState(false)
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<any[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
+    const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      setFile(selectedFile)
-      previewFile(selectedFile)
-      setShowPreview(true)
+      setFile(selectedFile);
+      previewFile(selectedFile);
+      setShowPreview(true);
     }
-  }
+  };
 
   const previewFile = (file: File) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const csv = e.target?.result as string
-      const lines = csv.split('\n').filter(line => line.trim() !== '')
-      
+    const reader = new FileReader();
+    reader.onload = e => {
+      const csv = e.target?.result as string;
+      const lines = csv.split("\n").filter(line => line.trim() !== "");
+
       if (lines.length === 0) {
-        toast.error('File CSV kosong')
-        return
+        toast.error("File CSV kosong");
+        return;
       }
 
-      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''))
-      
+      const headers = lines[0].split(",").map(h => h.trim().replace(/"/g, ""));
+
       // Process all data lines, not just first 5
-      const data = lines.slice(1).map((line, index) => {
-        const values = line.split(',').map(v => v.trim().replace(/"/g, ''))
-        const obj: any = { _rowNumber: index + 2 } // +2 karena baris 1 adalah header
-        headers.forEach((header, headerIndex) => {
-          obj[header] = values[headerIndex] || ''
+      const data = lines
+        .slice(1)
+        .map((line, index) => {
+          const values = line.split(",").map(v => v.trim().replace(/"/g, ""));
+          const obj: any = { _rowNumber: index + 2 }; // +2 karena baris 1 adalah header
+          headers.forEach((header, headerIndex) => {
+            obj[header] = values[headerIndex] || "";
+          });
+          return obj;
         })
-        return obj
-      }).filter(row => {
-        // Filter out completely empty rows
-        const values = Object.values(row).filter(val => val !== '' && val !== row._rowNumber)
-        return values.length > 0
-      })
-      
-      setPreview(data)
-      
+        .filter(row => {
+          // Filter out completely empty rows
+          const values = Object.values(row).filter(
+            val => val !== "" && val !== row._rowNumber,
+          );
+          return values.length > 0;
+        });
+
+      setPreview(data);
+
       if (data.length === 0) {
-        toast.error('Tidak ada data valid dalam file CSV')
+        toast.error("Tidak ada data valid dalam file CSV");
       } else {
-        toast.success(`File berhasil dimuat: ${data.length} baris data`)
+        toast.success(`File berhasil dimuat: ${data.length} baris data`);
       }
-    }
-    reader.readAsText(file)
-  }
+    };
+    reader.readAsText(file);
+  };
 
   const handleDownloadTemplate = async () => {
     try {
       const response = await fetch(templateEndpoint, {
-        credentials: 'include'
-      })
-      
+        credentials: "include",
+      });
+
       if (response.ok) {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `template_${title.toLowerCase().replace(/\s+/g, '_')}.csv`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-        toast.success('Template berhasil diunduh!')
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `template_${title.toLowerCase().replace(/\s+/g, "_")}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        toast.success("Template berhasil diunduh!");
       } else {
-        toast.error('Gagal mengunduh template')
+        toast.error("Gagal mengunduh template");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat mengunduh template')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat mengunduh template");
     }
-  }
+  };
 
   const handleImport = async () => {
-    if (!file) return
+    if (!file) return;
 
-    setUploading(true)
-    setErrors([])
+    setUploading(true);
+    setErrors([]);
 
-    const formData = new FormData()
-    formData.append('file', file)
+    const formData = new FormData();
+    formData.append("file", file);
 
     try {
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         body: formData,
-        credentials: 'include'
-      })
+        credentials: "include",
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (response.ok) {
-        toast.success(`Import berhasil! ${result.imported} data berhasil diimpor.`)
+        toast.success(
+          `Import berhasil! ${result.imported} data berhasil diimpor.`,
+        );
         if (result.errors && result.errors.length > 0) {
-          setErrors(result.errors)
-          toast.warning(`Ada ${result.errors.length} error yang perlu diperhatikan`)
+          setErrors(result.errors);
+          toast.warning(
+            `Ada ${result.errors.length} error yang perlu diperhatikan`,
+          );
         } else {
-          onSuccess()
-          resetModal()
+          onSuccess();
+          resetModal();
         }
       } else {
-        setErrors(result.errors || [result.error])
-        toast.error('Import gagal, periksa error di bawah')
+        setErrors(result.errors || [result.error]);
+        toast.error("Import gagal, periksa error di bawah");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat import')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat import");
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }
+  };
 
   const resetModal = () => {
-    setFile(null)
-    setPreview([])
-    setErrors([])
-    setShowPreview(false)
-    onClose()
-  }
+    setFile(null);
+    setPreview([]);
+    setErrors([]);
+    setShowPreview(false);
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={resetModal}>
@@ -177,21 +191,20 @@ export function ImportCSVModal({
             <h3 className="font-medium text-blue-900 mb-2 flex items-center">
               📋 Template & Instruksi CSV
             </h3>
-              <div>
-                <p className="text-sm text-blue-700 mb-3">
-                  Unduh template CSV untuk memastikan format yang benar
-                </p>
-                <Button
-                  onClick={handleDownloadTemplate}
-                  variant="outline"
-                  size="sm"
-                  className="text-blue-600 hover:text-blue-700"
-                >
-                  <DocumentArrowDownIcon className="h-4 w-4 mr-1" />
-                  Unduh Template
-                </Button>
-              </div>
-             
+            <div>
+              <p className="text-sm text-blue-700 mb-3">
+                Unduh template CSV untuk memastikan format yang benar
+              </p>
+              <Button
+                onClick={handleDownloadTemplate}
+                variant="outline"
+                size="sm"
+                className="text-blue-600 hover:text-blue-700"
+              >
+                <DocumentArrowDownIcon className="h-4 w-4 mr-1" />
+                Unduh Template
+              </Button>
+            </div>
           </div>
 
           {/* File Upload */}
@@ -217,7 +230,7 @@ export function ImportCSVModal({
                 <p className="text-xs text-gray-500">File CSV maksimal 10MB</p>
               </div>
             </div>
-            
+
             {file && (
               <div className="mt-3 p-3 bg-green-50 rounded-lg">
                 <div className="flex items-center justify-between">
@@ -226,8 +239,8 @@ export function ImportCSVModal({
                       📄 {file.name}
                     </p>
                     <p className="text-xs text-green-700">
-                      Ukuran: {(file.size / 1024 / 1024).toFixed(2)} MB | 
-                      Data: {preview.length} baris
+                      Ukuran: {(file.size / 1024 / 1024).toFixed(2)} MB | Data:{" "}
+                      {preview.length} baris
                     </p>
                   </div>
                   {/* <Button
@@ -252,9 +265,12 @@ export function ImportCSVModal({
                   Preview Data ({preview.length} baris)
                 </h3>
               </div>
-              
+
               {/* Scrollable Table Container */}
-              <div className="overflow-auto max-h-96" style={{ maxHeight: '400px' }}>
+              <div
+                className="overflow-auto max-h-96"
+                style={{ maxHeight: "400px" }}
+              >
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                   <thead className="bg-gray-100 sticky top-0 z-10">
                     <tr>
@@ -262,8 +278,8 @@ export function ImportCSVModal({
                         #
                       </th>
                       {columns.map(col => (
-                        <th 
-                          key={col.key} 
+                        <th
+                          key={col.key}
                           className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r whitespace-nowrap"
                         >
                           {col.label}
@@ -279,9 +295,14 @@ export function ImportCSVModal({
                         </td>
                         {columns.map(col => (
                           <td key={col.key} className="px-3 py-2 border-r">
-                            <div className="max-w-32 truncate text-gray-900" title={row[col.key] || '-'}>
+                            <div
+                              className="max-w-32 truncate text-gray-900"
+                              title={row[col.key] || "-"}
+                            >
                               {row[col.key] || (
-                                <span className="text-gray-400 italic">kosong</span>
+                                <span className="text-gray-400 italic">
+                                  kosong
+                                </span>
                               )}
                             </div>
                           </td>
@@ -291,11 +312,12 @@ export function ImportCSVModal({
                   </tbody>
                 </table>
               </div>
-              
+
               {preview.length > 10 && (
                 <div className="bg-gray-50 px-4 py-2 border-t text-center">
                   <p className="text-xs text-gray-600">
-                    💡 Menampilkan semua {preview.length} baris data. Scroll untuk melihat lebih banyak.
+                    💡 Menampilkan semua {preview.length} baris data. Scroll
+                    untuk melihat lebih banyak.
                   </p>
                 </div>
               )}
@@ -365,14 +387,10 @@ export function ImportCSVModal({
 
         {/* Fixed Actions at Bottom */}
         <div className="flex-shrink-0 flex justify-end space-x-3 pt-4 border-t">
-          <Button
-            onClick={resetModal}
-            variant="outline"
-            disabled={uploading}
-          >
+          <Button onClick={resetModal} variant="outline" disabled={uploading}>
             Batal
           </Button>
-          
+
           {/* {errors.length > 0 && (
             <Button
               onClick={() => {
@@ -385,7 +403,7 @@ export function ImportCSVModal({
               Lanjutkan Tanpa Import
             </Button>
           )} */}
-          
+
           <Button
             onClick={handleImport}
             disabled={!file || uploading || preview.length === 0}
@@ -406,5 +424,5 @@ export function ImportCSVModal({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

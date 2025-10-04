@@ -1,230 +1,235 @@
 // app/laboran/mahasiswa/edit/[id]/page.tsx
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { 
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
   ArrowLeftIcon,
   UserIcon,
   AcademicCapIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon
-} from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
-import Link from 'next/link'
+  CheckCircleIcon,
+} from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
+import Link from "next/link";
 
 interface FormData {
-  npm: string
-  nama: string
-  email: string
-  programStudiId: string | ''
+  npm: string;
+  nama: string;
+  email: string;
+  programStudiId: string | "";
 }
 
 interface FormErrors {
-  [key: string]: string
+  [key: string]: string;
 }
 
 interface ProgramStudi {
-  id: string
-  nama: string
-  kodeProdi: string
+  id: string;
+  nama: string;
+  kodeProdi: string;
   fakultas: {
-    id: string
-    nama: string
-    kodeFakultas: string
-  }
+    id: string;
+    nama: string;
+    kodeFakultas: string;
+  };
 }
 
 interface MahasiswaDetail {
-  id: string
-  npm: string
-  nama: string
-  email: string
-  programStudi: ProgramStudi
+  id: string;
+  npm: string;
+  nama: string;
+  email: string;
+  programStudi: ProgramStudi;
   _count: {
-    pesertaPraktikum: number
-    asistenPraktikum: number
-  }
-  createdAt: string
-  updatedAt: string
+    pesertaPraktikum: number;
+    asistenPraktikum: number;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function EditMahasiswaPage() {
-  const router = useRouter()
-  const params = useParams()
-  const id = params.id as string
-  
-  const [loading, setLoading] = useState(false)
-  const [fetchLoading, setFetchLoading] = useState(true)
-  const [programStudiList, setProgramStudiList] = useState<ProgramStudi[]>([])
-  const [mahasiswa, setMahasiswa] = useState<MahasiswaDetail | null>(null)
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
+  const [programStudiList, setProgramStudiList] = useState<ProgramStudi[]>([]);
+  const [mahasiswa, setMahasiswa] = useState<MahasiswaDetail | null>(null);
   const [formData, setFormData] = useState<FormData>({
-    npm: '',
-    nama: '',
-    email: '',
-    programStudiId: ''
-  })
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [originalNpm, setOriginalNpm] = useState('')
-  const [originalEmail, setOriginalEmail] = useState('')
+    npm: "",
+    nama: "",
+    email: "",
+    programStudiId: "",
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [originalNpm, setOriginalNpm] = useState("");
+  const [originalEmail, setOriginalEmail] = useState("");
 
   useEffect(() => {
     if (id) {
-      fetchMahasiswa()
-      fetchProgramStudi()
+      fetchMahasiswa();
+      fetchProgramStudi();
     }
-  }, [id])
+  }, [id]);
 
   const fetchMahasiswa = async () => {
     try {
-      setFetchLoading(true)
+      setFetchLoading(true);
       const response = await fetch(`/api/mahasiswa/${id}`, {
-        credentials: 'include'
-      })
-      
+        credentials: "include",
+      });
+
       if (response.ok) {
-        const result = await response.json()
-        const data = result.data
-        
-        setMahasiswa(data)
+        const result = await response.json();
+        const data = result.data;
+
+        setMahasiswa(data);
         setFormData({
           npm: data.npm,
           nama: data.nama,
           email: data.email,
-          programStudiId: data.programStudi.id
-        })
-        setOriginalNpm(data.npm)
-        setOriginalEmail(data.email)
+          programStudiId: data.programStudi.id,
+        });
+        setOriginalNpm(data.npm);
+        setOriginalEmail(data.email);
       } else {
-        toast.error('Gagal mengambil data mahasiswa')
-        router.push('/laboran/mahasiswa')
+        toast.error("Gagal mengambil data mahasiswa");
+        router.push("/laboran/mahasiswa");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat mengambil data')
-      router.push('/laboran/mahasiswa')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat mengambil data");
+      router.push("/laboran/mahasiswa");
     } finally {
-      setFetchLoading(false)
+      setFetchLoading(false);
     }
-  }
+  };
 
   const fetchProgramStudi = async () => {
     try {
-      const response = await fetch('/api/program-studi', {
-        credentials: 'include'
-      })
-      
+      const response = await fetch("/api/program-studi", {
+        credentials: "include",
+      });
+
       if (response.ok) {
-        const result = await response.json()
-        setProgramStudiList(result.programStudi)
+        const result = await response.json();
+        setProgramStudiList(result.programStudi);
       } else {
-        toast.error('Gagal mengambil data program studi')
+        toast.error("Gagal mengambil data program studi");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat mengambil data program studi')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat mengambil data program studi");
     }
-  }
+  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'programStudiId' ? (value ? (value) : '') : value
-    }))
-    
+      [name]: name === "programStudiId" ? (value ? value : "") : value,
+    }));
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
-        [name]: ''
-      }))
+        [name]: "",
+      }));
     }
-  }
+  };
 
   const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}
+    const newErrors: FormErrors = {};
 
     // Required fields validation
     if (!formData.npm.trim()) {
-      newErrors.npm = 'NPM wajib diisi'
+      newErrors.npm = "NPM wajib diisi";
     } else if (!/^\d{10,15}$/.test(formData.npm)) {
-      newErrors.npm = 'NPM harus berupa angka dengan panjang 10-15 digit'
+      newErrors.npm = "NPM harus berupa angka dengan panjang 10-15 digit";
     }
 
     if (!formData.nama.trim()) {
-      newErrors.nama = 'Nama wajib diisi'
+      newErrors.nama = "Nama wajib diisi";
     } else if (formData.nama.length < 2) {
-      newErrors.nama = 'Nama minimal 2 karakter'
+      newErrors.nama = "Nama minimal 2 karakter";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email wajib diisi'
+      newErrors.email = "Email wajib diisi";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Format email tidak valid'
+      newErrors.email = "Format email tidak valid";
     }
 
     if (!formData.programStudiId) {
-      newErrors.programStudiId = 'Program studi wajib dipilih'
+      newErrors.programStudiId = "Program studi wajib dipilih";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!validateForm()) {
-      toast.error('Mohon perbaiki error pada form')
-      return
+      toast.error("Mohon perbaiki error pada form");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       const response = await fetch(`/api/mahasiswa/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
-        body: JSON.stringify(formData)
-      })
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
 
       if (response.ok) {
-        toast.success('Mahasiswa berhasil diupdate!')
-        router.push(`/laboran/mahasiswa/${id}`)
+        toast.success("Mahasiswa berhasil diupdate!");
+        router.push(`/laboran/mahasiswa/${id}`);
       } else {
-        const error = await response.json()
-        if (error.error?.includes('NPM') || error.error?.includes('email')) {
-          if (error.error.includes('NPM')) {
-            setErrors({ npm: 'NPM sudah digunakan' })
+        const error = await response.json();
+        if (error.error?.includes("NPM") || error.error?.includes("email")) {
+          if (error.error.includes("NPM")) {
+            setErrors({ npm: "NPM sudah digunakan" });
           }
-          if (error.error.includes('email')) {
-            setErrors({ email: 'Email sudah digunakan' })
+          if (error.error.includes("email")) {
+            setErrors({ email: "Email sudah digunakan" });
           }
         }
-        toast.error(error.error || 'Gagal mengupdate mahasiswa')
+        toast.error(error.error || "Gagal mengupdate mahasiswa");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat mengupdate mahasiswa')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat mengupdate mahasiswa");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Group program studi by fakultas
-  const groupedProgramStudi = programStudiList.reduce((acc, prodi) => {
-    const fakultasNama = prodi.fakultas.nama
-    if (!acc[fakultasNama]) {
-      acc[fakultasNama] = []
-    }
-    acc[fakultasNama].push(prodi)
-    return acc
-  }, {} as Record<string, ProgramStudi[]>)
+  const groupedProgramStudi = programStudiList.reduce(
+    (acc, prodi) => {
+      const fakultasNama = prodi.fakultas.nama;
+      if (!acc[fakultasNama]) {
+        acc[fakultasNama] = [];
+      }
+      acc[fakultasNama].push(prodi);
+      return acc;
+    },
+    {} as Record<string, ProgramStudi[]>,
+  );
 
   if (fetchLoading) {
     return (
@@ -237,20 +242,22 @@ export default function EditMahasiswaPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!mahasiswa) {
     return (
       <div className="p-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Mahasiswa tidak ditemukan</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Mahasiswa tidak ditemukan
+          </h1>
           <Link href="/laboran/mahasiswa">
             <Button>Kembali ke Daftar Mahasiswa</Button>
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -282,7 +289,9 @@ export default function EditMahasiswaPage() {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center mb-6">
               <UserIcon className="h-5 w-5 text-blue-500 mr-2" />
-              <h2 className="text-lg font-semibold text-gray-900">Informasi Mahasiswa</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Informasi Mahasiswa
+              </h2>
             </div>
 
             <div className="space-y-6">
@@ -297,7 +306,7 @@ export default function EditMahasiswaPage() {
                   onChange={handleInputChange}
                   placeholder="Contoh: 2021110001"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.npm ? 'border-red-500' : 'border-gray-300'
+                    errors.npm ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.npm && (
@@ -319,7 +328,7 @@ export default function EditMahasiswaPage() {
                   onChange={handleInputChange}
                   placeholder="Contoh: Ahmad"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.nama ? 'border-red-500' : 'border-gray-300'
+                    errors.nama ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.nama && (
@@ -341,7 +350,7 @@ export default function EditMahasiswaPage() {
                   onChange={handleInputChange}
                   placeholder="Contoh: john.doe@student.university.ac.id"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
+                    errors.email ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.email && (
@@ -358,7 +367,9 @@ export default function EditMahasiswaPage() {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center mb-6">
               <AcademicCapIcon className="h-5 w-5 text-purple-500 mr-2" />
-              <h2 className="text-lg font-semibold text-gray-900">Informasi Akademik</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Informasi Akademik
+              </h2>
             </div>
 
             <div>
@@ -370,19 +381,21 @@ export default function EditMahasiswaPage() {
                 value={formData.programStudiId}
                 onChange={handleInputChange}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                  errors.programStudiId ? 'border-red-500' : 'border-gray-300'
+                  errors.programStudiId ? "border-red-500" : "border-gray-300"
                 }`}
               >
                 <option value="">Pilih Program Studi</option>
-                {Object.entries(groupedProgramStudi).map(([fakultasNama, prodiList]) => (
-                  <optgroup key={fakultasNama} label={fakultasNama}>
-                    {prodiList.map(prodi => (
-                      <option key={prodi.id} value={prodi.id}>
-                        {prodi.nama}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
+                {Object.entries(groupedProgramStudi).map(
+                  ([fakultasNama, prodiList]) => (
+                    <optgroup key={fakultasNama} label={fakultasNama}>
+                      {prodiList.map(prodi => (
+                        <option key={prodi.id} value={prodi.id}>
+                          {prodi.nama}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ),
+                )}
               </select>
               {errors.programStudiId && (
                 <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -393,8 +406,6 @@ export default function EditMahasiswaPage() {
             </div>
           </div>
 
-
-
           {/* Submit Button */}
           <div className="flex justify-end space-x-4">
             <Link href={`/laboran/mahasiswa/${id}`}>
@@ -402,8 +413,8 @@ export default function EditMahasiswaPage() {
                 Batal
               </Button>
             </Link>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="bg-[#3ECF8E] hover:bg-[#2EBF7B] text-white"
             >
@@ -423,5 +434,5 @@ export default function EditMahasiswaPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }

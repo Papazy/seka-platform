@@ -1,19 +1,16 @@
 // app/laboran/layout.tsx
-import LaboranSidebar from '@/components/laboran/Sidebar'
-import { Toaster } from 'react-hot-toast'
+import LaboranSidebar from "@/components/laboran/Sidebar";
 
 export default function LaboranLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <div>
       <div className="flex h-screen bg-gray-50">
         <LaboranSidebar />
-        <div className="flex-1 overflow-auto">
-          {children}
-        </div>
+        <div className="flex-1 overflow-auto">{children}</div>
       </div>
       {/* <Toaster 
         position="top-right"
@@ -25,6 +22,6 @@ export default function LaboranLayout({
           },
         }}
       /> */}
-      </div>
-  )
+    </div>
+  );
 }

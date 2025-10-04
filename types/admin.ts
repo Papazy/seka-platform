@@ -14,4 +14,3 @@ export interface ProgramStudi {
   createdAt: Date;
   updatedAt: Date;
 }
-

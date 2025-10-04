@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import toast from "react-hot-toast";
 import {
   ArrowLeft,
   Save,
@@ -12,19 +12,19 @@ import {
   Users,
   AlertTriangle,
   Edit,
-  Eye
-} from 'lucide-react';
-import MarkdownRenderer from '@/components/MarkdownRenderer';
-import { useBahasa } from '@/hooks/useBahasa';
-import { useTugasDetail } from '@/hooks/useTugasDetail';
-import { formatDateForInput } from '@/lib/utils';
+  Eye,
+} from "lucide-react";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { useBahasa } from "@/hooks/useBahasa";
+import { useTugasDetail } from "@/hooks/useTugasDetail";
+import { formatDateForInput } from "@/utils/utils";
 
 interface EditTugasData {
   judul: string;
   deskripsi: string;
   deadline: string;
   maksimalSubmit: number;
-  tugasBahasa: any
+  tugasBahasa: any;
 }
 
 export default function EditTugasPage() {
@@ -34,28 +34,35 @@ export default function EditTugasPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(false)
+  const [showPreview, setShowPreview] = useState(false);
   const [tugasData, setTugasData] = useState<EditTugasData>({
-    judul: '',
-    deskripsi: '',
-    deadline: '',
+    judul: "",
+    deskripsi: "",
+    deadline: "",
     maksimalSubmit: 3,
     tugasBahasa: [],
   });
-  const { data: TugasData, isLoading: TugasLoading, error: TugasError } = useTugasDetail(params.id as string, params.tugasId as string, !!user);
+  const {
+    data: TugasData,
+    isLoading: TugasLoading,
+    error: TugasError,
+  } = useTugasDetail(params.id as string, params.tugasId as string, !!user);
 
   const [selectedBahasa, setSelectedBahasa] = useState<number[]>([]);
-  
-  const {data: bahasaList, isLoading: bahasaLoading, error: bahasaError} = useBahasa()
+
+  const {
+    data: bahasaList,
+    isLoading: bahasaLoading,
+    error: bahasaError,
+  } = useBahasa();
 
   // Select semua bahasa saat pertama
   useEffect(() => {
-
     if (selectedBahasa.length === 0 && TugasData) {
-      setSelectedBahasa(TugasData.tugasBahasa.map((tb) => tb.bahasa.id));
+      setSelectedBahasa(TugasData.tugasBahasa.map(tb => tb.bahasa.id));
     }
 
-    if(TugasData){
+    if (TugasData) {
       setTugasData({
         judul: TugasData.judul,
         deskripsi: TugasData.deskripsi,
@@ -66,19 +73,22 @@ export default function EditTugasPage() {
           nama: tb.bahasa.nama,
           ekstensi: tb.bahasa.ekstensi,
           compiler: tb.bahasa.compiler,
-          versi: tb.bahasa.versi
-          
-        }))
+          versi: tb.bahasa.versi,
+        })),
       });
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }, [TugasData]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
     setTugasData(prev => ({
       ...prev,
-      [name]: name === 'maksimalSubmit' ? (value) : value
+      [name]: name === "maksimalSubmit" ? value : value,
     }));
   };
 
@@ -87,13 +97,13 @@ export default function EditTugasPage() {
       if (prev.includes(bahasaId)) {
         // Remove bahasa
         const newSelection = prev.filter(id => id !== bahasaId);
-        
+
         // validasi wajib plih 1 bahasa
         if (newSelection.length === 0) {
-          toast.error('Minimal harus memilih 1 bahasa pemrograman');
+          toast.error("Minimal harus memilih 1 bahasa pemrograman");
           return prev;
         }
-        
+
         return newSelection;
       } else {
         // add bahasa
@@ -118,12 +128,12 @@ export default function EditTugasPage() {
     e.preventDefault();
 
     if (!tugasData.judul.trim()) {
-      toast.error('Judul tugas harus diisi');
+      toast.error("Judul tugas harus diisi");
       return;
     }
 
     if (!tugasData.deskripsi.trim()) {
-      toast.error('Deskripsi tugas harus diisi');
+      toast.error("Deskripsi tugas harus diisi");
       return;
     }
 
@@ -131,7 +141,7 @@ export default function EditTugasPage() {
     const now = new Date();
 
     if (deadlineDate <= now) {
-      toast.error('Deadline harus di masa depan');
+      toast.error("Deadline harus di masa depan");
       return;
     }
 
@@ -140,32 +150,31 @@ export default function EditTugasPage() {
     const payload = {
       ...tugasData,
       tugasBahasa: selectedBahasa,
-    }
+    };
 
     try {
       const response = await fetch(
         `/api/praktikum/${params.id}/tugas/${params.tugasId}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          credentials: 'include',
-          body: JSON.stringify(payload)
-        }
+          credentials: "include",
+          body: JSON.stringify(payload),
+        },
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Gagal mengupdate tugas');
+        throw new Error(errorData.error || "Gagal mengupdate tugas");
       }
 
-      toast.success('Tugas berhasil diupdate');
+      toast.success("Tugas berhasil diupdate");
       router.push(`/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}`);
-
     } catch (error: any) {
-      console.error('Error updating tugas:', error);
-      toast.error(error.message || 'Gagal mengupdate tugas');
+      console.error("Error updating tugas:", error);
+      toast.error(error.message || "Gagal mengupdate tugas");
     } finally {
       setIsSaving(false);
     }
@@ -203,16 +212,18 @@ export default function EditTugasPage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-
           {/* Warning */}
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
               <div>
-                <h3 className="text-sm font-medium text-yellow-800">Perhatian</h3>
+                <h3 className="text-sm font-medium text-yellow-800">
+                  Perhatian
+                </h3>
                 <p className="text-sm text-yellow-700 mt-1">
-                  Perubahan pada tugas akan mempengaruhi semua mahasiswa yang sudah mengerjakan.
-                  Pastikan perubahan sudah sesuai sebelum menyimpan.
+                  Perubahan pada tugas akan mempengaruhi semua mahasiswa yang
+                  sudah mengerjakan. Pastikan perubahan sudah sesuai sebelum
+                  menyimpan.
                 </p>
               </div>
             </div>
@@ -220,10 +231,12 @@ export default function EditTugasPage() {
 
           {/* Form */}
           <div className="bg-white rounded-lg border p-6 space-y-6">
-
             {/* Judul Tugas */}
             <div>
-              <label htmlFor="judul" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="judul"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Judul Tugas
               </label>
               <input
@@ -248,10 +261,11 @@ export default function EditTugasPage() {
                   <button
                     type="button"
                     onClick={() => setShowPreview(false)}
-                    className={`text-xs px-3 py-1 rounded transition-colors flex items-center gap-1 ${!showPreview
-                      ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                      : 'bg-gray-100 text-gray-600 border border-gray-300'
-                      }`}
+                    className={`text-xs px-3 py-1 rounded transition-colors flex items-center gap-1 ${
+                      !showPreview
+                        ? "bg-blue-100 text-blue-700 border border-blue-300"
+                        : "bg-gray-100 text-gray-600 border border-gray-300"
+                    }`}
                   >
                     <Edit className="w-3 h-3" />
                     Edit
@@ -259,10 +273,11 @@ export default function EditTugasPage() {
                   <button
                     type="button"
                     onClick={() => setShowPreview(true)}
-                    className={`text-xs px-3 py-1 rounded transition-colors flex items-center gap-1 ${showPreview
-                      ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                      : 'bg-gray-100 text-gray-600 border border-gray-300'
-                      }`}
+                    className={`text-xs px-3 py-1 rounded transition-colors flex items-center gap-1 ${
+                      showPreview
+                        ? "bg-blue-100 text-blue-700 border border-blue-300"
+                        : "bg-gray-100 text-gray-600 border border-gray-300"
+                    }`}
                   >
                     <Eye className="w-3 h-3" />
                     Preview
@@ -283,111 +298,121 @@ export default function EditTugasPage() {
                   placeholder="Masukkan deskripsi tugas..."
                 />
               )}
-
             </div>
 
             <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Pilih Bahasa Pemrograman</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Pilih bahasa pemrograman yang diizinkan untuk tugas ini. Mahasiswa hanya bisa submit dengan bahasa yang dipilih.
-                  </p>
-                </div>
-                
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={handleSelectAllBahasa}
-                    className="text-sm px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
-                  >
-                    ✓ Pilih Semua
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleDeselectAllBahasa}
-                    className="text-sm px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                  >
-                    ✗ Hapus Semua
-                  </button>
-                </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Pilih Bahasa Pemrograman
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Pilih bahasa pemrograman yang diizinkan untuk tugas ini.
+                  Mahasiswa hanya bisa submit dengan bahasa yang dipilih.
+                </p>
               </div>
 
-              {bahasaLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="ml-3 text-gray-600">Memuat bahasa pemrograman...</span>
-                </div>
-              ) : bahasaError ? (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                  <p className="text-red-600">Gagal memuat bahasa pemrograman</p>
-                  <button
-                    type="button"
-                    onClick={() => window.location.reload()}
-                    className="mt-2 text-sm bg-red-100 text-red-700 px-3 py-1 rounded"
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleSelectAllBahasa}
+                  className="text-sm px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                >
+                  ✓ Pilih Semua
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeselectAllBahasa}
+                  className="text-sm px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                >
+                  ✗ Hapus Semua
+                </button>
+              </div>
+            </div>
+
+            {bahasaLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="ml-3 text-gray-600">
+                  Memuat bahasa pemrograman...
+                </span>
+              </div>
+            ) : bahasaError ? (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                <p className="text-red-600">Gagal memuat bahasa pemrograman</p>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="mt-2 text-sm bg-red-100 text-red-700 px-3 py-1 rounded"
+                >
+                  Coba Lagi
+                </button>
+              </div>
+            ) : bahasaList && bahasaList.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {bahasaList.map(bahasa => (
+                  <div
+                    key={bahasa.id}
+                    className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                      selectedBahasa.includes(bahasa.id)
+                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                    }`}
+                    onClick={() => handleBahasaToggle(bahasa.id)}
                   >
-                    Coba Lagi
-                  </button>
-                </div>
-              ) : bahasaList && bahasaList.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {bahasaList.map((bahasa) => (
-                    <div
-                      key={bahasa.id}
-                      className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                        selectedBahasa.includes(bahasa.id)
-                          ? 'border-blue-500 bg-blue-50 shadow-md'
-                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                      }`}
-                      onClick={() => handleBahasaToggle(bahasa.id)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-gray-900">{bahasa.nama}</h3>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-gray-900">
+                            {bahasa.nama}
+                          </h3>
+                        </div>
+
+                        <div className="space-y-1 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            <span>Ekstensi: {bahasa.ekstensi}</span>
                           </div>
-                          
-                          <div className="space-y-1 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <span>Ekstensi: {bahasa.ekstensi}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span>Compiler: {bahasa.compiler}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span>Versi: {bahasa.versi}</span>
-                            </div>
+                          <div className="flex items-center gap-2">
+                            <span>Compiler: {bahasa.compiler}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span>Versi: {bahasa.versi}</span>
                           </div>
                         </div>
                       </div>
-                      
-                      {/* Selection indicator */}
-                      {selectedBahasa.includes(bahasa.id) && (
-                        <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                          ✓
-                        </div>
-                      )}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-                  <p className="text-yellow-600">Tidak ada bahasa pemrograman tersedia</p>
-                </div>
-              )}
 
-              {selectedBahasa.length === 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                  <p className="text-red-600 text-sm">
-                     Pilih minimal 1 bahasa pemrograman untuk tugas ini
-                  </p>
-                </div>
-              )}
+                    {/* Selection indicator */}
+                    {selectedBahasa.includes(bahasa.id) && (
+                      <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                        ✓
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                <p className="text-yellow-600">
+                  Tidak ada bahasa pemrograman tersedia
+                </p>
+              </div>
+            )}
 
+            {selectedBahasa.length === 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                <p className="text-red-600 text-sm">
+                  Pilih minimal 1 bahasa pemrograman untuk tugas ini
+                </p>
+              </div>
+            )}
 
             {/* Deadline & Maksimal Submit */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="deadline" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="deadline"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   <Calendar className="w-4 h-4 inline mr-2" />
                   Deadline
                 </label>
@@ -403,7 +428,10 @@ export default function EditTugasPage() {
               </div>
 
               <div>
-                <label htmlFor="maksimalSubmit" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="maksimalSubmit"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   <Users className="w-4 h-4 inline mr-2" />
                   Maksimal Submit per Soal
                 </label>
@@ -440,11 +468,11 @@ export default function EditTugasPage() {
               className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
-              {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+              {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
             </button>
           </div>
         </form>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }

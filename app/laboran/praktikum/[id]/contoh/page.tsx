@@ -1,11 +1,11 @@
-  // app/laboran/praktikum/[id]/manage-participants/page.tsx
-'use client'
+// app/laboran/praktikum/[id]/manage-participants/page.tsx
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { DataTable } from '@/components/ui/data-table'
-import { 
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
+import {
   ArrowLeftIcon,
   UserGroupIcon,
   AcademicCapIcon,
@@ -14,263 +14,302 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
   TrashIcon,
-  ArrowPathIcon
-} from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
-import Link from 'next/link'
-import { formatDate } from '@/lib/utils'
-import { AddParticipantModal } from '@/components/modals/AddParticipantModal'
-import { ImportParticipantsModal } from '@/components/modals/ImportParticipantsModal'
-import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
-import { createParticipantColumns } from './columns'
+  ArrowPathIcon,
+} from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
+import Link from "next/link";
+import { formatDate } from "@/utils/utils";
+import { AddParticipantModal } from "@/components/modals/AddParticipantModal";
+import { ImportParticipantsModal } from "@/components/modals/ImportParticipantsModal";
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
+import { createParticipantColumns } from "./columns";
 
 interface PraktikumDetail {
-  id: string
-  nama: string
-  kodePraktikum: string
-  kelas: string
-  semester: string
-  tahun: number
+  id: string;
+  nama: string;
+  kodePraktikum: string;
+  kelas: string;
+  semester: string;
+  tahun: number;
   _count: {
-    pesertaPraktikum: number
-    asistenPraktikum: number
-    dosenPraktikum: number
-  }
+    pesertaPraktikum: number;
+    asistenPraktikum: number;
+    dosenPraktikum: number;
+  };
 }
 
 interface ParticipantData {
-  id: string
-  type: 'peserta' | 'asisten' | 'dosen'
-  nama: string
-  identifier: string // npm/nip
-  email: string
-  joinedAt: string
+  id: string;
+  type: "peserta" | "asisten" | "dosen";
+  nama: string;
+  identifier: string; // npm/nip
+  email: string;
+  joinedAt: string;
   programStudi?: {
-    nama: string
-    kodeProdi: string
-  }
-  jabatan?: string
+    nama: string;
+    kodeProdi: string;
+  };
+  jabatan?: string;
 }
 
 export default function ManageParticipantsPage() {
-  const router = useRouter()
-  const params = useParams()
-  const id = params.id as string
-  
-  const [loading, setLoading] = useState(true)
-  const [praktikum, setPraktikum] = useState<PraktikumDetail | null>(null)
-  const [participants, setParticipants] = useState<ParticipantData[]>([])
-  const [activeTab, setActiveTab] = useState<'peserta' | 'asisten' | 'dosen'>('peserta')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedParticipants, setSelectedParticipants] = useState<number[]>([])
-  
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [loading, setLoading] = useState(true);
+  const [praktikum, setPraktikum] = useState<PraktikumDetail | null>(null);
+  const [participants, setParticipants] = useState<ParticipantData[]>([]);
+  const [activeTab, setActiveTab] = useState<"peserta" | "asisten" | "dosen">(
+    "peserta",
+  );
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedParticipants, setSelectedParticipants] = useState<number[]>(
+    [],
+  );
+
   // Modals
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [showImportModal, setShowImportModal] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<{id: string, nama: string} | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    nama: string;
+  } | null>(null);
 
   useEffect(() => {
     if (id) {
-      fetchPraktikum()
-      fetchParticipants()
+      fetchPraktikum();
+      fetchParticipants();
     }
-  }, [id, activeTab])
+  }, [id, activeTab]);
 
   const fetchPraktikum = async () => {
     try {
       const response = await fetch(`/api/praktikum/${id}`, {
-        credentials: 'include'
-      })
-      
+        credentials: "include",
+      });
+
       if (response.ok) {
-        const result = await response.json()
-        setPraktikum(result.data)
+        const result = await response.json();
+        setPraktikum(result.data);
       } else {
-        toast.error('Gagal mengambil data praktikum')
-        router.push('/laboran/praktikum')
+        toast.error("Gagal mengambil data praktikum");
+        router.push("/laboran/praktikum");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat mengambil data')
-      router.push('/laboran/praktikum')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat mengambil data");
+      router.push("/laboran/praktikum");
     }
-  }
+  };
 
   const fetchParticipants = async () => {
     try {
-      setLoading(true)
-      const response = await fetch(`/api/praktikum/${id}/participants?type=${activeTab}`, {
-        credentials: 'include'
-      })
-      
+      setLoading(true);
+      const response = await fetch(
+        `/api/praktikum/${id}/participants?type=${activeTab}`,
+        {
+          credentials: "include",
+        },
+      );
+
       if (response.ok) {
-        const result = await response.json()
-        setParticipants(result.data || [])
+        const result = await response.json();
+        setParticipants(result.data || []);
       } else {
-        toast.error('Gagal mengambil data peserta')
+        toast.error("Gagal mengambil data peserta");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat mengambil data peserta')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat mengambil data peserta");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleAddParticipant = async (data: any) => {
     try {
       const response = await fetch(`/api/praktikum/${id}/participants`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           ...data,
-          type: activeTab
-        })
-      })
+          type: activeTab,
+        }),
+      });
 
       if (response.ok) {
-        toast.success(`${getTabLabel(activeTab)} berhasil ditambahkan`)
-        fetchParticipants()
-        fetchPraktikum() // Update stats
-        setShowAddModal(false)
+        toast.success(`${getTabLabel(activeTab)} berhasil ditambahkan`);
+        fetchParticipants();
+        fetchPraktikum(); // Update stats
+        setShowAddModal(false);
       } else {
-        const error = await response.json()
-        toast.error(error.error || `Gagal menambahkan ${getTabLabel(activeTab).toLowerCase()}`)
+        const error = await response.json();
+        toast.error(
+          error.error ||
+            `Gagal menambahkan ${getTabLabel(activeTab).toLowerCase()}`,
+        );
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat menambahkan peserta')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat menambahkan peserta");
     }
-  }
+  };
 
   const handleRemoveParticipant = async (participantId: string) => {
     try {
-      const response = await fetch(`/api/praktikum/${id}/participants/${participantId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        body: JSON.stringify({ type: activeTab })
-      })
+      const response = await fetch(
+        `/api/praktikum/${id}/participants/${participantId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+          body: JSON.stringify({ type: activeTab }),
+        },
+      );
 
       if (response.ok) {
-        toast.success(`${getTabLabel(activeTab)} berhasil dihapus`)
-        fetchParticipants()
-        fetchPraktikum()
-        setShowDeleteModal(false)
-        setDeleteTarget(null)
+        toast.success(`${getTabLabel(activeTab)} berhasil dihapus`);
+        fetchParticipants();
+        fetchPraktikum();
+        setShowDeleteModal(false);
+        setDeleteTarget(null);
       } else {
-        const error = await response.json()
-        toast.error(error.error || `Gagal menghapus ${getTabLabel(activeTab).toLowerCase()}`)
+        const error = await response.json();
+        toast.error(
+          error.error ||
+            `Gagal menghapus ${getTabLabel(activeTab).toLowerCase()}`,
+        );
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat menghapus peserta')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat menghapus peserta");
     }
-  }
+  };
 
   const handleBulkRemove = async () => {
     if (selectedParticipants.length === 0) {
-      toast.error('Pilih peserta yang akan dihapus')
-      return
+      toast.error("Pilih peserta yang akan dihapus");
+      return;
     }
 
     try {
-      const response = await fetch(`/api/praktikum/${id}/participants/bulk-remove`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          participantIds: selectedParticipants,
-          type: activeTab
-        })
-      })
+      const response = await fetch(
+        `/api/praktikum/${id}/participants/bulk-remove`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            participantIds: selectedParticipants,
+            type: activeTab,
+          }),
+        },
+      );
 
       if (response.ok) {
-        toast.success(`${selectedParticipants.length} ${getTabLabel(activeTab).toLowerCase()} berhasil dihapus`)
-        fetchParticipants()
-        fetchPraktikum()
-        setSelectedParticipants([])
+        toast.success(
+          `${selectedParticipants.length} ${getTabLabel(activeTab).toLowerCase()} berhasil dihapus`,
+        );
+        fetchParticipants();
+        fetchPraktikum();
+        setSelectedParticipants([]);
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Gagal menghapus peserta')
+        const error = await response.json();
+        toast.error(error.error || "Gagal menghapus peserta");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat menghapus peserta')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat menghapus peserta");
     }
-  }
+  };
 
-  const handleChangeRole = async (participantId: string, newRole: 'peserta' | 'asisten') => {
+  const handleChangeRole = async (
+    participantId: string,
+    newRole: "peserta" | "asisten",
+  ) => {
     try {
-      const response = await fetch(`/api/praktikum/${id}/participants/${participantId}/change-role`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ newRole })
-      })
+      const response = await fetch(
+        `/api/praktikum/${id}/participants/${participantId}/change-role`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ newRole }),
+        },
+      );
 
       if (response.ok) {
-        toast.success('Role berhasil diubah')
-        fetchParticipants()
-        fetchPraktikum()
+        toast.success("Role berhasil diubah");
+        fetchParticipants();
+        fetchPraktikum();
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Gagal mengubah role')
+        const error = await response.json();
+        toast.error(error.error || "Gagal mengubah role");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat mengubah role')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat mengubah role");
     }
-  }
+  };
 
   const handleImportSuccess = () => {
-    toast.success('Import berhasil')
-    fetchParticipants()
-    fetchPraktikum()
-    setShowImportModal(false)
-  }
+    toast.success("Import berhasil");
+    fetchParticipants();
+    fetchPraktikum();
+    setShowImportModal(false);
+  };
 
   const getTabLabel = (tab: string) => {
     switch (tab) {
-      case 'peserta': return 'Peserta'
-      case 'asisten': return 'Asisten'
-      case 'dosen': return 'Dosen'
-      default: return 'Peserta'
+      case "peserta":
+        return "Peserta";
+      case "asisten":
+        return "Asisten";
+      case "dosen":
+        return "Dosen";
+      default:
+        return "Peserta";
     }
-  }
+  };
 
   const getTabIcon = (tab: string) => {
     switch (tab) {
-      case 'peserta': return UserGroupIcon
-      case 'asisten': return AcademicCapIcon
-      case 'dosen': return UserIcon
-      default: return UserGroupIcon
+      case "peserta":
+        return UserGroupIcon;
+      case "asisten":
+        return AcademicCapIcon;
+      case "dosen":
+        return UserIcon;
+      default:
+        return UserGroupIcon;
     }
-  }
+  };
 
   const confirmDelete = (participant: ParticipantData) => {
     setDeleteTarget({
       id: participant.id,
-      nama: participant.nama
-    })
-    setShowDeleteModal(true)
-  }
+      nama: participant.nama,
+    });
+    setShowDeleteModal(true);
+  };
 
   // Filter participants
-  const filteredParticipants = participants.filter(participant =>
-    participant.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    participant.identifier.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    participant.email.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredParticipants = participants.filter(
+    participant =>
+      participant.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      participant.identifier.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      participant.email.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   const columns = createParticipantColumns({
     type: activeTab,
     onRemove: confirmDelete,
     onChangeRole: handleChangeRole,
     selectedIds: selectedParticipants,
-    onSelectionChange: setSelectedParticipants
-  })
+    onSelectionChange: setSelectedParticipants,
+  });
 
   if (loading && !praktikum) {
     return (
@@ -283,20 +322,22 @@ export default function ManageParticipantsPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!praktikum) {
     return (
       <div className="p-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Praktikum tidak ditemukan</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Praktikum tidak ditemukan
+          </h1>
           <Link href="/laboran/praktikum">
             <Button>Kembali ke Daftar Praktikum</Button>
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -315,7 +356,8 @@ export default function ManageParticipantsPage() {
               Kelola Peserta Praktikum
             </h1>
             <p className="mt-1 text-sm text-gray-600">
-              {praktikum.nama} ({praktikum.kodePraktikum}) - Kelas {praktikum.kelas}
+              {praktikum.nama} ({praktikum.kodePraktikum}) - Kelas{" "}
+              {praktikum.kelas}
             </p>
           </div>
         </div>
@@ -330,7 +372,9 @@ export default function ManageParticipantsPage() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Peserta</p>
-              <p className="text-2xl font-bold text-gray-900">{praktikum._count.pesertaPraktikum}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {praktikum._count.pesertaPraktikum}
+              </p>
             </div>
           </div>
         </div>
@@ -342,7 +386,9 @@ export default function ManageParticipantsPage() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Asisten</p>
-              <p className="text-2xl font-bold text-gray-900">{praktikum._count.asistenPraktikum}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {praktikum._count.asistenPraktikum}
+              </p>
             </div>
           </div>
         </div>
@@ -354,7 +400,9 @@ export default function ManageParticipantsPage() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Dosen</p>
-              <p className="text-2xl font-bold text-gray-900">{praktikum._count.dosenPraktikum}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {praktikum._count.dosenPraktikum}
+              </p>
             </div>
           </div>
         </div>
@@ -365,23 +413,26 @@ export default function ManageParticipantsPage() {
         {/* Tabs */}
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6">
-            {(['peserta', 'asisten', 'dosen'] as const).map((tab) => {
-              const Icon = getTabIcon(tab)
-              const count = praktikum._count[`${tab}Praktikum` as keyof typeof praktikum._count]
+            {(["peserta", "asisten", "dosen"] as const).map(tab => {
+              const Icon = getTabIcon(tab);
+              const count =
+                praktikum._count[
+                  `${tab}Praktikum` as keyof typeof praktikum._count
+                ];
               return (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
                     activeTab === tab
-                      ? 'border-[#3ECF8E] text-[#3ECF8E]'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      ? "border-[#3ECF8E] text-[#3ECF8E]"
+                      : "border-transparent text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   <Icon className="h-4 w-4 mr-2" />
                   {getTabLabel(tab)} ({count})
                 </button>
-              )
+              );
             })}
           </nav>
         </div>
@@ -397,7 +448,7 @@ export default function ManageParticipantsPage() {
                   type="text"
                   placeholder={`Cari ${getTabLabel(activeTab).toLowerCase()}...`}
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent"
                 />
               </div>
@@ -415,7 +466,7 @@ export default function ManageParticipantsPage() {
                   Hapus ({selectedParticipants.length})
                 </Button>
               )}
-              
+
               <Button
                 onClick={() => setShowImportModal(true)}
                 variant="outline"
@@ -424,7 +475,7 @@ export default function ManageParticipantsPage() {
                 <DocumentArrowUpIcon className="h-4 w-4 mr-2" />
                 Import CSV
               </Button>
-              
+
               <Button
                 onClick={() => setShowAddModal(true)}
                 className="bg-[#3ECF8E] hover:bg-[#2EBF7B] text-white"
@@ -444,8 +495,8 @@ export default function ManageParticipantsPage() {
               ))}
             </div>
           ) : filteredParticipants.length > 0 ? (
-            <DataTable 
-              columns={columns} 
+            <DataTable
+              columns={columns}
               data={filteredParticipants}
               showSearch={false}
             />
@@ -453,13 +504,14 @@ export default function ManageParticipantsPage() {
             <div className="text-center py-12">
               {/* <Icon className="mx-auto h-12 w-12 text-gray-400 mb-4" /> */}
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm ? 'Tidak ada hasil' : `Belum ada ${getTabLabel(activeTab).toLowerCase()}`}
+                {searchTerm
+                  ? "Tidak ada hasil"
+                  : `Belum ada ${getTabLabel(activeTab).toLowerCase()}`}
               </h3>
               <p className="text-gray-500 mb-4">
-                {searchTerm 
-                  ? 'Coba ubah kata kunci pencarian'
-                  : `Mulai dengan menambahkan ${getTabLabel(activeTab).toLowerCase()} atau import dari CSV`
-                }
+                {searchTerm
+                  ? "Coba ubah kata kunci pencarian"
+                  : `Mulai dengan menambahkan ${getTabLabel(activeTab).toLowerCase()} atau import dari CSV`}
               </p>
               {!searchTerm && (
                 <div className="flex justify-center space-x-3">
@@ -491,7 +543,7 @@ export default function ManageParticipantsPage() {
         onClose={() => setShowAddModal(false)}
         onSuccess={handleAddParticipant}
         type={activeTab}
-        praktikumId={(id)}
+        praktikumId={id}
       />
 
       <ImportParticipantsModal
@@ -499,16 +551,18 @@ export default function ManageParticipantsPage() {
         onClose={() => setShowImportModal(false)}
         onSuccess={handleImportSuccess}
         type={activeTab}
-        praktikumId={(id)}
+        praktikumId={id}
       />
 
       <ConfirmDeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={() => deleteTarget && handleRemoveParticipant(deleteTarget.id)}
+        onConfirm={() =>
+          deleteTarget && handleRemoveParticipant(deleteTarget.id)
+        }
         title={`Hapus ${getTabLabel(activeTab)}`}
         message={`Apakah Anda yakin ingin menghapus ${deleteTarget?.nama} dari praktikum ini?`}
       />
     </div>
-  )
+  );
 }

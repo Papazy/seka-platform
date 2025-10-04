@@ -1,10 +1,10 @@
 // app/laboran/praktikum/create/page.tsx
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
   ArrowLeftIcon,
   CalendarIcon,
   ClockIcon,
@@ -12,147 +12,152 @@ import {
   BuildingOfficeIcon,
   AcademicCapIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon
-} from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
-import Link from 'next/link'
-import { validatePraktikumForm } from '@/lib/validations/praktikum'
+  CheckCircleIcon,
+} from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
+import Link from "next/link";
+import { validatePraktikumForm } from "@/lib/validations/praktikum";
 
 interface FormData {
-  nama: string
-  kodePraktikum: string
-  kodeMk: string
-  kelas: string
-  semester: 'GANJIL' | 'GENAP'
-  tahun: number
-  jadwalHari: string
-  jadwalJamMasuk: string
-  jadwalJamSelesai: string
-  ruang: string
+  nama: string;
+  kodePraktikum: string;
+  kodeMk: string;
+  kelas: string;
+  semester: "GANJIL" | "GENAP";
+  tahun: number;
+  jadwalHari: string;
+  jadwalJamMasuk: string;
+  jadwalJamSelesai: string;
+  ruang: string;
 }
 
 interface FormErrors {
-  [key: string]: string
+  [key: string]: string;
 }
 
 export default function CreatePraktikumPage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    nama: '',
-    kodePraktikum: '',
-    kodeMk: '',
-    kelas: '',
-    semester: 'GANJIL',
+    nama: "",
+    kodePraktikum: "",
+    kodeMk: "",
+    kelas: "",
+    semester: "GANJIL",
     tahun: new Date().getFullYear(),
-    jadwalHari: '',
-    jadwalJamMasuk: '',
-    jadwalJamSelesai: '',
-    ruang: ''
-  })
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [systemSettings, setSystemSettings] = useState<any>(null)
+    jadwalHari: "",
+    jadwalJamMasuk: "",
+    jadwalJamSelesai: "",
+    ruang: "",
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [systemSettings, setSystemSettings] = useState<any>(null);
 
   useEffect(() => {
-    fetchSystemSettings()
-  }, [])
+    fetchSystemSettings();
+  }, []);
 
   const fetchSystemSettings = async () => {
     try {
-      const response = await fetch('/api/system-settings', {
-        credentials: 'include'
-      })
-      
+      const response = await fetch("/api/system-settings", {
+        credentials: "include",
+      });
+
       if (response.ok) {
-        const result = await response.json()
-        setSystemSettings(result.data)
+        const result = await response.json();
+        setSystemSettings(result.data);
         // Set default semester dan tahun dari sistem
         if (result.data) {
           setFormData(prev => ({
             ...prev,
             semester: result.data.currentSemester,
-            tahun: result.data.currentYear
-          }))
+            tahun: result.data.currentYear,
+          }));
         }
       }
     } catch (error) {
-      console.error('Error fetching system settings:', error)
+      console.error("Error fetching system settings:", error);
     }
-  }
+  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'tahun' ? (value) || 0 : value
-    }))
-    
+      [name]: name === "tahun" ? value || 0 : value,
+    }));
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
-        [name]: ''
-      }))
+        [name]: "",
+      }));
     }
-  }
-
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const validation = validatePraktikumForm(formData)
-    
+    const validation = validatePraktikumForm(formData);
+
     if (!validation.isValid) {
-      toast.error('Mohon perbaiki error pada form')
-      return
+      toast.error("Mohon perbaiki error pada form");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       // Convert time strings to full datetime for database
-      const jamMasukDate = new Date(`2000-01-01T${formData.jadwalJamMasuk}:00`)
-      const jamSelesaiDate = new Date(`2000-01-01T${formData.jadwalJamSelesai}:00`)
+      const jamMasukDate = new Date(`2000-01-01T${formData.jadwalJamMasuk}:00`);
+      const jamSelesaiDate = new Date(
+        `2000-01-01T${formData.jadwalJamSelesai}:00`,
+      );
 
       const submitData = {
         ...formData,
         jadwalJamMasuk: jamMasukDate.toISOString(),
-        jadwalJamSelesai: jamSelesaiDate.toISOString()
-      }
+        jadwalJamSelesai: jamSelesaiDate.toISOString(),
+      };
 
-      const response = await fetch('/api/praktikum', {
-        method: 'POST',
+      const response = await fetch("/api/praktikum", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
-        body: JSON.stringify(submitData)
-      })
+        credentials: "include",
+        body: JSON.stringify(submitData),
+      });
 
       if (response.ok) {
-        toast.success('Praktikum berhasil dibuat!')
-        router.push('/laboran/praktikum')
+        toast.success("Praktikum berhasil dibuat!");
+        router.push("/laboran/praktikum");
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Gagal membuat praktikum')
+        const error = await response.json();
+        toast.error(error.error || "Gagal membuat praktikum");
       }
     } catch (error) {
-      console.error('Error:', error)
-      toast.error('Terjadi kesalahan saat membuat praktikum')
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat membuat praktikum");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const hariOptions = [
-    { value: 'Senin', label: 'Senin' },
-    { value: 'Selasa', label: 'Selasa' },
-    { value: 'Rabu', label: 'Rabu' },
-    { value: 'Kamis', label: 'Kamis' },
-    { value: 'Jumat', label: 'Jumat' },
-    { value: 'Sabtu', label: 'Sabtu' },
-    { value: 'Minggu', label: 'Minggu' }
-  ]
+    { value: "Senin", label: "Senin" },
+    { value: "Selasa", label: "Selasa" },
+    { value: "Rabu", label: "Rabu" },
+    { value: "Kamis", label: "Kamis" },
+    { value: "Jumat", label: "Jumat" },
+    { value: "Sabtu", label: "Sabtu" },
+    { value: "Minggu", label: "Minggu" },
+  ];
 
   return (
     <div className="p-4 lg:p-8">
@@ -182,7 +187,9 @@ export default function CreatePraktikumPage() {
           {/* Basic Information */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">Informasi Dasar</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Informasi Dasar
+              </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -197,7 +204,7 @@ export default function CreatePraktikumPage() {
                   onChange={handleInputChange}
                   placeholder="Contoh: Praktikum Algoritma dan Pemrograman"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.nama ? 'border-red-500' : 'border-gray-300'
+                    errors.nama ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.nama && (
@@ -219,7 +226,7 @@ export default function CreatePraktikumPage() {
                   onChange={handleInputChange}
                   placeholder="Contoh: PRAK001"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.kodePraktikum ? 'border-red-500' : 'border-gray-300'
+                    errors.kodePraktikum ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.kodePraktikum && (
@@ -241,7 +248,7 @@ export default function CreatePraktikumPage() {
                   onChange={handleInputChange}
                   placeholder="Contoh: TIF101"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.kodeMk ? 'border-red-500' : 'border-gray-300'
+                    errors.kodeMk ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.kodeMk && (
@@ -263,7 +270,7 @@ export default function CreatePraktikumPage() {
                   onChange={handleInputChange}
                   placeholder="Contoh: A, B, C"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.kelas ? 'border-red-500' : 'border-gray-300'
+                    errors.kelas ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.kelas && (
@@ -279,7 +286,9 @@ export default function CreatePraktikumPage() {
           {/* Semester & Year */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">Semester & Tahun</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Semester & Tahun
+              </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -310,7 +319,7 @@ export default function CreatePraktikumPage() {
                   min="2020"
                   max="2030"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.tahun ? 'border-red-500' : 'border-gray-300'
+                    errors.tahun ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.tahun && (
@@ -325,7 +334,8 @@ export default function CreatePraktikumPage() {
             {systemSettings && (
               <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-700">
-                  Semester dan tahun saat ini: {systemSettings.currentSemester} {systemSettings.currentYear}
+                  Semester dan tahun saat ini: {systemSettings.currentSemester}{" "}
+                  {systemSettings.currentYear}
                 </p>
               </div>
             )}
@@ -334,7 +344,9 @@ export default function CreatePraktikumPage() {
           {/* Schedule */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">Jadwal Praktikum</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Jadwal Praktikum
+              </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -347,7 +359,7 @@ export default function CreatePraktikumPage() {
                   value={formData.jadwalHari}
                   onChange={handleInputChange}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.jadwalHari ? 'border-red-500' : 'border-gray-300'
+                    errors.jadwalHari ? "border-red-500" : "border-gray-300"
                   }`}
                 >
                   <option value="">Pilih Hari</option>
@@ -375,7 +387,7 @@ export default function CreatePraktikumPage() {
                   value={formData.jadwalJamMasuk}
                   onChange={handleInputChange}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.jadwalJamMasuk ? 'border-red-500' : 'border-gray-300'
+                    errors.jadwalJamMasuk ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.jadwalJamMasuk && (
@@ -396,7 +408,9 @@ export default function CreatePraktikumPage() {
                   value={formData.jadwalJamSelesai}
                   onChange={handleInputChange}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                    errors.jadwalJamSelesai ? 'border-red-500' : 'border-gray-300'
+                    errors.jadwalJamSelesai
+                      ? "border-red-500"
+                      : "border-gray-300"
                   }`}
                 />
                 {errors.jadwalJamSelesai && (
@@ -426,7 +440,7 @@ export default function CreatePraktikumPage() {
                 onChange={handleInputChange}
                 placeholder="Contoh: Lab Komputer 1, R.301"
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3ECF8E] focus:border-transparent ${
-                  errors.ruang ? 'border-red-500' : 'border-gray-300'
+                  errors.ruang ? "border-red-500" : "border-gray-300"
                 }`}
               />
               {errors.ruang && (
@@ -445,8 +459,8 @@ export default function CreatePraktikumPage() {
                 Batal
               </Button>
             </Link>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="bg-[#3ECF8E] hover:bg-[#2EBF7B] text-white"
             >
@@ -466,5 +480,5 @@ export default function CreatePraktikumPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }

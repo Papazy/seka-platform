@@ -1,14 +1,7 @@
-
-import { useRouter } from "next/navigation";
 export default function LoginLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-
-  return (
-    <div className="min-h-screen">
-      {children}
-    </div>
-  )
+  return <div className="min-h-screen">{children}</div>;
 }

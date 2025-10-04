@@ -1,48 +1,51 @@
 // app/admin/fakultas/columns.tsx
-import { ColumnDef } from '@tanstack/react-table'
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { ColumnDef } from "@tanstack/react-table";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { ProgramStudi } from "@/types/admin";
 
 interface Fakultas {
-  id: string
-  nama: string
-  kodeFakultas: string
-  programStudi: Array<{
-    id: string
-    nama: string
-    kodeProdi: string
-  }>
-  createdAt: string
-  updatedAt: string
+  id: string;
+  nama: string;
+  kodeFakultas: string;
+  programStudi: ProgramStudi[];
+  createdAt: string;
+  updatedAt: string;
 }
-
 interface ColumnActionsProps {
-  onEdit: (fakultas: Fakultas) => void
-  onDelete: (id: string) => void
+  onEdit: (fakultas: Fakultas) => void;
+  onDelete: (id: string) => void;
 }
 
-export const createFakultasColumns = ({ onEdit, onDelete }: ColumnActionsProps): ColumnDef<Fakultas>[] => [
+export const createFakultasColumns = ({
+  onEdit,
+  onDelete,
+}: ColumnActionsProps): ColumnDef<Fakultas>[] => [
   {
-    id: 'no',
-    header: 'No',
+    id: "no",
+    header: "No",
     cell: ({ row }) => (
       <span className="text-sm text-gray-600 font-medium">{row.index + 1}</span>
-    )
+    ),
   },
   {
-    accessorKey: 'nama',
-    header: 'Nama Fakultas',
+    accessorKey: "nama",
+    header: "Nama Fakultas",
     cell: ({ row }) => (
       <div className="flex items-center space-x-3">
         <div>
-          <span className="font-medium text-gray-900 text-sm">{row.original.nama}</span>
-          <p className="text-xs text-gray-500">Kode: {row.original.kodeFakultas}</p>
+          <span className="font-medium text-gray-900 text-sm">
+            {row.original.nama}
+          </span>
+          <p className="text-xs text-gray-500">
+            Kode: {row.original.kodeFakultas}
+          </p>
         </div>
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'programStudi',
-    header: 'Program Studi',
+    accessorKey: "programStudi",
+    header: "Program Studi",
     cell: ({ row }) => (
       <div>
         <span className="text-sm font-medium text-gray-900">
@@ -50,29 +53,33 @@ export const createFakultasColumns = ({ onEdit, onDelete }: ColumnActionsProps):
         </span>
         {row.original.programStudi.length > 0 && (
           <p className="text-xs text-gray-500 mt-1 text-wrap">
-            {row.original.programStudi.slice(0, 2).map(p => p.nama).join(', ')}
-            {row.original.programStudi.length > 2 && ` +${row.original.programStudi.length - 2} lainnya`}
+            {row.original.programStudi
+              .slice(0, 2)
+              .map(p => p.nama)
+              .join(", ")}
+            {row.original.programStudi.length > 2 &&
+              ` +${row.original.programStudi.length - 2} lainnya`}
           </p>
         )}
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'createdAt',
-    header: 'Dibuat',
+    accessorKey: "createdAt",
+    header: "Dibuat",
     cell: ({ row }) => (
       <span className="text-sm text-gray-500">
-        {new Date(row.original.createdAt).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
+        {new Date(row.original.createdAt).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
         })}
       </span>
-    )
+    ),
   },
   {
-    id: 'actions',
-    header: 'Actions',
+    id: "actions",
+    header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center space-x-2">
         <button
@@ -90,6 +97,6 @@ export const createFakultasColumns = ({ onEdit, onDelete }: ColumnActionsProps):
           <TrashIcon className="h-4 w-4" />
         </button>
       </div>
-    )
-  }
-]
+    ),
+  },
+];

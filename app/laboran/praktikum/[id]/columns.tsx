@@ -12,10 +12,10 @@ interface DosenData {
   nama: string;
 }
 
-export const createMahasiswaColumns = () : ColumnDef<MahasiswaData>[] => [
+export const createMahasiswaColumns = (): ColumnDef<MahasiswaData>[] => [
   {
-    header: 'NO',
-    id: 'no',
+    header: "NO",
+    id: "no",
     cell: ({ row }) => (
       <div className="font-mono text-sm font-medium text-gray-900">
         {row.index + 1}
@@ -23,26 +23,26 @@ export const createMahasiswaColumns = () : ColumnDef<MahasiswaData>[] => [
     ),
   },
   {
-    accessorKey: 'npm',
-    header: 'NPM',
+    accessorKey: "npm",
+    header: "NPM",
     cell: ({ row }) => (
       <div className="font-mono text-sm font-medium text-gray-900 hover:text-[#3ECF8E] cursor-pointer">
-          {row.original.npm}
+        {row.original.npm}
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'nama',
-    header: 'Nama',
+    accessorKey: "nama",
+    header: "Nama",
     cell: ({ row }) => (
       <div className="font-mono text-sm font-medium text-gray-900 hover:text-[#3ECF8E] cursor-pointer">
-          {row.original.nama}
+        {row.original.nama}
       </div>
-    )
+    ),
   },
   {
-    id: 'actions',
-    header: 'Aksi',
+    id: "actions",
+    header: "Aksi",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         {/* <Button variant="outline" size="sm" className="text-xs">
@@ -56,14 +56,13 @@ export const createMahasiswaColumns = () : ColumnDef<MahasiswaData>[] => [
         </Button>
       </div>
     ),
-  }
-] 
+  },
+];
 
-
-export const createDosenColumns = () : ColumnDef<DosenData>[] => [
+export const createDosenColumns = (): ColumnDef<DosenData>[] => [
   {
-    header: 'NO',
-    id: 'no',
+    header: "NO",
+    id: "no",
     cell: ({ row }) => (
       <div className="font-mono text-sm font-medium text-gray-900">
         {row.index + 1}
@@ -71,26 +70,26 @@ export const createDosenColumns = () : ColumnDef<DosenData>[] => [
     ),
   },
   {
-    accessorKey: 'nip',
-    header: 'NIP',
+    accessorKey: "nip",
+    header: "NIP",
     cell: ({ row }) => (
       <div className="font-mono text-sm font-medium text-gray-900 hover:text-[#3ECF8E] cursor-pointer">
-          {row.original.nip}
+        {row.original.nip}
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'nama',
-    header: 'Nama',
+    accessorKey: "nama",
+    header: "Nama",
     cell: ({ row }) => (
       <div className="font-mono text-sm font-medium text-gray-900 hover:text-[#3ECF8E] cursor-pointer">
-          {row.original.nama}
+        {row.original.nama}
       </div>
-    )
+    ),
   },
   {
-    id: 'actions',
-    header: 'Aksi',
+    id: "actions",
+    header: "Aksi",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         {/* <Button variant="outline" size="sm" className="text-xs">
@@ -104,5 +103,5 @@ export const createDosenColumns = () : ColumnDef<DosenData>[] => [
         </Button>
       </div>
     ),
-  }
-]
+  },
+];

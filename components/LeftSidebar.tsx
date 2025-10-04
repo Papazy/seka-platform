@@ -1,33 +1,31 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter, useParams, usePathname } from 'next/navigation';
-import Link from 'next/link';
+import React, { useState } from "react";
+import { useRouter, useParams, usePathname } from "next/navigation";
+import Link from "next/link";
 
 export default function LeftSidebar() {
   const params = useParams();
   const pathname = usePathname();
-  const router = useRouter()
+  const router = useRouter();
 
   const menuItems = [
     {
-      id: 'beranda',
-      label: 'Beranda',
-      path: `/mahasiswa/praktikum/${params.id}`
+      id: "beranda",
+      label: "Beranda",
+      path: `/mahasiswa/praktikum/${params.id}`,
     },
     {
-      id: 'rekap',
-      label: 'Rekap Nilai',
-      path: `/mahasiswa/praktikum/${params.id}/rekap`
+      id: "rekap",
+      label: "Rekap Nilai",
+      path: `/mahasiswa/praktikum/${params.id}/rekap`,
     },
     {
-      id: 'peserta',
-      label: 'Peserta',
-      path: `/mahasiswa/praktikum/${params.id}/peserta`
-    }
+      id: "peserta",
+      label: "Peserta",
+      path: `/mahasiswa/praktikum/${params.id}/peserta`,
+    },
   ];
-
-
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-2 shadow-sm w-64 flex-shrink-0">
@@ -35,14 +33,14 @@ export default function LeftSidebar() {
         <div className="flex items-center justify-between p-4 border-b border-gray-200 gap-2">
           <h2 className="text-sm font-medium text-gray-900">Menu Praktikum</h2>
           <button
-            onClick={() => router.replace('/mahasiswa/praktikum')}
+            onClick={() => router.replace("/mahasiswa/praktikum")}
             className="text-xs text-gray-600 hover:text-gray-900 border rounded px-1 py-1 transition-colors cursor-pointer hover:bg-gray-50"
           >
-            {'<'} Kembali
+            {"<"} Kembali
           </button>
         </div>
 
-        {menuItems.map((item) => {
+        {menuItems.map(item => {
           const isActive = pathname === item.path;
 
           return (
@@ -51,9 +49,10 @@ export default function LeftSidebar() {
               href={item.path}
               prefetch={true}
               className={`w-full flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors cursor-pointer 
-                ${isActive
-                      ? 'bg-green-100 text-green-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-100'
+                ${
+                  isActive
+                    ? "bg-green-100 text-green-700 font-medium"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
             >
               <span>{item.label}</span>

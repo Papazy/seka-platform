@@ -1,41 +1,63 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+interface MahasiswaData {
+  id: string;
+  mahasiswa: {
+    id: string;
+    npm: string;
+    nama: string;
+    programStudi: {
+      nama: string;
+      kodeProdi: string;
+    } | null;
+  };
+}
 
+interface DosenData {
+  id: string;
+  dosen: {
+    id: string;
+    nip: string;
+    nama: string;
+    jabatan: string | null;
+  };
+}
 
-export async function GET(req: NextRequest, { params }: {params: Promise<{ id: string }>}) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const { id } = await params
-    const { searchParams } = new URL(req.url)
-    const type = searchParams.get('type') || 'all'
-    const token = req.cookies.get('token')?.value
-
+    const { id: idPraktikum } = await params;
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type") || "all";
+    const token = req.cookies.get("token")?.value;
 
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-
-    const idPraktikumInt = (idPraktikum) 
-
     const praktikum = await prisma.praktikum.findUnique({
-      where: { id: idPraktikumInt },
+      where: { id: idPraktikum },
       select: {
         id: true,
         nama: true,
         kelas: true,
-      }
+      },
     });
 
     if (!praktikum) {
-      return NextResponse.json({ error: 'Praktikum not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: "Praktikum not found" },
+        { status: 404 },
+      );
     }
 
-   
-    let data = null
-    let _count = null
+    let data = null;
+    let _count = null;
     switch (type) {
-      case 'peserta':
+      case "peserta":
         data = await prisma.pesertaPraktikum.findMany({
           where: { idPraktikum: idPraktikumInt },
           select: {
@@ -48,20 +70,20 @@ export async function GET(req: NextRequest, { params }: {params: Promise<{ id: s
                 programStudi: {
                   select: {
                     nama: true,
-                    kodeProdi: true
-                  }
-                }
-              }
-            }
-          }
-        })
+                    kodeProdi: true,
+                  },
+                },
+              },
+            },
+          },
+        });
 
-        data = mapMahasiswaData(data)
+        data = mapMahasiswaData(data);
 
-        _count = data.length
-        
+        _count = data.length;
+
         break;
-      case 'asisten':
+      case "asisten":
         data = await prisma.asistenPraktikum.findMany({
           where: { idPraktikum: idPraktikumInt },
           select: {
@@ -74,18 +96,18 @@ export async function GET(req: NextRequest, { params }: {params: Promise<{ id: s
                 programStudi: {
                   select: {
                     nama: true,
-                    kodeProdi: true
-                  }
-                }
-              }
-            }
-          }
-        })
-        
-        data = mapMahasiswaData(data)
-        _count = data.length
+                    kodeProdi: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        data = mapMahasiswaData(data);
+        _count = data.length;
         break;
-      case 'dosen':
+      case "dosen":
         data = await prisma.dosenPraktikum.findMany({
           where: { idPraktikum: idPraktikumInt },
           select: {
@@ -95,22 +117,22 @@ export async function GET(req: NextRequest, { params }: {params: Promise<{ id: s
                 id: true,
                 nip: true,
                 nama: true,
-                jabatan: true
-              }
-            }
-          }
-        })
+                jabatan: true,
+              },
+            },
+          },
+        });
 
-        data = mapDosenData(data)
-        _count = data.length
+        data = mapDosenData(data);
+        _count = data.length;
         break;
 
       default:
         const [pesertaData, asistenData, dosenData] = await Promise.all([
           prisma.pesertaPraktikum.findMany({
-            where: {idPraktikum : idPraktikumInt},
-            select : {
-              id:true,
+            where: { idPraktikum: idPraktikumInt },
+            select: {
+              id: true,
               mahasiswa: {
                 select: {
                   id: true,
@@ -119,16 +141,16 @@ export async function GET(req: NextRequest, { params }: {params: Promise<{ id: s
                   programStudi: {
                     select: {
                       nama: true,
-                      kodeProdi: true
-                    }
-                  }
-                }
-              }
-            }
+                      kodeProdi: true,
+                    },
+                  },
+                },
+              },
+            },
           }),
           prisma.asistenPraktikum.findMany({
-            where: {idPraktikum: idPraktikumInt},
-            select : {
+            where: { idPraktikum: idPraktikumInt },
+            select: {
               id: true,
               mahasiswa: {
                 select: {
@@ -138,15 +160,15 @@ export async function GET(req: NextRequest, { params }: {params: Promise<{ id: s
                   programStudi: {
                     select: {
                       nama: true,
-                      kodeProdi: true
-                    }
-                  }
-                }
-              }
-            }
+                      kodeProdi: true,
+                    },
+                  },
+                },
+              },
+            },
           }),
           prisma.dosenPraktikum.findMany({
-            where: {idPraktikum : idPraktikumInt},
+            where: { idPraktikum: idPraktikumInt },
             select: {
               id: true,
               dosen: {
@@ -154,54 +176,56 @@ export async function GET(req: NextRequest, { params }: {params: Promise<{ id: s
                   id: true,
                   nama: true,
                   nip: true,
-                  jabatan: true
-                }
-              }
-            }
-          })
-        ])
+                  jabatan: true,
+                },
+              },
+            },
+          }),
+        ]);
 
         data = {
           peserta: mapMahasiswaData(pesertaData),
           asisten: mapMahasiswaData(asistenData),
-          dosen: mapDosenData(dosenData)
-        }
+          dosen: mapDosenData(dosenData),
+        };
         _count = {
           peserta: pesertaData.length,
           asisten: asistenData.length,
-          dosen: dosenData.length
-        }
-      }
-
-      if(!data){
-        return NextResponse.json({ type, data:[], _count }, { status: 200 });
-      }
-
-      return NextResponse.json({ type, data, _count }, { status: 200 });
-
-    }catch (error) {
-      console.error('Error fetching participants: ', error);
-      return NextResponse.json({ error: 'Failed to fetch participants' }, { status: 500 });
+          dosen: dosenData.length,
+        };
     }
-  }
 
-  const mapMahasiswaData = (item: any[]) => {
-    return item.map((data: any) => ({
-      id: data.mahasiswa.id,
-      npm: data.mahasiswa.npm,
-      nama: data.mahasiswa.nama,
-      programStudi: {
-        nama: data.mahasiswa.programStudi?.nama || 'Tidak diketahui',
-        kodeProdi: data.mahasiswa.programStudi?.kodeProdi || 'Tidak diketahui'
-      }
-    }))
-  }
+    if (!data) {
+      return NextResponse.json({ type, data: [], _count }, { status: 200 });
+    }
 
-  const mapDosenData = (item: any[]) => {
-    return item.map(data => ({
-      id: data.dosen.id,
-      nip: data.dosen.nip,
-      nama: data.dosen.nama,
-      jabatan: data.dosen.jabatan || 'Tidak diketahui'
-    }))
+    return NextResponse.json({ type, data, _count }, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching participants: ", error);
+    return NextResponse.json(
+      { error: "Failed to fetch participants" },
+      { status: 500 },
+    );
   }
+}
+
+const mapMahasiswaData = (item: MahasiswaData[]) => {
+  return item.map((data: MahasiswaData) => ({
+    id: data.mahasiswa.id,
+    npm: data.mahasiswa.npm,
+    nama: data.mahasiswa.nama,
+    programStudi: {
+      nama: data.mahasiswa.programStudi?.nama || "Tidak diketahui",
+      kodeProdi: data.mahasiswa.programStudi?.kodeProdi || "Tidak diketahui",
+    },
+  }));
+};
+
+const mapDosenData = (item: DosenData[]) => {
+  return item.map(data => ({
+    id: data.dosen.id,
+    nip: data.dosen.nip,
+    nama: data.dosen.nama,
+    jabatan: data.dosen.jabatan || "Tidak diketahui",
+  }));
+};

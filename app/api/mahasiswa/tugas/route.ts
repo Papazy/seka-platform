@@ -5,8 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
-
-    const token = req.cookies.get('token')?.value;
+    const token = req.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -17,55 +16,52 @@ export async function GET(req: NextRequest) {
     }
 
     const mahasiswaId = payload.id;
-    const {semester, year} = getCurrentYearAndSemester()
+    const { semester, year } = getCurrentYearAndSemester();
 
     const tugasData = await prisma.tugas.findMany({
       where: {
         deadline: {
-          gte: new Date() // tugas yang greate than, (deadline masih lama)
+          gte: new Date(), // tugas yang greate than, (deadline masih lama)
         },
         praktikum: {
-          semester: semester as 'GENAP' | 'GANJIL',
+          semester: semester as "GENAP" | "GANJIL",
           tahun: year,
           pesertaPraktikum: {
             some: {
-              idMahasiswa: mahasiswaId
-            }
-          }
-        }
+              idMahasiswa: mahasiswaId,
+            },
+          },
+        },
       },
-      include : {
+      include: {
         praktikum: true,
-        soal : 
-        {
+        soal: {
           include: {
-            submission: true
+            submission: true,
             // {
             //   where: {
             //     idPeserta: mahasiswaId,
             //   }
             // }
-          }
-        }
+          },
+        },
       },
       orderBy: {
-        deadline: 'asc'
-      }
+        deadline: "asc",
+      },
     });
 
-    const tugasWithTotalSoal = tugasData.map((tugas) => (
-    {
+    const tugasWithTotalSoal = tugasData.map(tugas => ({
       ...tugas,
-      totalSoal : tugas.soal.length  
-    }
-    ))
-    
+      totalSoal: tugas.soal.length,
+    }));
 
     return NextResponse.json(tugasWithTotalSoal);
-
-
   } catch (error) {
     console.error("Error fetching data:", error);
-    return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch data" },
+      { status: 500 },
+    );
   }
 }
