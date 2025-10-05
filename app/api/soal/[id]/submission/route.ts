@@ -14,7 +14,7 @@ export async function GET(
 
     const payload = await verifyToken(token);
 
-    const soalId = params.id;
+    const { id: soalId } = await params;
 
     // Get current user's peserta record
     const peserta = await prisma.pesertaPraktikum.findFirst({

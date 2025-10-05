@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
-import { Bahasa, ContohTestCase, Mahasiswa, Prisma, Submission, TestCase, TestCaseResult } from "@prisma/client";
+import { BahasaPemrograman, ContohTestCase, Mahasiswa, Prisma, Submission, TestCase, TestCaseResult } from "@prisma/client";
 
 interface SoalResponse {
   id: string;
@@ -50,7 +50,7 @@ interface SoalResponse {
 }
 
 interface SubmissionWithRelations extends Submission {
-  bahasa: Bahasa;
+  bahasa: BahasaPemrograman;
   testCaseResult: TestCaseResult[];
   peserta: {
     idMahasiswa: string;
@@ -89,9 +89,9 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
-    const tugasId = params.tugasId;
-    const soalId = params.soalId;
+    const { id: praktikumId } = await params;
+    const { tugasId } = await params;
+    const { soalId } = await params;
     const mahasiswaId = payload.id;
 
     // Check user role and access
@@ -132,16 +132,6 @@ export async function GET(
 
     // Get soal with role-based data
     const soalInclude: Prisma.SoalInclude = {
-      tugas: {
-        include: {
-          praktikum: true,
-          asisten: {
-            include: {
-              mahasiswa: true,
-            },
-          },
-        },
-      },
       contohTestCase: {
         orderBy: { id: "asc" },
       },
@@ -154,7 +144,7 @@ export async function GET(
     if (userRole === "peserta") {
       soalInclude.submission = {
         where: {
-          idPeserta: pesertaId,
+          idPeserta: pesertaId || '',
         },
         include: {
           bahasa: true,
@@ -187,6 +177,8 @@ export async function GET(
       };
     }
 
+
+
     const soal = await prisma.soal.findFirst({
       where: {
         id: soalId,
@@ -195,7 +187,18 @@ export async function GET(
           idPraktikum: praktikumId,
         },
       },
-      include: soalInclude,
+      include: {
+        ...soalInclude, 
+        tugas: {
+          include: {
+            praktikum: true,
+            asisten: {
+              include: {
+                mahasiswa: true,
+              },
+            },
+          },
+      },},
     });
 
     if (!soal) {
@@ -326,9 +329,9 @@ export async function PUT(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const praktikumId = params.id;
-    const tugasId = params.tugasId;
-    const soalId = params.soalId;
+    const { id: praktikumId } = await params;
+    const { id: tugasId } = await params;
+    const { id: soalId } = await params;
 
     // Verify user is asisten of this praktikum
     const asisten = await prisma.asistenPraktikum.findFirst({
@@ -452,8 +455,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const praktikumId = params.praktikumId;
-    const soalId = params.soalId;
+    const {  praktikumId } = await params;
+    const {  soalId } = await params;
 
     // Verify user is asisten
     const asisten = await prisma.asistenPraktikum.findFirst({

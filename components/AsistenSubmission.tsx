@@ -34,11 +34,11 @@ export default function AsistenSubmissions({
 
   // Submission peserta yang dipilih
   const pesertaSubmissions = selectedPesertaId
-    ? submissions.filter(s => s.peserta.id === selectedPesertaId)
+    ? submissions.filter((s: any) => s.peserta.id === selectedPesertaId)
     : [];
 
   // Submission detail yang dipilih
-  const submissionDetail = submissions.find(s => s.id === selectedSubmissionId);
+  const submissionDetail = submissions.find((s: any) => s.id === selectedSubmissionId);
 
   return (
     <div className="p-6">

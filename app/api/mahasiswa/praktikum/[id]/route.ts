@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
+    const { id: praktikumId } = await params;
     const mahasiswaId = payload.id;
 
     //  Check apakah mahasiswa terdaftar

@@ -8,7 +8,7 @@ interface PesertaData {
     kelas: string;
   };
 
-  dosen: Array<{ nama: string; nip: string; email: string }>;
+  dosen: Array<{ nama: string; nip?: string; role: string; email: string }>;
 
   asisten: Array<{
     id: string;
@@ -39,6 +39,7 @@ interface PesertaData {
   }>;
   userRole: "peserta" | "asisten";
 }
+
 
 const fetchPesertaData = async (praktikumId: any): Promise<PesertaData> => {
   const response = await fetch(

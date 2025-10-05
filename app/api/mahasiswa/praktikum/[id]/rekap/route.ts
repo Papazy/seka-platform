@@ -16,10 +16,10 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
+    const { id: praktikumId } = await params;
     const mahasiswaId = payload.id;
 
-    // ✅ Check access
+    //   Check access
     const [pesertaCheck, asistenCheck] = await Promise.all([
       prisma.pesertaPraktikum.findFirst({
         where: { idPraktikum: praktikumId, idMahasiswa: mahasiswaId },
@@ -35,7 +35,7 @@ export async function GET(
 
     const userRole = asistenCheck ? "asisten" : "peserta";
 
-    // ✅ Fetch praktikum info
+    //   Fetch praktikum info
     const praktikum = await prisma.praktikum.findUnique({
       where: { id: praktikumId },
       select: {
@@ -53,7 +53,7 @@ export async function GET(
       );
     }
 
-    // ✅ Fetch tugas dengan total bobot
+    //   Fetch tugas dengan total bobot
     const tugas = await prisma.tugas.findMany({
       where: { idPraktikum: praktikumId },
       include: {
@@ -68,7 +68,7 @@ export async function GET(
       orderBy: { createdAt: "asc" },
     });
 
-    // ✅ Fetch all peserta dengan submission dan nilai
+    //   Fetch all peserta dengan submission dan nilai
     const allPeserta = await prisma.pesertaPraktikum.findMany({
       where: { idPraktikum: praktikumId },
       include: {
@@ -102,7 +102,7 @@ export async function GET(
       },
     });
 
-    // ✅ Transform data dengan sistem persen per tugas
+    //   Transform data dengan sistem persen per tugas
     const pesertaData = allPeserta.map(peserta => {
       const nilaiPerTugas = tugas.map(tugasItem => {
         // Calculate total possible score for this tugas
@@ -115,7 +115,7 @@ export async function GET(
         let totalNilaiDicapai = 0;
         let submissionCount = 0;
         let hasSubmission = false;
-        let lastSubmittedAt = null;
+        let lastSubmittedAt: Date | null = null;
 
         // Get soal scores for detailed view
         const soalScores = tugasItem.soal.map(soal => {
@@ -191,7 +191,7 @@ export async function GET(
       };
     });
 
-    // ✅ Calculate class statistics
+    //   Calculate class statistics
     const totalPeserta = pesertaData.length;
     const rataRataKelas =
       totalPeserta > 0
@@ -234,7 +234,7 @@ export async function GET(
       current.rataRata < lowest.rataRata ? current : lowest,
     );
 
-    // ✅ Transform tugas untuk response
+    //   Transform tugas untuk response
     const tugasResponse = tugas.map(t => ({
       id: t.id,
       judul: t.judul,

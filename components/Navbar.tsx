@@ -12,7 +12,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // ✅ Get real user data and auth functions
+  //   Get real user data and auth functions
   const { user, logout, isLoading } = useAuth();
 
   const getNavLinks = () => {
@@ -235,14 +235,14 @@ export default function Navbar() {
                 onClick={handleProfileClick}
                 className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-50 transition-colors"
               >
-                {/* ✅ Real user avatar with initials */}
+                {/*   Real user avatar with initials */}
                 <div className="w-8 h-8 bg-[#3ECF8E] rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
                     {getUserInitials(user.nama)}
                   </span>
                 </div>
 
-                {/* ✅ Real user info */}
+                {/*   Real user info */}
                 <div className="hidden md:block text-left">
                   <div className="text-sm font-medium text-gray-900">
                     {user.nama}
@@ -270,14 +270,14 @@ export default function Navbar() {
               {/* Dropdown Menu */}
               {isProfileOpen && (
                 <>
-                  {/* ✅ Backdrop to close dropdown */}
+                  {/*   Backdrop to close dropdown */}
                   <div
                     className="fixed inset-0 z-40"
                     onClick={() => setIsProfileOpen(false)}
                   />
 
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                    {/* ✅ Real user info in dropdown */}
+                    {/*   Real user info in dropdown */}
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-900">
                         {user.nama}
@@ -288,7 +288,7 @@ export default function Navbar() {
                       </p>
                     </div>
 
-                    {/* ✅ Profile actions */}
+                    {/*   Profile actions */}
                     <button
                       onClick={() => {
                         setIsProfileOpen(false);

@@ -46,7 +46,7 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
+    const { id: praktikumId } = await params;
     const mahasiswaId = payload.id;
 
     // Check if user is asisten of this praktikum
@@ -91,7 +91,7 @@ export async function POST(
 
       // 1.5 Create tugasBahasa for each selected bahasa
       if (tugasData.selectedBahasa && tugasData.selectedBahasa.length > 0) {
-        const tugasBahasaData = tugasData.selectedBahasa.map(
+        const tugasBahasaData: any = tugasData.selectedBahasa.map(
           (idBahasa: number) => ({
             idTugas: tugas.id,
             idBahasa,

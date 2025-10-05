@@ -12,10 +12,11 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const payload = await verifyToken(token);
     const idMahasiswa = payload.id;
+    const {soalId} = await params;
 
     // Cek apakah user adalah asisten di praktikum soal ini
     const soal = await prisma.soal.findUnique({
-      where: { id: params.soalId },
+      where: { id: soalId },
       select: { idTugas: true, tugas: { select: { idPraktikum: true } } },
     });
     if (!soal)
@@ -35,7 +36,7 @@ export async function GET(
 
     // Ambil semua submission pada soal ini
     const submissions = await prisma.submission.findMany({
-      where: { idSoal: params.soalId },
+      where: { idSoal: soalId },
       include: {
         peserta: {
           include: { mahasiswa: true },

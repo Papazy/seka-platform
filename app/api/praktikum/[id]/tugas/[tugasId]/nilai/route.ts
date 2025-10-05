@@ -13,6 +13,8 @@ export async function PATCH(
     const payload = await verifyToken(token);
     const idMahasiswa = payload.id;
 
+    const {id, tugasId} = await params;
+
     const { pesertaId, totalNilai } = await req.json();
 
     // Cek asisten
@@ -20,7 +22,7 @@ export async function PATCH(
       where: {
         idMahasiswa_idPraktikum: {
           idMahasiswa,
-          idPraktikum: params.id,
+          idPraktikum: id,
         },
       },
     });
@@ -32,7 +34,7 @@ export async function PATCH(
       where: {
         idPeserta_idTugas: {
           idPeserta: pesertaId,
-          idTugas: params.tugasId,
+          idTugas: tugasId,
         },
       },
     });
@@ -47,7 +49,7 @@ export async function PATCH(
       updated = await prisma.nilaiTugas.create({
         data: {
           idPeserta: pesertaId,
-          idTugas: params.tugasId,
+          idTugas: tugasId,
           totalNilai,
         },
       });

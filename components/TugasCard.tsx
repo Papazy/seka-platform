@@ -10,7 +10,7 @@ const TugasCard = ({
   return (
     <Link
       href={`/mahasiswa/praktikum/${praktikumId}/tugas/${tugas.id}`}
-      prefetch // ✅ Prefetch otomatis
+      prefetch //   Prefetch otomatis
       className="border rounded p-4 cursor-pointer hover:border-gray-400 block"
     >
       <div className="flex justify-between items-start mb-2">

@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const mahasiswaId = params.id;
+    const { id: mahasiswaId } = await params;
 
     const mahasiswa = await prisma.mahasiswa.findUnique({
       where: { id: mahasiswaId },
@@ -160,7 +160,7 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const mahasiswaId = params.id;
+    const { id: mahasiswaId } = await params;
     const body = await request.json();
 
     // Validasi input
@@ -262,7 +262,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const mahasiswaId = params.id;
+    const { id: mahasiswaId } = await params;
 
     // Cek apakah mahasiswa exists
     const existingMahasiswa = await prisma.mahasiswa.findUnique({

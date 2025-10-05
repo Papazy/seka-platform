@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       // Validasi kolom wajib
       switch (type) {
         case "dosen":
-          const requiredFieldsDosen = ["nip", "nama", "praktikum", "kelas"];
+          const requiredFieldsDosen: (keyof ParticipantCsvRow)[] = ["nip", "nama", "praktikum", "kelas"];
           for (const field of requiredFieldsDosen) {
             if (!row[field]) {
               errors.push(
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
           break;
         case "peserta":
         case "asisten":
-          const requiredFieldsPeserta = ["npm", "nama", "praktikum", "kelas"];
+          const requiredFieldsPeserta: (keyof ParticipantCsvRow)[] = ["npm", "nama", "praktikum", "kelas"];
           for (const field of requiredFieldsPeserta) {
             if (!row[field]) {
               errors.push(

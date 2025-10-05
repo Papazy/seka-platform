@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const soalId = params.id;
+    const { id: soalId } = await params;
 
     // Get top 10 submissions for this soal with highest scores
     const topSubmissions = await prisma.submission.findMany({

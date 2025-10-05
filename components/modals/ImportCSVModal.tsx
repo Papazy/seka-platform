@@ -148,7 +148,7 @@ export function ImportCSVModal({
         );
         if (result.errors && result.errors.length > 0) {
           setErrors(result.errors);
-          toast.warning(
+          toast.error(
             `Ada ${result.errors.length} error yang perlu diperhatikan`,
           );
         } else {

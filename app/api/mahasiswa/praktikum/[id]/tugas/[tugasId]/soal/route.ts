@@ -32,7 +32,7 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const tugasId = params.tugasId;
+    const { tugasId: tugasId } = await params;
     const soalData: CreateSoalRequest = await req.json();
 
     // Verify user is asisten of this tugas

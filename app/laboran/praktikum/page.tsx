@@ -56,7 +56,7 @@ export default function PraktikumPage() {
   const [filterActive, setFilterActive] = useState<boolean | null>(null);
   const [filterSemester, setFilterSemester] = useState<string>("");
   const [showImportModal, setShowImportModal] = useState(false);
-  const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
+  const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
 
   const router = useRouter();

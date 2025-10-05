@@ -20,8 +20,8 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
-    const soalId = params.soalId;
+    const { id: praktikumId } = await params;
+    const { id: soalId } = await params;
     const mahasiswaId = payload.id;
 
     // Get user's submissions for this soal
@@ -45,7 +45,6 @@ export async function GET(
     const formattedSubmissions = submissions.map(sub => ({
       id: sub.id,
       score: sub.score,
-      attemptNumber: sub.attemptNumber,
       submittedAt: sub.submittedAt.toISOString(),
       sourceCode: sub.sourceCode,
       bahasa: sub.bahasa,

@@ -64,7 +64,7 @@ export default function ManageParticipantsPage() {
     "peserta",
   );
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedParticipants, setSelectedParticipants] = useState<number[]>(
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
     [],
   );
 
@@ -541,7 +541,7 @@ export default function ManageParticipantsPage() {
       <AddParticipantModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onSuccess={handleAddParticipant}
+        handleAddParticipants={handleAddParticipant}
         type={activeTab}
         praktikumId={id}
       />
@@ -558,7 +558,7 @@ export default function ManageParticipantsPage() {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={() =>
-          deleteTarget && handleRemoveParticipant(deleteTarget.id)
+          handleRemoveParticipant(deleteTarget?.id || '')
         }
         title={`Hapus ${getTabLabel(activeTab)}`}
         message={`Apakah Anda yakin ingin menghapus ${deleteTarget?.nama} dari praktikum ini?`}

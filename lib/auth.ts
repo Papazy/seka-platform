@@ -43,9 +43,9 @@ export async function comparePassword(password: string, hash: string) {
   return bcrypt.compare(password, hash);
 }
 
-export async function loginWithCredentials(email: string, password: string) {
+export async function loginWithCredentials(credential: string, password: string) {
   // cek admin
-  const admin = await prisma.admin.findUnique({ where: { email } });
+  const admin = await prisma.admin.findUnique({ where: { email: credential } });
   if (admin && (await comparePassword(password, admin.password))) {
     const token = await signToken({
       id: admin.id,
@@ -65,7 +65,7 @@ export async function loginWithCredentials(email: string, password: string) {
   }
 
   // cek laboran
-  const laboran = await prisma.laboran.findUnique({ where: { email } });
+  const laboran = await prisma.laboran.findUnique({ where: { email: credential } });
   if (laboran && (await comparePassword(password, laboran.password))) {
     const token = await signToken({
       id: laboran.id,
@@ -85,7 +85,7 @@ export async function loginWithCredentials(email: string, password: string) {
   }
 
   // cek dosen
-  const dosen = await prisma.dosen.findUnique({ where: { email } });
+  const dosen = await prisma.dosen.findFirst({ where: {OR: [{ email: credential }, {nip: credential}]} });
   if (dosen && (await comparePassword(password, dosen.password))) {
     const token = await signToken({
       id: dosen.id,
@@ -105,7 +105,7 @@ export async function loginWithCredentials(email: string, password: string) {
   }
 
   // cek mahasiswa
-  const mahasiswa = await prisma.mahasiswa.findUnique({ where: { email } });
+  const mahasiswa = await prisma.mahasiswa.findFirst({ where: {OR: [{ email: credential }, {npm: credential}]} });
   if (mahasiswa && (await comparePassword(password, mahasiswa.password))) {
     const token = await signToken({
       id: mahasiswa.id,

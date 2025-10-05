@@ -56,9 +56,6 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-   // Relasi wajib untuk NextAuth
-  accounts Account[]
-  sessions Session[]
 }
 
 // 1. Admin

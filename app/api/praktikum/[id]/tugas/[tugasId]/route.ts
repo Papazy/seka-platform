@@ -18,8 +18,8 @@ export async function PUT(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const praktikumId = params.id;
-    const tugasId = params.tugasId;
+    const { id: praktikumId } = await params;
+    const { id: tugasId } = await params;
 
     // Check if user is asisten for this praktikum
     const asisten = await prisma.asistenPraktikum.findFirst({

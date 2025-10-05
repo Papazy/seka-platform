@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const idPraktikum = params.id;
+    const { id: idPraktikum } = await params;
 
     const token = req.cookies.get("token")?.value;
     if (!token) {

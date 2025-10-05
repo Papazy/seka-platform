@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const soalId = params.id;
+    const { id: soalId } = await params;
     const soal = await prisma.soal.findUnique({
       where: {
         id: soalId,

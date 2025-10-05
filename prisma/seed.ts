@@ -1,16 +1,11 @@
 // prisma/seed.ts
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Semester } from "@prisma/client";
 import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
-const Semester = {
-  GANJIL: "GANJIL",
-  GENAP: "GENAP",
-};
-
 async function main() {
   console.log("🌱 Starting seed...");
-
+  
   // Helper function untuk hash password
   const hashPassword = async (password: string) => {
     return await bcrypt.hash(password, 10);
@@ -20,7 +15,7 @@ async function main() {
   console.log("📊 Seeding system settings...");
   await prisma.pengaturanSistem.create({
     data: {
-      currentSemester: Semester.GANJIL,
+      currentSemester: Semester.GANJIL as Semester,
       currentYear: 2025,
     },
   });
@@ -655,6 +650,7 @@ async function main() {
       create: {
         ...praktikum,
         idLaboran: laboran!.id,
+         semester: praktikum.semester as Semester,
       },
     });
   }
@@ -2465,6 +2461,7 @@ elif op == "/":
         idTugas: tugas.id,
         idBahasa: bahasa.id,
       })),
+      skipDuplicates: true
     });
   }
 

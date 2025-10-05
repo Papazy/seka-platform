@@ -59,7 +59,7 @@ export async function GET(
     switch (type) {
       case "peserta":
         data = await prisma.pesertaPraktikum.findMany({
-          where: { idPraktikum: idPraktikumInt },
+          where: { idPraktikum: idPraktikum },
           select: {
             id: true,
             mahasiswa: {
@@ -85,7 +85,7 @@ export async function GET(
         break;
       case "asisten":
         data = await prisma.asistenPraktikum.findMany({
-          where: { idPraktikum: idPraktikumInt },
+          where: { idPraktikum: idPraktikum },
           select: {
             id: true,
             mahasiswa: {
@@ -109,7 +109,7 @@ export async function GET(
         break;
       case "dosen":
         data = await prisma.dosenPraktikum.findMany({
-          where: { idPraktikum: idPraktikumInt },
+          where: { idPraktikum: idPraktikum },
           select: {
             id: true,
             dosen: {
@@ -130,7 +130,7 @@ export async function GET(
       default:
         const [pesertaData, asistenData, dosenData] = await Promise.all([
           prisma.pesertaPraktikum.findMany({
-            where: { idPraktikum: idPraktikumInt },
+            where: { idPraktikum: idPraktikum },
             select: {
               id: true,
               mahasiswa: {
@@ -149,7 +149,7 @@ export async function GET(
             },
           }),
           prisma.asistenPraktikum.findMany({
-            where: { idPraktikum: idPraktikumInt },
+            where: { idPraktikum: idPraktikum },
             select: {
               id: true,
               mahasiswa: {
@@ -168,7 +168,7 @@ export async function GET(
             },
           }),
           prisma.dosenPraktikum.findMany({
-            where: { idPraktikum: idPraktikumInt },
+            where: { idPraktikum: idPraktikum },
             select: {
               id: true,
               dosen: {

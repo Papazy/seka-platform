@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       const rowNum = index + 2; // +2 because CSV starts from row 2 (after header)
 
       // Validate required fields
-      const requiredFields = [
+      const requiredFields: (keyof DosenCsvRow)[] = [
         "nip",
         "nama",
         "email",

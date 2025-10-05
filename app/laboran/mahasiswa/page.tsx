@@ -65,7 +65,7 @@ export default function MahasiswaPage() {
   const [programStudiList, setProgramStudiList] = useState<ProgramStudi[]>([]);
   const [fakultasList, setFakultasList] = useState<Fakultas[]>([]);
   const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
-  const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
+  const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {

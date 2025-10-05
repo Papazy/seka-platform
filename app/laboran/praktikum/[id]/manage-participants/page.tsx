@@ -11,7 +11,7 @@ import {
   UserGroupIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import { set } from "ace-builds-internal/config";
+// import { set } from "ace-builds-internal/config";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -37,9 +37,9 @@ interface PraktikumData {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  pesertaPraktikum: mahasiswaPraktikum[];
-  asistenPraktikum: mahasiswaPraktikum[];
-  dosenPraktikum: dosenPraktikum[];
+  pesertaPraktikum: MahasiswaData[];
+  asistenPraktikum: MahasiswaData[];
+  dosenPraktikum: DosenData[];
   _count: {
     pesertaPraktikum: number;
     asistenPraktikum: number;
@@ -47,7 +47,7 @@ interface PraktikumData {
   };
 }
 
-interface mahasiswaPraktikum {
+export interface MahasiswaData {
   id: string;
   npm: string;
   nama: string;
@@ -57,7 +57,7 @@ interface mahasiswaPraktikum {
   };
 }
 
-interface dosenPraktikum {
+export interface DosenData {
   id: string;
   nama: string;
   nip: string;
@@ -69,16 +69,16 @@ export default function ManageParticipantsPage() {
   const id = params.id as string;
 
   const [participants, setParticipants] = useState({
-    pesertaPraktikum: [] as mahasiswaPraktikum[],
-    asistenPraktikum: [] as mahasiswaPraktikum[],
-    dosenPraktikum: [] as dosenPraktikum[],
+    pesertaPraktikum: [] as MahasiswaData[],
+    asistenPraktikum: [] as MahasiswaData[],
+    dosenPraktikum: [] as DosenData[],
   });
   const [praktikum, setPraktikum] = useState<PraktikumData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"asisten" | "peserta" | "dosen">(
     "peserta",
   );
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isSelectedAll, setIsSelectedAll] = useState(false);
   const [isOpenAddModal, setIsOpenAddModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
@@ -90,7 +90,7 @@ export default function ManageParticipantsPage() {
     setIsSelectedAll(false); // Reset
   };
 
-  const handleSelectIds = (ids: number[]) => {
+  const handleSelectIds = (ids: string[]) => {
     setSelectedIds(ids);
     // setIsSelectedAll(ids.length === participants[getTabKey(activeTab)].length)
   };
@@ -490,11 +490,19 @@ export default function ManageParticipantsPage() {
 
         <div className="p-6">
           {participants[getTabKey(activeTab)]?.length > 0 ? (
-            <DataTable
-              columns={columns}
-              data={participants[getTabKey(activeTab)]}
-              showSearch={false}
-            />
+            activeTab === "dosen" ? (
+              <DataTable
+                columns={createDosenColumns({ selectedIds, handleSelectIds, onClickDelete })}
+                data={participants.dosenPraktikum}
+                showSearch={false}
+              />
+            ) : (
+              <DataTable
+                columns={createMahasiswaColumns({ selectedIds, handleSelectIds, onClickDelete })}
+                data={activeTab === "peserta" ? participants.pesertaPraktikum : participants.asistenPraktikum}
+                showSearch={false}
+              />
+            )
           ) : (
             <div className="text-gray-500 text-sm py-8 text-center w-full">
               Tidak ada {getTabLabel(activeTab)} yang ditemukan.

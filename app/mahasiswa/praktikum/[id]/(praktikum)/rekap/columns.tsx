@@ -26,7 +26,7 @@ interface PesertaNilai {
   totalTugas: number;
 }
 
-// ✅ Columns untuk rekap seluruh kelas
+//   Columns untuk rekap seluruh kelas
 export const createRekapColumns = (
   tugasList: Array<{ id: string; judul: string }>,
 ): ColumnDef<PesertaNilai>[] => [
@@ -78,7 +78,7 @@ export const createRekapColumns = (
   },
 ];
 
-// ✅ Columns untuk tugas spesifik (per soal)
+//   Columns untuk tugas spesifik (per soal)
 export const createSingleTugasColumns = (
   tugas: { id: string; judul: string; totalSoal: number; totalBobot: number },
   soalList: Array<{ id: string; judul: string; bobotNilai: number }>,

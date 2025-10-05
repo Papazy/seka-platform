@@ -12,10 +12,11 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const payload = await verifyToken(token);
     const idMahasiswa = payload.id;
+    const {submissionId} = await params;
 
     // Cek submission dan soal
     const submission = await prisma.submission.findUnique({
-      where: { id: params.submissionId },
+      where: { id: submissionId },
       include: {
         soal: { include: { tugas: true } },
       },
@@ -42,7 +43,7 @@ export async function PATCH(
     // Update score
     const { score } = await req.json();
     const updated = await prisma.submission.update({
-      where: { id: params.submissionId },
+      where: { id: submissionId },
       data: { score },
     });
 

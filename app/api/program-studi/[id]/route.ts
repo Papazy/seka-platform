@@ -22,7 +22,7 @@ export async function PUT(
     }
 
     const { nama, kodeProdi, idFakultas } = await req.json();
-    const programStudiId = params.id;
+    const { id: programStudiId } = await params;
 
     if (!nama || !kodeProdi || !idFakultas) {
       return NextResponse.json(
@@ -100,7 +100,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const programStudiId = params.id;
+    const { id: programStudiId } = await params;
 
     // Check if program studi has students or lecturers
     const counts = await prisma.programStudi.findUnique({

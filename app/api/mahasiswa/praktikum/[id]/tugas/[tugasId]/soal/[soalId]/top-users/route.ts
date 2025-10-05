@@ -20,8 +20,8 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
-    const soalId = params.soalId;
+    const { id: praktikumId } = await params;
+    const { id: soalId } = await params;
 
     // Get best submissions per user
     const bestSubmissions = await prisma.submission.findMany({

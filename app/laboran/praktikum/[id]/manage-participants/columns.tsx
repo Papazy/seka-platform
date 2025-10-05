@@ -2,27 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { ColumnDef } from "@tanstack/react-table";
-
-interface MahasiswaData {
-  id: string;
-  npm: string;
-  nama: string;
-  programStudi: {
-    nama: string;
-    kodeProdi: string;
-  };
-}
-
-interface DosenData {
-  id: string;
-  nama: string;
-  nip: string;
-  jabatan: string;
-}
+import { MahasiswaData, DosenData } from "./page";
 
 interface CreateColumnsProps {
-  selectedIds: number[];
-  handleSelectIds: (ids: number[]) => void;
+  selectedIds: string[];
+  handleSelectIds: (ids: string[]) => void;
   onClickDelete: () => void;
 }
 
@@ -60,7 +44,7 @@ export const createMahasiswaColumns = ({
         }}
         aria-label="Select row"
       />
-    ),
+    ),        
   },
   {
     header: "No",

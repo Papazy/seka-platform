@@ -5,11 +5,11 @@ const AssistantPanel = () => {
     // Logic to add a new assignment
   };
 
-  const handleEditAssignment = assignmentId => {
+  const handleEditAssignment = (assignmentId: string) => {
     // Logic to edit an existing assignment
   };
 
-  const handleDeleteAssignment = assignmentId => {
+  const handleDeleteAssignment = (assignmentId: string) => {
     // Logic to delete an assignment
   };
 
@@ -26,8 +26,8 @@ const AssistantPanel = () => {
       <div>
         {/* This should be replaced with actual assignment data */}
         {[
-          { id: 1, title: "Assignment 1" },
-          { id: 2, title: "Assignment 2" },
+          { id: '1', title: "Assignment 1" },
+          { id: '2', title: "Assignment 2" },
         ].map(assignment => (
           <div
             key={assignment.id}

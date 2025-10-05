@@ -6,7 +6,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const soalId = params.id;
+    const { id: soalId } = await params;
     const { sourceCode, languageId, testCases } = await request.json();
 
     if (!sourceCode || !languageId) {

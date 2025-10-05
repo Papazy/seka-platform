@@ -29,7 +29,7 @@ export default function SubmissionsList({
   getStatusColor,
   formatDate,
 }: SubmissionsListProps) {
-  const [expandedSubmission, setExpandedSubmission] = useState<number | null>(
+  const [expandedSubmission, setExpandedSubmission] = useState<string | null>(
     null,
   );
 
@@ -75,7 +75,7 @@ export default function SubmissionsList({
     }
   };
 
-  // ✅ Fix status colors for consistent display
+  //   Fix status colors for consistent display
   const getSubmissionStatusColor = (status: string) => {
     switch (status.toUpperCase()) {
       case "ACCEPTED":

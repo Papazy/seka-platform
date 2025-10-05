@@ -18,11 +18,11 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
-    const tugasId = params.tugasId;
+    const { id: praktikumId } = await params;
+    const { id: tugasId } = await params;
     const mahasiswaId = payload.id;
 
-    // ✅ Check akses ke praktikum
+    //   Check akses ke praktikum
     const [pesertaCheck, asistenCheck] = await Promise.all([
       prisma.pesertaPraktikum.findFirst({
         where: {
@@ -48,7 +48,7 @@ export async function GET(
     const userRole = asistenCheck ? "asisten" : "peserta";
     const pesertaId = pesertaCheck?.id;
 
-    // ✅ Fetch detail tugas sesuai schema
+    //   Fetch detail tugas sesuai schema
     const tugas = await prisma.tugas.findFirst({
       where: {
         id: tugasId,
@@ -131,10 +131,10 @@ export async function GET(
       return NextResponse.json({ error: "Tugas not found" }, { status: 404 });
     }
 
-    // ✅ Check deadline
+    //   Check deadline
     const isOverdue = new Date() > new Date(tugas.deadline);
 
-    // ✅ Calculate stats for asisten
+    //   Calculate stats for asisten
     let submissionStats = null;
     if (userRole === "asisten") {
       const allSubmissions = await prisma.submission.findMany({
@@ -168,7 +168,7 @@ export async function GET(
       };
     }
 
-    // ✅ Transform data untuk frontend
+    //   Transform data untuk frontend
     const response = {
       id: tugas.id,
       judul: tugas.judul,
@@ -187,15 +187,15 @@ export async function GET(
       soal: tugas.soal.map(s => {
         // Calculate user's best score for this soal (peserta only)
         let bestSubmission = null;
-        let userSubmissions = [];
+        let userSubmissions: any = [];
 
         if (userRole === "peserta" && s.submission) {
           userSubmissions = s.submission;
-          bestSubmission = s.submission.reduce(
-            (best, current) =>
-              current.score > (best?.score || 0) ? current : best,
-            null,
-          );
+          bestSubmission = s.submission.length > 0 
+            ? s.submission.reduce((best, current) =>
+                current.score > best.score ? current : best
+              )
+            : null;
         }
 
         return {
@@ -219,13 +219,13 @@ export async function GET(
           totalTestCase: s.testCase.length,
           // Untuk peserta
           ...(userRole === "peserta" && {
-            userSubmissions: userSubmissions.map(sub => ({
+            userSubmissions: userSubmissions.map((sub: any) => ({
               id: sub.id,
               score: sub.score,
               attemptNumber: sub.attemptNumber,
               submittedAt: sub.submittedAt,
               bahasa: sub.bahasa,
-              testCaseResults: sub.testCaseResult.map(tcr => ({
+              testCaseResults: sub.testCaseResult.map((tcr: any) => ({
                 status: tcr.status,
                 outputDihasilkan: tcr.outputDihasilkan,
                 waktuEksekusiMs: tcr.waktuEksekusiMs,

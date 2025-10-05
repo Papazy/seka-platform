@@ -32,8 +32,8 @@ interface CreateColumnsProps {
     participantId: string,
     newRole: "peserta" | "asisten",
   ) => void;
-  selectedIds: number[];
-  onSelectionChange: (ids: number[]) => void;
+  selectedIds: string[];
+  onSelectionChange: (ids: string[]) => void;
 }
 
 export function createParticipantColumns({

@@ -19,7 +19,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
+    const { id: praktikumId } = await params;
 
     // Cek apakah praktikum ada
     const praktikum = await prisma.praktikum.findUnique({
@@ -63,7 +63,7 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
+    const { id: praktikumId } = await params;
 
     const praktikum = await prisma.praktikum.findUnique({
       where: { id: praktikumId },
@@ -148,7 +148,7 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const praktikumId = params.id;
+    const { id: praktikumId } = await params;
     const body = await request.json();
 
     // Validasi input

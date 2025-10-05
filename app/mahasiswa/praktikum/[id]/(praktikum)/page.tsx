@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import TugasCard from "@/components/TugasCard";
 
-// ✅ Keep existing interface
+//   Keep existing interface
 interface PraktikumDetail {
   id: string;
   nama: string;
