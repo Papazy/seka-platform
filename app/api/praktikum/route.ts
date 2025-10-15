@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
-import { getCurrentYearAndSemester } from "@/lib/getCurrentYearAndSemester";
+import { getCurrentSemester } from "../utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -40,11 +40,11 @@ export async function GET(request: NextRequest) {
     });
 
     // set aktif atau tidak berdasarkan tahun dan semester sekarang
-    const currentData = getCurrentYearAndSemester();
+    const currentData = await getCurrentSemester();
 
     praktikum.forEach(p => {
       p.isActive =
-        p.tahun === currentData.year && p.semester === currentData.semester;
+        p.tahun === currentData.tahun && p.semester === currentData.semester;
     });
 
     return NextResponse.json({ data: praktikum });

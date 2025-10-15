@@ -23,7 +23,7 @@ interface SoalFormData {
 }
 
 interface ContohTestCase {
-  id?: number;
+  id?: string;
   contohInput: string;
   contohOutput: string;
   penjelasanInput: string;
@@ -31,7 +31,7 @@ interface ContohTestCase {
 }
 
 interface TestCase {
-  id?: number;
+  id?: string;
   input: string;
   outputDiharapkan: string;
 }

@@ -6,9 +6,10 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import ToggleViewMode from "@/components/ToggleViewMode";
-import { getCurrentYearAndSemester } from "@/lib/getCurrentYearAndSemester";
+import { useCurrentYearAndSemester } from "@/lib/useCurrentYearAndSemester";
 import { usePraktikumMahasiswa } from "@/hooks/usePraktikumMahasiswa";
 import { useViewMode } from "@/contexts/ViewModeContext";
+import { useSemester } from "@/hooks/useAktifSemester";
 
 type ViewMode = "grid" | "list";
 type FilterType = "all" | "active";
@@ -25,6 +26,7 @@ export default function PraktikumPage() {
     error: praktikumError,
     refetch: refetchPraktikum,
   } = usePraktikumMahasiswa(activeFilter);
+  const { activeSemester } = useSemester();
 
   const filterBySearch = (praktikumList: Praktikum[]) => {
     if (!Array.isArray(praktikumList)) return [];
@@ -47,9 +49,8 @@ export default function PraktikumPage() {
     if (activeFilter === "all") {
       return praktikumList;
     }
-    const { semester, year } = getCurrentYearAndSemester();
     return praktikumList.filter(
-      praktikum => praktikum.semester === semester && praktikum.tahun === year,
+      praktikum => praktikum.semester === activeSemester?.semester && praktikum.tahun === activeSemester?.tahun,
     );
   };
 

@@ -42,7 +42,7 @@ export default function TugasDetailPage() {
     );
   }
 
-  const role = isAsisten(praktikumId) ? "ASISTEN" : "PESERTA";
+  const role = isAsisten(praktikumId as string) ? "ASISTEN" : "PESERTA";
 
   // Error state
   if (error || !tugas) {

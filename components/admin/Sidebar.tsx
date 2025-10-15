@@ -4,17 +4,17 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  HomeIcon,
-  UsersIcon,
-  AcademicCapIcon,
-  BuildingOfficeIcon,
-  Bars3Icon,
-  XMarkIcon,
-  ArrowRightOnRectangleIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "@heroicons/react/24/outline";
+
+import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
+import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
+import AcademicCapIcon from "@heroicons/react/24/outline/AcademicCapIcon";
+import BuildingOfficeIcon from "@heroicons/react/24/outline/BuildingOfficeIcon";
+import Bars3Icon from "@heroicons/react/24/outline/Bars3Icon";
+import XMarkIcon from "@heroicons/react/24/outline/XMarkIcon";
+import ArrowRightOnRectangleIcon from "@heroicons/react/24/outline/ArrowRightOnRectangleIcon";
+import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
+import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
+
 import { Button } from "@/components/ui/button";
 
 interface SidebarItem {
@@ -26,6 +26,12 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   { name: "Dashboard", href: "/admin", icon: HomeIcon, shortName: "Home" },
+  {
+    name: "Semester Aktif",
+    href: "/admin/semester",
+    icon: BuildingOfficeIcon,
+    shortName: "Sem",
+  },
   {
     name: "Laboran",
     href: "/admin/laboran",

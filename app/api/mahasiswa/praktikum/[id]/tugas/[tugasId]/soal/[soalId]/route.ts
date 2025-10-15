@@ -330,8 +330,8 @@ export async function PUT(
     }
 
     const { id: praktikumId } = await params;
-    const { id: tugasId } = await params;
-    const { id: soalId } = await params;
+    const { tugasId: tugasId } = await params;
+    const { soalId: soalId } = await params;
 
     // Verify user is asisten of this praktikum
     const asisten = await prisma.asistenPraktikum.findFirst({

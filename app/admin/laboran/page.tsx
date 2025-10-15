@@ -11,7 +11,7 @@ import LaboranForm from "@/components/forms/LaboranForm";
 import { PlusIcon, UsersIcon } from "@heroicons/react/24/outline";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 
-export default function AdminDashboard() {
+export default function AdminLaboranDashboard() {
   const [data, setData] = useState<Laboran[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLaboran, setSelectedLaboran] = useState<Laboran | null>(null);
@@ -187,13 +187,13 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
+    <div className="p-8">
+      <div className="">
+        <div className="px-4 sm:px-0">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
-              Admin Dashboard
+              Kelola Laboran
             </h1>
             <p className="mt-2 text-gray-600">Kelola Laboran di SEKA.</p>
           </div>

@@ -1,7 +1,7 @@
 import { verifyToken } from "@/lib/auth";
-import { getCurrentYearAndSemester } from "@/lib/getCurrentYearAndSemester";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getCurrentSemester } from "../../utils";
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     }
 
     const mahasiswaId = payload.id;
-    const { semester, year } = getCurrentYearAndSemester();
+    const { semester, tahun } = await getCurrentSemester();
 
     const tugasData = await prisma.tugas.findMany({
       where: {
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         },
         praktikum: {
           semester: semester as "GENAP" | "GANJIL",
-          tahun: year,
+          tahun: tahun ?? 2003,
           pesertaPraktikum: {
             some: {
               idMahasiswa: mahasiswaId,

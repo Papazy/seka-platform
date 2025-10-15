@@ -3,12 +3,12 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  UsersIcon,
-  BuildingOfficeIcon,
-  AcademicCapIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
+import PlusIcon from "@heroicons/react/24/outline/PlusIcon";
+
+import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
+import AcademicCapIcon from "@heroicons/react/24/outline/AcademicCapIcon";
+import BuildingOfficeIcon from "@heroicons/react/24/outline/BuildingOfficeIcon";
+
 import Link from "next/link";
 
 interface DashboardStats {

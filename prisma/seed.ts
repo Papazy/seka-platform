@@ -3,6 +3,28 @@ import { PrismaClient, Semester } from "@prisma/client";
 import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
+async function clearDatabase() {
+  console.log("🧹 Clearing existing data...")
+  await prisma.$transaction([
+    prisma.submission.deleteMany(),
+    prisma.nilaiTugas.deleteMany(),
+    prisma.soal.deleteMany(),
+    prisma.tugas.deleteMany(),
+    prisma.pesertaPraktikum.deleteMany(),
+    prisma.asistenPraktikum.deleteMany(),
+    prisma.dosenPraktikum.deleteMany(),
+    prisma.praktikum.deleteMany(),
+    prisma.mahasiswa.deleteMany(),
+    prisma.dosen.deleteMany(),
+    prisma.laboran.deleteMany(),
+    prisma.admin.deleteMany(),
+    prisma.bahasaPemrograman.deleteMany(),
+    prisma.programStudi.deleteMany(),
+    prisma.fakultas.deleteMany(),
+    prisma.pengaturanSistem.deleteMany(),
+    ]);
+}
+
 async function main() {
   console.log("🌱 Starting seed...");
   
@@ -2491,12 +2513,15 @@ elif op == "/":
   console.log(`Mahasiswa: mahasiswa123`);
 }
 
-main()
+
+clearDatabase().then(async () => {
+  await main();
+  })
   .then(async () => {
-    await prisma.$disconnect();
+  await prisma.$disconnect();
   })
   .catch(async e => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
+  console.error(e);
+  await prisma.$disconnect();
+  process.exit(1);
   });

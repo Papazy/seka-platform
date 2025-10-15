@@ -18,8 +18,10 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    console.log("MASUK KESINI")
+
     const { id: praktikumId } = await params;
-    const { id: tugasId } = await params;
+    const { tugasId: tugasId } = await params;
     const mahasiswaId = payload.id;
 
     //   Check akses ke praktikum
@@ -126,7 +128,7 @@ export async function GET(
         }),
       },
     });
-
+    console.log("TUGAS:", tugas);
     if (!tugas) {
       return NextResponse.json({ error: "Tugas not found" }, { status: 404 });
     }

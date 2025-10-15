@@ -1,7 +1,7 @@
 import { verifyToken } from "@/lib/auth";
-import { getCurrentYearAndSemester } from "@/lib/getCurrentYearAndSemester";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getCurrentSemester } from "../../utils";
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,13 +17,13 @@ export async function GET(req: NextRequest) {
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
+    console.log("MASUK KESINI")
     const mahasiswaId = payload.id;
-    const { semester, year } = getCurrentYearAndSemester();
+    const { semester, tahun } = await getCurrentSemester();
 
     const praktikumFilter =
       filter === "active"
-        ? { semester: semester as "GENAP" | "GANJIL", tahun: year }
+        ? { semester: semester ?? 'GANJIL', tahun : tahun ?? 2003 }
         : {};
 
     const [pesertaPraktikum, asistenPraktikum] = await Promise.all([

@@ -15,20 +15,37 @@ import { useRolePraktikum } from "@/contexts/RolePraktikumContext";
 import AsistenSubmissions from "@/components/AsistenSubmission";
 import TopScoreSidebar from "@/components/TopScoreSidebar";
 
-interface TestResult {
-  status: "finished" | "compile_error" | "runtime_error";
-  total_case: number;
-  total_case_benar: number;
-  results?: Array<{
-    input: string;
-    expected_output: string;
-    actual_output: string;
-    passed: boolean;
-    status: string;
-    execution_time: number;
-  }>;
-  error_message?: string;
+export interface TestResultResponse {
+  success: boolean
+  data: Data
+  message: string
 }
+
+export interface Data {
+  verdict: string
+  score: number
+  total_cases: number
+  passed_cases: number
+  total_time_ms: number
+  max_time_ms: number
+  avg_time_ms: number
+  max_memory_kb: number
+  test_results: TestResult[]
+  error_message: any
+  judged_at: string
+}
+
+export interface TestResult {
+  case_number: number
+  verdict: string
+  time_ms: number
+  memory_kb: number
+  input_data: string
+  expected_output: string
+  actual_output: string
+  error_message: any
+}
+
 
 export type RolePraktikum = "ASISTEN" | "PESERTA";
 
@@ -121,7 +138,11 @@ export default function SoalPage() {
               submissions={submissionsData}
               submissionsLoading={submissionsLoading}
               role={role}
-              params={params}
+              params={{
+                id: params.id as string,
+                tugasId: params.tugasId as string,
+                soalId: params.soalId as string,
+              }}
             />
           )}
         </div>
@@ -202,7 +223,7 @@ const ContentArea = ({
   submissions,
   submissionsLoading,
   role,
-  params,
+  params
 }: {
   activeTab: "soal" | "submission";
   soal: any;
@@ -500,7 +521,7 @@ const SubmitJawabanSidebar = ({
 }) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [testResult, setTestResult] = useState<TestResult | null>(null);
+  const [testResult, setTestResult] = useState<TestResultResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -572,7 +593,7 @@ const SubmitJawabanSidebar = ({
       }
 
       const result = await response.json();
-      console.log(result);
+      console.log("testResult", (result));
       setTestResult(result);
       toast.success("Tes berhasil dijalankan");
     } catch (error) {
@@ -781,51 +802,51 @@ const SubmitJawabanSidebar = ({
                   </span>
                   <span
                     className={`px-2 py-1 rounded text-xs font-medium ${
-                      testResult.status === "finished"
+                      testResult.data.verdict === "AC"
                         ? "bg-green-100 text-gray-800"
-                        : testResult.status === "compile_error"
+                        : testResult.data.verdict === "CE"
                           ? "bg-red-100 text-red-800"
                           : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
-                    {testResult.status === "finished"
+                    {testResult.data.verdict === "AC" || testResult.data.verdict === "WA"
                       ? "Selesai"
-                      : testResult.status === "compile_error"
+                      : testResult.data.verdict === "CE"
                         ? "Compile Error"
                         : "Runtime Error"}
                   </span>
                 </div>
-                {testResult.status === "finished" && (
+                {(testResult.data.verdict === "AC" || testResult.data.verdict === "WA") && (
                   <div className="text-sm text-gray-700">
-                    Test Case: {testResult.total_case_benar}/
-                    {testResult.total_case} berhasil
+                    Test Case: {testResult.data.passed_cases}/
+                    {testResult.data.total_cases} berhasil
                   </div>
                 )}
               </div>
 
               {/* Error Message */}
-              {testResult.error_message && (
+              {testResult.message && !testResult.success && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                   <h4 className="text-sm font-medium text-red-800 mb-2">
                     Error:
                   </h4>
                   <pre className="text-xs text-red-700 whitespace-pre-wrap font-mono bg-white p-2 rounded border overflow-x-auto">
-                    {testResult.error_message}
+                    {testResult.message}
                   </pre>
                 </div>
               )}
 
               {/* Test Cases Results */}
-              {testResult.results && testResult.results.length > 0 && (
+              {testResult.data.test_results && testResult.data.test_results.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium text-gray-800">
                     Detail Test Cases:
                   </h4>
-                  {testResult.results.map((result, index) => (
+                  {testResult.data.test_results.map((result, index) => (
                     <div
                       key={index}
                       className={`border rounded-lg p-3 ${
-                        result.passed
+                        result.verdict === "AC"
                           ? "border-green-200 bg-white"
                           : "border-red-200 bg-red-50"
                       }`}
@@ -837,16 +858,19 @@ const SubmitJawabanSidebar = ({
                         <div className="flex items-center space-x-2">
                           <span
                             className={`px-2 py-1 rounded text-xs font-medium ${
-                              result.passed
+                              result.verdict === "AC"
                                 ? "bg-green-100 text-gray-800"
                                 : "bg-red-100 text-red-800"
                             }`}
                           >
-                            {result.passed ? "PASS" : "FAIL"}
+                            {result.verdict === "AC" ? "PASS" : "FAIL"}
                           </span>
                           <span className="text-xs text-gray-700">
-                            {result.execution_time.toFixed(3)}s
+                            {result.time_ms}ms
                           </span>
+                            <span className="text-xs text-gray-700">
+                            {(result.memory_kb / 1024).toFixed(2)}MB
+                            </span>
                         </div>
                       </div>
 
@@ -856,7 +880,7 @@ const SubmitJawabanSidebar = ({
                             Input:
                           </span>
                           <pre className="bg-white p-2 rounded border border-green-100 mt-1 overflow-x-auto">
-                            {result.input}
+                            {result.input_data}
                           </pre>
                         </div>
                         <div>
@@ -873,7 +897,7 @@ const SubmitJawabanSidebar = ({
                           </span>
                           <pre
                             className={`p-2 rounded border mt-1 overflow-x-auto ${
-                              result.passed
+                              result.verdict === "AC"
                                 ? "bg-green-50 border-green-100"
                                 : "bg-red-50 border-red-200"
                             }`}
@@ -1018,7 +1042,7 @@ const SubmissionContent = ({
     <div>
       <h3 className="text-base font-semibold mb-4">Submissions</h3>
 
-      {submissions.length === 0 ? (
+      {submissions?.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-600">Belum ada submission</p>
         </div>
@@ -1045,7 +1069,7 @@ const SubmissionContent = ({
               </tr>
             </thead>
             <tbody>
-              {submissions.map(submission => {
+              {submissions?.map(submission => {
                 const verdict = submission.testCaseResult.every(
                   r => r.status === "ACCEPTED",
                 )

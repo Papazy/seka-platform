@@ -489,13 +489,13 @@ export default function DetailPraktikumPage() {
         <div className="p-6 pt-2">          
           {data.length > 0 ? 
             <>
-            activeTab === 'peserta' && (
+            {activeTab === 'peserta' && (
             <DataTable
               columns={createMahasiswaColumns()}
               data={getActiveData() as any}
               showSearch={false}
             />
-          )
+          )}
           {activeTab === 'asisten' && (
             <DataTable
               columns={createMahasiswaColumns()}

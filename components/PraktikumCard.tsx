@@ -1,4 +1,4 @@
-import { getCurrentYearAndSemester } from "@/lib/getCurrentYearAndSemester";
+import { useCurrentYearAndSemester } from "@/lib/useCurrentYearAndSemester";
 
 interface ClassItem {
   id: string;
@@ -22,7 +22,7 @@ export default function PraktikumCard({
   onClick: (id: string) => void;
   isGridView: boolean;
 }) {
-  const { semester, year } = getCurrentYearAndSemester();
+  const { semester, year } = useCurrentYearAndSemester();
 
   const getBadgeColor = () => {
     return "bg-green-50 text-green-700 border-green-200";

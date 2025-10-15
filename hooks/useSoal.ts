@@ -25,6 +25,17 @@ interface Soal {
       createdAt: string;
     },
   ];
+  testCase: [
+    {
+      id: string;
+      idSoal: number;
+      input: string;
+      outputDiharapkan: string;
+      penjelasanInput: string;
+      penjelasanOutput: string;
+      createdAt: string;
+    },
+  ];
 }
 
 const fetchSoal = async (id: string): Promise<Soal> => {

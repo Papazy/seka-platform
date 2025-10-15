@@ -54,7 +54,7 @@ export default function CreateTugasPage() {
     [key: string]: boolean;
   }>({});
 
-  const [selectedBahasa, setSelectedBahasa] = useState<number[]>([]);
+  const [selectedBahasa, setSelectedBahasa] = useState<string[]>([]);
 
   const {
     data: bahasaList,

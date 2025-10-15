@@ -48,7 +48,7 @@ export default function EditTugasPage() {
     error: TugasError,
   } = useTugasDetail(params.id as string, params.tugasId as string, !!user);
 
-  const [selectedBahasa, setSelectedBahasa] = useState<number[]>([]);
+  const [selectedBahasa, setSelectedBahasa] = useState<string[]>([]);
 
   const {
     data: bahasaList,

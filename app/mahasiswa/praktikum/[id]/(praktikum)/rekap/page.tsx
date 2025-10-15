@@ -58,7 +58,7 @@ export default function RekapNilaiPage() {
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
-  const [selectedView, setSelectedView] = useState<"kelas" | number>("kelas");
+  const [selectedView, setSelectedView] = useState<"kelas" | string>("kelas");
 
   const {
     data: rekapData,
