@@ -6,9 +6,7 @@ interface CurrentYearAndSemester {
 }
 
 export function useCurrentYearAndSemester(): CurrentYearAndSemester {
-  const {
-    activeSemester,
-  } = useSemester();
+  const { activeSemester } = useSemester();
 
   const semester = activeSemester?.semester || "GANJIL";
   const year = activeSemester?.tahun || new Date().getFullYear();

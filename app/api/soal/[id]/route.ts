@@ -13,6 +13,7 @@ export async function GET(
       },
       include: {
         contohTestCase: true,
+        testCase: true,
       },
     });
 

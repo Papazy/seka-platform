@@ -22,24 +22,39 @@ export async function POST(
   const body: SubmissionRequestBody = await request.json();
   const { sourceCode, languageId } = body;
   const { id } = await params;
-  
-  try{
 
-    const result = await submitSolution({
-      sourceCode: sourceCode,
-      languageId: languageId,
-      soalId: id
-    })
-    
-    if(!result.success){
-      return NextResponse.json({message: result.message, error: result.error}, {status: 400})
-    }
-    
-    const submission = result.data;
-    return NextResponse.json({result}, {status: 200})
-  }catch(error){
-    return NextResponse.json({message: "Internal Server Error", error}, {status: 500})
+  const token = request.cookies.get("token")?.value;
+  if (!token) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-    
+  const payload = await verifyToken(token);
+  if (!payload) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  console.log("payload", payload);
+  const mahasiswaId = payload.id;
+
+  try {
+    const result = await submitSolution(mahasiswaId, {
+      sourceCode: sourceCode,
+      languageId: languageId,
+      soalId: id,
+    });
+
+    if (!result.success) {
+      return NextResponse.json(
+        { message: result.message, error: result.error },
+        { status: 400 },
+      );
+    }
+
+    const submission = result.data;
+    return NextResponse.json({ result }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Internal Server Error", error },
+      { status: 500 },
+    );
+  }
 }

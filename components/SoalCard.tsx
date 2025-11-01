@@ -1,4 +1,5 @@
 import { TugasDetailResponse } from "@/hooks/useTugasDetail";
+import { PraktikumRole } from "@/lib/constants";
 import Link from "next/link";
 
 const SoalCard = ({
@@ -11,13 +12,13 @@ const SoalCard = ({
 }: {
   soal: TugasDetailResponse["soal"][0];
   index: number;
-  userRole: "peserta" | "asisten";
+  userRole: (typeof PraktikumRole)[keyof typeof PraktikumRole];
   praktikumId: string;
   tugasId: string;
   soalId: string;
 }) => {
   const getStatusBadge = () => {
-    if (userRole === "asisten") {
+    if (userRole === PraktikumRole.ASISTEN) {
       return (
         <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
           {soal.totalSubmissions || 0} submission
@@ -52,7 +53,7 @@ const SoalCard = ({
     <Link
       href={`/mahasiswa/praktikum/${praktikumId}/tugas/${tugasId}/soal/${soalId}`}
     >
-      <div className="bg-white rounded-lg border p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+      <div className="bg-white rounded-lg border p-4 cursor-pointer hover:bg-gray-50 transition-colors mb-2">
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
@@ -64,26 +65,27 @@ const SoalCard = ({
 
             <h3 className="font-medium text-gray-900 mb-2">{soal.judul}</h3>
 
-            <div className="flex gap-6 text-sm text-gray-600">
+            <div className="flex gap-4 text-sm text-gray-600">
               <span>{soal.bobotNilai} poin</span>
-              <span>{soal.batasanWaktuEksekusiMs}ms</span>
-              <span>{Math.round(soal.batasanMemoriKb / 1024)}MB</span>
               <span>{soal.totalTestCase} test case</span>
             </div>
           </div>
 
           <div className="text-right ml-4">
-            {userRole === "peserta" && soal.bestScore !== undefined && (
-              <div className="mb-2">
-                <div className="text-lg font-bold text-green-600">
-                  {soal.bestScore}
+            {userRole === PraktikumRole.PRAKTIKAN &&
+              soal.bestScore !== undefined && (
+                <div className="mb-2">
+                  <div className="text-lg font-bold text-green-600">
+                    {soal.bestScore}
+                  </div>
+                  <div className="text-xs text-gray-500">Best Score</div>
                 </div>
-                <div className="text-xs text-gray-500">Best Score</div>
-              </div>
-            )}
+              )}
 
             <div className="text-sm text-green-600">
-              {userRole === "peserta" && soal.canSubmit ? "Kerjakan" : "Lihat"}{" "}
+              {userRole === PraktikumRole.PRAKTIKAN && soal.canSubmit
+                ? "Kerjakan"
+                : "Lihat"}{" "}
               →
             </div>
           </div>

@@ -17,7 +17,9 @@ import {
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { useBahasa } from "@/hooks/useBahasa";
 import { useTugasDetail } from "@/hooks/useTugasDetail";
+import { useUpdateTugas } from "@/hooks/useUpdateTugas";
 import { formatDateForInput } from "@/utils/utils";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface EditTugasData {
   judul: string;
@@ -55,6 +57,8 @@ export default function EditTugasPage() {
     isLoading: bahasaLoading,
     error: bahasaError,
   } = useBahasa();
+
+  const updateTugasMutation = useUpdateTugas();
 
   // Select semua bahasa saat pertama
   useEffect(() => {
@@ -141,7 +145,7 @@ export default function EditTugasPage() {
     const now = new Date();
 
     if (deadlineDate <= now) {
-      toast.error("Deadline harus di masa depan");
+      toast.error("Deadline harus lebih dari waktu sekarang");
       return;
     }
 
@@ -152,35 +156,28 @@ export default function EditTugasPage() {
       tugasBahasa: selectedBahasa,
     };
 
-    try {
-      const response = await fetch(
-        `/api/praktikum/${params.id}/tugas/${params.tugasId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(payload),
+    updateTugasMutation.mutate(
+      {
+        praktikumId: params.id as string,
+        tugasId: params.tugasId as string,
+        data: payload,
+      },
+      {
+        onSuccess: () => {
+          router.push(
+            `/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}`,
+          );
         },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Gagal mengupdate tugas");
-      }
-
-      toast.success("Tugas berhasil diupdate");
-      router.push(`/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}`);
-    } catch (error: any) {
-      console.error("Error updating tugas:", error);
-      toast.error(error.message || "Gagal mengupdate tugas");
-    } finally {
-      setIsSaving(false);
-    }
+        onSettled: () => {
+          setIsSaving(false);
+        },
+      },
+    );
   };
 
-  if (isLoading) {
+  const loading = useDebounce(isLoading, 500);
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <LoadingSpinner />
@@ -315,16 +312,16 @@ export default function EditTugasPage() {
                 <button
                   type="button"
                   onClick={handleSelectAllBahasa}
-                  className="text-sm px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                  className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
                 >
-                  ✓ Pilih Semua
+                  Pilih Semua
                 </button>
                 <button
                   type="button"
                   onClick={handleDeselectAllBahasa}
-                  className="text-sm px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                  className="text-xs px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
                 >
-                  ✗ Hapus Semua
+                  Hapus Semua
                 </button>
               </div>
             </div>

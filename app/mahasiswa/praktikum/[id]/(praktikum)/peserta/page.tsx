@@ -89,9 +89,9 @@ export default function PesertaPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.back()}
-              className="text-sm text-gray-600 hover:text-gray-900 border border-gray-300 px-3 py-1 rounded-md"
+              className="text-sm text-gray-600 hover:text-gray-900 border border-gray-300 px-3 py-1 rounded"
             >
-              ← Kembali
+              Kembali
             </button>
           </div>
         </div>

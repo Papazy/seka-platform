@@ -557,9 +557,7 @@ export default function ManageParticipantsPage() {
       <ConfirmDeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={() =>
-          handleRemoveParticipant(deleteTarget?.id || '')
-        }
+        onConfirm={() => handleRemoveParticipant(deleteTarget?.id || "")}
         title={`Hapus ${getTabLabel(activeTab)}`}
         message={`Apakah Anda yakin ingin menghapus ${deleteTarget?.nama} dari praktikum ini?`}
       />

@@ -1,7 +1,7 @@
 "use client";
 import { useSoal } from "@/hooks/useSoal";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { Bahasa, useBahasa } from "@/hooks/useBahasa";
@@ -14,40 +14,44 @@ import { Submission } from "@/types/submission";
 import { useRolePraktikum } from "@/contexts/RolePraktikumContext";
 import AsistenSubmissions from "@/components/AsistenSubmission";
 import TopScoreSidebar from "@/components/TopScoreSidebar";
+import { getRelativeTime } from "@/utils/getRelativeTime";
+import SoalLayout from "@/components/layouts/mahasiswa/SoalLayout";
+import { PraktikumRole } from "@/lib/constants";
+
+import InformationCircleIcon from "@heroicons/react/24/outline/InformationCircleIcon";
 
 export interface TestResultResponse {
-  success: boolean
-  data: Data
-  message: string
+  success: boolean;
+  data: Data;
+  message: string;
 }
 
 export interface Data {
-  verdict: string
-  score: number
-  total_cases: number
-  passed_cases: number
-  total_time_ms: number
-  max_time_ms: number
-  avg_time_ms: number
-  max_memory_kb: number
-  test_results: TestResult[]
-  error_message: any
-  judged_at: string
+  verdict: string;
+  score: number;
+  total_cases: number;
+  passed_cases: number;
+  total_time_ms: number;
+  max_time_ms: number;
+  avg_time_ms: number;
+  max_memory_kb: number;
+  test_results: TestResult[];
+  error_message: any;
+  judged_at: string;
 }
 
 export interface TestResult {
-  case_number: number
-  verdict: string
-  time_ms: number
-  memory_kb: number
-  input_data: string
-  expected_output: string
-  actual_output: string
-  error_message: any
+  case_number: number;
+  verdict: string;
+  time_ms: number;
+  memory_kb: number;
+  input_data: string;
+  expected_output: string;
+  actual_output: string;
+  error_message: any;
 }
 
-
-export type RolePraktikum = "ASISTEN" | "PESERTA";
+export type RolePraktikum = (typeof PraktikumRole)[keyof typeof PraktikumRole];
 
 interface TopScore {
   rank: number;
@@ -59,6 +63,7 @@ interface TopScore {
 
 export default function SoalPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<"soal" | "submission">("soal");
   const router = useRouter();
 
@@ -75,146 +80,110 @@ export default function SoalPage() {
   } = useSubmissionsSoalMahasiswa(params.soalId as string);
 
   const { isAsisten } = useRolePraktikum();
-  const [role, setRole] = useState<RolePraktikum>("PESERTA");
+  const [role, setRole] = useState<
+    (typeof PraktikumRole)[keyof typeof PraktikumRole]
+  >(PraktikumRole.PRAKTIKAN);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab as "soal" | "submission");
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", tab);
+    router.replace(url.pathname + url.search, { scroll: false });
+  };
 
   useEffect(() => {
     if (isAsisten(params.id as string)) {
-      setRole("ASISTEN");
+      setRole(PraktikumRole.ASISTEN);
     }
   }, [isAsisten, params.id]);
 
+  // Set initial tab from URL params
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab") as "soal" | "submission";
+    if (tabFromUrl && (tabFromUrl === "soal" || tabFromUrl === "submission")) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex p-4 gap-4 h-screen">
-        {/* Left Sidebar */}
-        <div className="w-64 flex-shrink-0">
-          <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 bg-white border border-gray-200 shadow-sm rounded-lg">
-          {role === "ASISTEN" ? (
-            activeTab === "soal" ? (
-              <div className=" flex flex-col">
-                <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {activeTab === "soal"
-                      ? soalData?.judul || "Loading..."
-                      : "Riwayat Submission"}
-                  </h2>
-                  {role === "ASISTEN" && (
-                    <Button
-                      onClick={() =>
-                        router.push(
-                          `/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}/soal/${params.soalId}/edit`,
-                        )
-                      }
-                      className="bg-green-primary hover:bg-green-700 text-white cursor-pointer "
-                    >
-                      <Edit /> Edit
-                    </Button>
-                  )}
-                </div>
-
-                <div className="flex-1 px-6 py-4">
-                  <SoalContent soal={soalData} />
-                </div>
+    <SoalLayout
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
+      rightSidebar={
+        bahasaLoading ? (
+          <div className="bg-white animate-pulse p-5 rounded-lg border h-32">
+            <div className="h-4 bg-gray-200 rounded mb-3"></div>
+            <div className="h-20 bg-gray-200 rounded"></div>
+          </div>
+        ) : (
+          <RightSidebar
+            activeTab={activeTab}
+            bahasa={bahasaData || []}
+            soal={soalData}
+            refetchSubmission={refetchSubmission}
+            setActiveTab={setActiveTab}
+            role={role}
+          />
+        )
+      }
+    >
+      <div className="flex-1 bg-white border border-gray-200 shadow-sm rounded-lg">
+        {role === PraktikumRole.ASISTEN ? (
+          activeTab === "soal" ? (
+            <div className=" flex flex-col">
+              <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {activeTab === "soal"
+                    ? soalData?.judul || "Loading..."
+                    : "Riwayat Submission"}
+                </h2>
+                {role === PraktikumRole.ASISTEN && (
+                  <Button
+                    onClick={() =>
+                      router.push(
+                        `/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}/soal/${params.soalId}/edit`,
+                      )
+                    }
+                    className="bg-green-primary hover:bg-green-700 text-white cursor-pointer "
+                  >
+                    <Edit /> Edit
+                  </Button>
+                )}
               </div>
-            ) : (
-              <AsistenSubmissions
-                praktikumId={params.id as string}
-                tugasId={params.tugasId as string}
-                soalId={params.soalId as string}
-              />
-            )
-          ) : soalLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <LoadingSpinner />
-            </div>
-          ) : (
-            <ContentArea
-              activeTab={activeTab}
-              soal={soalData}
-              submissions={submissionsData}
-              submissionsLoading={submissionsLoading}
-              role={role}
-              params={{
-                id: params.id as string,
-                tugasId: params.tugasId as string,
-                soalId: params.soalId as string,
-              }}
-            />
-          )}
-        </div>
 
-        {/* Right Sidebar */}
-        <div className="w-96 flex-shrink-0">
-          {bahasaLoading ? (
-            <div className="bg-white animate-pulse p-5 rounded-lg border h-32">
-              <div className="h-4 bg-gray-200 rounded mb-3"></div>
-              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="flex-1 px-6 py-4">
+                <SoalContent soal={soalData} />
+              </div>
             </div>
           ) : (
-            <RightSidebar
-              activeTab={activeTab}
-              bahasa={bahasaData || []}
-              soal={soalData}
-              refetchSubmission={refetchSubmission}
-              setActiveTab={setActiveTab}
+            <AsistenSubmissions
+              praktikumId={params.id as string}
+              tugasId={params.tugasId as string}
+              soalId={params.soalId as string}
             />
-          )}
-        </div>
+          )
+        ) : soalLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <ContentArea
+            activeTab={activeTab}
+            soal={soalData}
+            submissions={submissionsData}
+            submissionsLoading={submissionsLoading}
+            role={role}
+            params={{
+              id: params.id as string,
+              tugasId: params.tugasId as string,
+              soalId: params.soalId as string,
+            }}
+          />
+        )}
       </div>
-    </div>
+    </SoalLayout>
   );
 }
-
-// Left Sidebar
-const LeftSidebar = ({
-  activeTab,
-  setActiveTab,
-}: {
-  activeTab: "soal" | "submission";
-  setActiveTab: (tab: "soal" | "submission") => void;
-}) => {
-  const router = useRouter();
-
-  return (
-    <div className="bg-white rounded-lg border p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-medium text-gray-900">Menu Soal</h2>
-        <button
-          onClick={() => router.back()}
-          className="text-xs text-gray-600 hover:text-gray-900 border rounded px-2 py-1 hover:bg-gray-50"
-        >
-          Kembali
-        </button>
-      </div>
-      <nav className="space-y-2">
-        <button
-          onClick={() => setActiveTab("soal")}
-          className={`w-full text-sm text-left px-3 py-2 rounded ${
-            activeTab === "soal"
-              ? "bg-blue-100 text-blue-700 font-medium"
-              : "text-gray-700 hover:bg-gray-100"
-          }`}
-        >
-          Soal
-        </button>
-        <button
-          onClick={() => setActiveTab("submission")}
-          className={`w-full text-sm text-left px-3 py-2 rounded ${
-            activeTab === "submission"
-              ? "bg-blue-100 text-blue-700 font-medium"
-              : "text-gray-700 hover:bg-gray-100"
-          }`}
-        >
-          Submission
-        </button>
-      </nav>
-    </div>
-  );
-};
 
 // Content Area
 const ContentArea = ({
@@ -223,7 +192,7 @@ const ContentArea = ({
   submissions,
   submissionsLoading,
   role,
-  params
+  params,
 }: {
   activeTab: "soal" | "submission";
   soal: any;
@@ -242,7 +211,7 @@ const ContentArea = ({
             ? soal?.judul || "Loading..."
             : "Riwayat Submission"}
         </h2>
-        {role === "ASISTEN" && (
+        {role === PraktikumRole.ASISTEN && (
           <Button
             onClick={() =>
               router.push(
@@ -465,8 +434,21 @@ const SoalContent = ({ soal }: { soal: any }) => {
                     {tc.penjelasanInput &&
                       tc.penjelasanInput.trim() !== "-" && (
                         <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded p-3">
-                          <p className="text-sm text-yellow-800">
+                          <div className="text-sm flex items-center mb-1">
+                            <InformationCircleIcon className="w-6 h-6 text-yellow-800 mr-2 inline-block" />
+                            Note
+                          </div>
+                          <p className="text-xs text-yellow-800 ">
                             {tc.penjelasanInput}
+                          </p>
+                        </div>
+                      )}
+                    {tc.penjelasanOutput &&
+                      tc.penjelasanOutput.trim() !== "-" && (
+                        <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded p-3">
+                          <InformationCircleIcon className="w-6 h-6 text-yellow-800 mr-2 inline-block" />
+                          <p className="text-xs text-yellow-800 ">
+                            {tc.penjelasanOutput}
                           </p>
                         </div>
                       )}
@@ -488,12 +470,14 @@ const RightSidebar = ({
   activeTab,
   setActiveTab,
   refetchSubmission,
+  role,
 }: {
   bahasa: Bahasa[];
   soal?: any;
   activeTab: "soal" | "submission";
   setActiveTab: (tab: "submission" | "soal") => void;
   refetchSubmission: () => void;
+  role: RolePraktikum;
 }) => {
   return activeTab === "soal" ? (
     <SubmitJawabanSidebar
@@ -501,6 +485,7 @@ const RightSidebar = ({
       soal={soal}
       setActiveTab={setActiveTab}
       refetchSubmission={refetchSubmission}
+      role={role}
     />
   ) : (
     <TopScoreSidebar soalId={soal.id as string} />
@@ -513,11 +498,13 @@ const SubmitJawabanSidebar = ({
   soal,
   setActiveTab,
   refetchSubmission,
+  role,
 }: {
   bahasa: Bahasa[];
   soal?: any;
   setActiveTab: (tab: "submission" | "soal") => void;
   refetchSubmission: () => void;
+  role: RolePraktikum;
 }) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -526,7 +513,7 @@ const SubmitJawabanSidebar = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Collapse states
-  const [isTemplateExpanded, setIsTemplateExpanded] = useState(true);
+  const [isTemplateExpanded, setIsTemplateExpanded] = useState(false);
   const [isSubmitExpanded, setIsSubmitExpanded] = useState(true);
   const [isResultExpanded, setIsResultExpanded] = useState(true);
 
@@ -593,7 +580,7 @@ const SubmitJawabanSidebar = ({
       }
 
       const result = await response.json();
-      console.log("testResult", (result));
+      console.log("testResult", result);
       setTestResult(result);
       toast.success("Tes berhasil dijalankan");
     } catch (error) {
@@ -633,7 +620,7 @@ const SubmitJawabanSidebar = ({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Submit failed");
+        throw new Error(errorData.message || "Submit failed");
       }
 
       // Handle successful submission
@@ -753,15 +740,21 @@ const SubmitJawabanSidebar = ({
                 disabled={isLoading || !uploadedFile}
                 className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
               >
-                {isLoading ? "Running..." : "Tes Kode"}
+                {isLoading
+                  ? "Running..."
+                  : role === PraktikumRole.ASISTEN
+                    ? "Tes Testcases"
+                    : "Tes Kode"}
               </button>
-              <button
-                onClick={handleSubmit}
-                disabled={isLoading || !uploadedFile}
-                className="w-full bg-green-700 hover:bg-green-800 disabled:bg-green-400 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
-              >
-                Submit Jawaban
-              </button>
+              {role === PraktikumRole.PRAKTIKAN && (
+                <button
+                  onClick={handleSubmit}
+                  disabled={isLoading || !uploadedFile}
+                  className="w-full bg-green-700 hover:bg-green-800 disabled:bg-green-400 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                >
+                  Submit Jawaban
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -809,17 +802,25 @@ const SubmitJawabanSidebar = ({
                           : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
-                    {testResult.data.verdict === "AC" || testResult.data.verdict === "WA"
+                    {testResult.data.verdict === "AC" ||
+                    testResult.data.verdict === "WA"
                       ? "Selesai"
                       : testResult.data.verdict === "CE"
                         ? "Compile Error"
                         : "Runtime Error"}
                   </span>
                 </div>
-                {(testResult.data.verdict === "AC" || testResult.data.verdict === "WA") && (
-                  <div className="text-sm text-gray-700">
-                    Test Case: {testResult.data.passed_cases}/
-                    {testResult.data.total_cases} berhasil
+                {(testResult.data.verdict === "AC" ||
+                  testResult.data.verdict === "WA") && (
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm text-gray-700">Test Case:</div>
+                    <div className="text-sm text-gray-700">
+                      <span className="font-medium">
+                        {testResult.data.passed_cases}/
+                        {testResult.data.total_cases}
+                      </span>{" "}
+                      berhasil
+                    </div>
                   </div>
                 )}
               </div>
@@ -837,79 +838,80 @@ const SubmitJawabanSidebar = ({
               )}
 
               {/* Test Cases Results */}
-              {testResult.data.test_results && testResult.data.test_results.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="text-sm font-medium text-gray-800">
-                    Detail Test Cases:
-                  </h4>
-                  {testResult.data.test_results.map((result, index) => (
-                    <div
-                      key={index}
-                      className={`border rounded-lg p-3 ${
-                        result.verdict === "AC"
-                          ? "border-green-200 bg-white"
-                          : "border-red-200 bg-red-50"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-800">
-                          Test Case {index + 1}
-                        </span>
-                        <div className="flex items-center space-x-2">
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${
-                              result.verdict === "AC"
-                                ? "bg-green-100 text-gray-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {result.verdict === "AC" ? "PASS" : "FAIL"}
+              {testResult.data.test_results &&
+                testResult.data.test_results.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-medium text-gray-800">
+                      Detail Test Cases:
+                    </h4>
+                    {testResult.data.test_results.map((result, index) => (
+                      <div
+                        key={index}
+                        className={`border rounded-lg p-3 ${
+                          result.verdict === "AC"
+                            ? "border-green-200 bg-white"
+                            : "border-red-200 bg-red-50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-800">
+                            Test Case {index + 1}
                           </span>
-                          <span className="text-xs text-gray-700">
-                            {result.time_ms}ms
-                          </span>
-                            <span className="text-xs text-gray-700">
-                            {(result.memory_kb / 1024).toFixed(2)}MB
+                          <div className="flex items-center space-x-2">
+                            <span
+                              className={`px-2 py-1 rounded text-xs font-medium ${
+                                result.verdict === "AC"
+                                  ? "bg-green-100 text-gray-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {result.verdict === "AC" ? "PASS" : "FAIL"}
                             </span>
+                            <span className="text-xs text-gray-700">
+                              {result.time_ms}ms
+                            </span>
+                            <span className="text-xs text-gray-700">
+                              {(result.memory_kb / 1024).toFixed(2)}MB
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="grid grid-cols-1 gap-2 text-xs">
-                        <div>
-                          <span className="font-medium text-green-700">
-                            Input:
-                          </span>
-                          <pre className="bg-white p-2 rounded border border-green-100 mt-1 overflow-x-auto">
-                            {result.input_data}
-                          </pre>
-                        </div>
-                        <div>
-                          <span className="font-medium text-green-700">
-                            Expected:
-                          </span>
-                          <pre className="bg-white p-2 rounded border border-green-100 mt-1 overflow-x-auto">
-                            {result.expected_output}
-                          </pre>
-                        </div>
-                        <div>
-                          <span className="font-medium text-green-700">
-                            Actual:
-                          </span>
-                          <pre
-                            className={`p-2 rounded border mt-1 overflow-x-auto ${
-                              result.verdict === "AC"
-                                ? "bg-green-50 border-green-100"
-                                : "bg-red-50 border-red-200"
-                            }`}
-                          >
-                            {result.actual_output}
-                          </pre>
+                        <div className="grid grid-cols-1 gap-2 text-xs">
+                          <div>
+                            <span className="font-medium text-green-700">
+                              Input:
+                            </span>
+                            <pre className="bg-white p-2 rounded border border-green-100 mt-1 overflow-x-auto">
+                              {result.input_data}
+                            </pre>
+                          </div>
+                          <div>
+                            <span className="font-medium text-green-700">
+                              Output diharapkan:
+                            </span>
+                            <pre className="bg-white p-2 rounded border border-green-100 mt-1 overflow-x-auto">
+                              {result.expected_output}
+                            </pre>
+                          </div>
+                          <div>
+                            <span className="font-medium text-green-700">
+                              Output kode:
+                            </span>
+                            <pre
+                              className={`p-2 rounded border mt-1 overflow-x-auto ${
+                                result.verdict === "AC"
+                                  ? "bg-green-50 border-green-100"
+                                  : "bg-red-50 border-red-200"
+                              }`}
+                            >
+                              {result.actual_output}
+                            </pre>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
             </div>
           )}
         </div>
@@ -934,24 +936,24 @@ const SubmissionContent = ({
 
   const getStatusText = (status: string) => {
     const statusMap: { [key: string]: string } = {
-      ACCEPTED: "AC",
-      WRONG_ANSWER: "WA",
-      TIME_LIMIT_EXCEEDED: "TLE",
-      COMPILATION_ERROR: "CE",
-      RUNTIME_ERROR: "RE",
-      PARTIAL: "PA",
+      AC: "AC",
+      WA: "WA",
+      TLE: "TLE",
+      CE: "CE",
+      RTE: "RE",
+      PENDING: "PENDING",
     };
     return statusMap[status] || status;
   };
 
   const getStatusColor = (status: string) => {
     const colorMap: { [key: string]: string } = {
-      ACCEPTED: "bg-green-600 text-white",
-      WRONG_ANSWER: "bg-red-600 text-white",
-      TIME_LIMIT_EXCEEDED: "bg-orange-600 text-white",
-      COMPILATION_ERROR: "bg-purple-600 text-white",
-      RUNTIME_ERROR: "bg-pink-600 text-white",
-      PARTIAL: "bg-yellow-600 text-white",
+      AC: "bg-green-600 text-white",
+      WA: "bg-red-600 text-white",
+      TLE: "bg-orange-600 text-white",
+      CE: "bg-red-600 text-white",
+      RTE: "bg-red-600 text-white",
+      PENDING: "bg-slate-400 text-white",
     };
     return colorMap[status] || "bg-gray-600 text-white";
   };
@@ -978,9 +980,9 @@ const SubmissionContent = ({
             Submission #{selectedSubmission.id}
           </h3>
           <p className="text-xs text-gray-600 mt-1">
-            Submitted:{" "}
+            Waktu:{" "}
             {new Date(selectedSubmission.submittedAt).toLocaleString("id-ID")} |
-            Language: {selectedSubmission.bahasa.nama} |
+            Bahasa: {selectedSubmission.bahasa.nama} |
           </p>
         </div>
 
@@ -1052,32 +1054,26 @@ const SubmissionContent = ({
             <thead className="bg-gray-100">
               <tr className="border-b">
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
-                  ID
+                  No
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
-                  At
+                  Waktu
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
-                  Lang
+                  Bahasa
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
                   Verdict
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700">
-                  Score
+                  Nilai
                 </th>
               </tr>
             </thead>
             <tbody>
-              {submissions?.map(submission => {
-                const verdict = submission.testCaseResult.every(
-                  r => r.status === "ACCEPTED",
-                )
-                  ? "ACCEPTED"
-                  : submission.testCaseResult.some(r => r.status === "ACCEPTED")
-                    ? "PARTIAL"
-                    : "WRONG_ANSWER";
-
+              {submissions?.map((submission, index) => {
+                const verdict = submission.statusCode;
+                const length = submissions.length;
                 return (
                   <tr
                     key={submission.id}
@@ -1087,9 +1083,9 @@ const SubmissionContent = ({
                       setCurrentView("detail");
                     }}
                   >
-                    <td className="px-4 py-3 text-xs">{submission.id}</td>
+                    <td className="px-4 py-3 text-xs">{length - index}</td>
                     <td className="px-4 py-3 text-xs text-gray-600">
-                      {new Date(submission.submittedAt).toLocaleString("id-ID")}
+                      {getRelativeTime(submission.submittedAt)}
                     </td>
                     <td className="px-4 py-3 text-xs">
                       {submission.bahasa.nama}

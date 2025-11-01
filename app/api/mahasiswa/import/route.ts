@@ -41,14 +41,16 @@ export async function POST(request: NextRequest) {
     const stream = Readable.from(csvData);
     const parser = csvParser();
 
-    const parsedData = await new Promise<MahasiswaCsvRow[]>((resolve, reject) => {
-      const data: MahasiswaCsvRow[] = [];
-      stream
-        .pipe(parser)
-        .on("data", row => data.push(row))
-        .on("end", () => resolve(data))
-        .on("error", reject);
-    });
+    const parsedData = await new Promise<MahasiswaCsvRow[]>(
+      (resolve, reject) => {
+        const data: MahasiswaCsvRow[] = [];
+        stream
+          .pipe(parser)
+          .on("data", row => data.push(row))
+          .on("end", () => resolve(data))
+          .on("error", reject);
+      },
+    );
 
     // Validate and prepare data
     const hashedPassword = await bcrypt.hash("mahasiswa123", 10);

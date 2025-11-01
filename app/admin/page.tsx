@@ -49,14 +49,16 @@ export default function AdminDashboard() {
       ]);
 
       // Hitung total mahasiswa dan dosen dari semua program studi
-      const totalMahasiswa = prodiData.programStudi?.reduce(
-        (sum: number, prodi: { _count: { mahasiswa: number } }) =>
-          sum + (prodi._count?.mahasiswa || 0),
-        0,
-      ) || 0;
+      const totalMahasiswa =
+        prodiData.programStudi?.reduce(
+          (sum: number, prodi: { _count: { mahasiswa: number } }) =>
+            sum + (prodi._count?.mahasiswa || 0),
+          0,
+        ) || 0;
       const totalDosen =
         prodiData.programStudi?.reduce(
-          (sum: number, prodi: { _count: { dosen: number } }) => sum + (prodi._count?.dosen || 0),
+          (sum: number, prodi: { _count: { dosen: number } }) =>
+            sum + (prodi._count?.dosen || 0),
           0,
         ) || 0;
 

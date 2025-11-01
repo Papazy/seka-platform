@@ -17,7 +17,7 @@ export async function POST(
       );
     }
 
-   const judgeResult = await testSubmitSolution({
+    const judgeResult = await testSubmitSolution({
       sourceCode,
       languageId,
       soalId,

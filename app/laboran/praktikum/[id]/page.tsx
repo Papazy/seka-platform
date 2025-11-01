@@ -486,33 +486,33 @@ export default function DetailPraktikumPage() {
           </div>
         </div>
 
-        <div className="p-6 pt-2">          
-          {data.length > 0 ? 
+        <div className="p-6 pt-2">
+          {data.length > 0 ? (
             <>
-            {activeTab === 'peserta' && (
-            <DataTable
-              columns={createMahasiswaColumns()}
-              data={getActiveData() as any}
-              showSearch={false}
-            />
-          )}
-          {activeTab === 'asisten' && (
-            <DataTable
-              columns={createMahasiswaColumns()}
-              data={getActiveData() as any}
-              showSearch={false}
-            />
-          )}
+              {activeTab === "peserta" && (
+                <DataTable
+                  columns={createMahasiswaColumns()}
+                  data={getActiveData() as any}
+                  showSearch={false}
+                />
+              )}
+              {activeTab === "asisten" && (
+                <DataTable
+                  columns={createMahasiswaColumns()}
+                  data={getActiveData() as any}
+                  showSearch={false}
+                />
+              )}
 
-          {activeTab === 'dosen' && (
-            <DataTable
-              columns={createDosenColumns()}
-              data={getActiveData() as any}
-              showSearch={false}
-            />
-          )}
+              {activeTab === "dosen" && (
+                <DataTable
+                  columns={createDosenColumns()}
+                  data={getActiveData() as any}
+                  showSearch={false}
+                />
+              )}
             </>
-           : (
+          ) : (
             <div className="text-center p-6">
               <p className="text-sm text-gray-500">
                 Belum ada data pada tab ini.

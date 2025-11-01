@@ -5,6 +5,7 @@ import ToggleViewMode from "@/components/ToggleViewMode";
 import { useViewMode } from "@/contexts/ViewModeContext";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
+import getRelativeDeadline, { getRelativeTime } from "@/utils/getRelativeTime";
 
 interface TugasData {
   id: string;
@@ -101,6 +102,8 @@ const TugasCard = ({
   const now = useMemo(() => new Date(), []);
   const deadline = useMemo(() => new Date(tugas.deadline), [tugas.deadline]);
   const deadlineDate = deadline.toLocaleDateString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -108,7 +111,7 @@ const TugasCard = ({
   const diffMs = deadline.getTime() - now.getTime();
 
   // 1 hari = 24 jam * 60 Menit * 60 detik * 1000 ms
-  const diffDays = Math.ceil(diffMs / (24 * 60 * 60 * 1000));
+  const diffDays = getRelativeDeadline(deadline);
 
   return (
     <div
@@ -117,8 +120,8 @@ const TugasCard = ({
     >
       <div className="">
         <div className="text-base">{tugas.judul}</div>
-        <div className="flex gap-4 text-xs text-gray-500">
-          <span>Deadline: {deadlineDate}</span>
+        <div className="flex gap-4 text-xs text-gray-500 mt-2">
+          <span>Tenggat: {deadlineDate}</span>
           <span>{tugas.totalSoal} soal</span>
         </div>
       </div>
@@ -129,7 +132,7 @@ const TugasCard = ({
             Kelas {tugas.praktikum.kelas}
           </div>
         </div>
-        <div className="text-red-400 text-sm">{diffDays} hari lagi</div>
+        <div className="text-red-400 text-sm">{diffDays}</div>
       </div>
     </div>
   );

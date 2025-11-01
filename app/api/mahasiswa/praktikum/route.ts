@@ -17,13 +17,13 @@ export async function GET(req: NextRequest) {
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.log("MASUK KESINI")
+    console.log("MASUK KESINI");
     const mahasiswaId = payload.id;
     const { semester, tahun } = await getCurrentSemester();
 
     const praktikumFilter =
       filter === "active"
-        ? { semester: semester ?? 'GANJIL', tahun : tahun ?? 2003 }
+        ? { semester: semester ?? "GANJIL", tahun: tahun ?? 2003 }
         : {};
 
     const [pesertaPraktikum, asistenPraktikum] = await Promise.all([

@@ -14,7 +14,7 @@ export async function GET(
     const payload = await verifyToken(token);
     const idMahasiswa = payload.id;
 
-    const {soalId} = await params;
+    const { soalId } = await params;
 
     // 1. Cari soal untuk dapatkan idTugas
     const soal = await prisma.soal.findUnique({

@@ -12,7 +12,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const payload = await verifyToken(token);
     const idMahasiswa = payload.id;
-    const {submissionId} = await params;
+    const { submissionId } = await params;
 
     // Cek submission dan soal
     const submission = await prisma.submission.findUnique({

@@ -2,7 +2,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
-import { BahasaPemrograman, ContohTestCase, Mahasiswa, Prisma, Submission, TestCase, TestCaseResult } from "@prisma/client";
+import {
+  BahasaPemrograman,
+  ContohTestCase,
+  Mahasiswa,
+  Prisma,
+  Submission,
+  TestCase,
+  TestCaseResult,
+} from "@prisma/client";
 
 interface SoalResponse {
   id: string;
@@ -144,7 +152,7 @@ export async function GET(
     if (userRole === "peserta") {
       soalInclude.submission = {
         where: {
-          idPeserta: pesertaId || '',
+          idPeserta: pesertaId || "",
         },
         include: {
           bahasa: true,
@@ -177,8 +185,6 @@ export async function GET(
       };
     }
 
-
-
     const soal = await prisma.soal.findFirst({
       where: {
         id: soalId,
@@ -188,7 +194,7 @@ export async function GET(
         },
       },
       include: {
-        ...soalInclude, 
+        ...soalInclude,
         tugas: {
           include: {
             praktikum: true,
@@ -198,7 +204,8 @@ export async function GET(
               },
             },
           },
-      },},
+        },
+      },
     });
 
     if (!soal) {
@@ -254,7 +261,9 @@ export async function GET(
       // Asisten-specific data
       const allSubmissions = soal.submission as SubmissionWithRelations[];
       const uniqueSubmitters = new Set(
-        allSubmissions.map((s: SubmissionWithRelations) => s.peserta.idMahasiswa),
+        allSubmissions.map(
+          (s: SubmissionWithRelations) => s.peserta.idMahasiswa,
+        ),
       ).size;
 
       // Get total peserta for this praktikum
@@ -264,7 +273,10 @@ export async function GET(
 
       // Statistics by status
       const submissionStats = allSubmissions.reduce(
-        (acc: { perfect: number; partial: number; failed: number }, sub: SubmissionWithRelations) => {
+        (
+          acc: { perfect: number; partial: number; failed: number },
+          sub: SubmissionWithRelations,
+        ) => {
           const hasAccepted = sub.testCaseResult.some(
             (tcr: TestCaseResult) => tcr.status === "ACCEPTED",
           );
@@ -455,8 +467,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const {  praktikumId } = await params;
-    const {  soalId } = await params;
+    const { praktikumId } = await params;
+    const { soalId } = await params;
 
     // Verify user is asisten
     const asisten = await prisma.asistenPraktikum.findFirst({

@@ -38,7 +38,9 @@ export default function AsistenSubmissions({
     : [];
 
   // Submission detail yang dipilih
-  const submissionDetail = submissions.find((s: any) => s.id === selectedSubmissionId);
+  const submissionDetail = submissions.find(
+    (s: any) => s.id === selectedSubmissionId,
+  );
 
   return (
     <div className="p-6">

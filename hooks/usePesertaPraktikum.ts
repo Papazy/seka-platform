@@ -40,7 +40,6 @@ interface PesertaData {
   userRole: "peserta" | "asisten";
 }
 
-
 const fetchPesertaData = async (praktikumId: any): Promise<PesertaData> => {
   const response = await fetch(
     `/api/mahasiswa/praktikum/${praktikumId}/peserta`,

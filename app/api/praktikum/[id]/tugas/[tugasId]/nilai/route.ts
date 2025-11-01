@@ -13,7 +13,7 @@ export async function PATCH(
     const payload = await verifyToken(token);
     const idMahasiswa = payload.id;
 
-    const {id, tugasId} = await params;
+    const { id, tugasId } = await params;
 
     const { pesertaId, totalNilai } = await req.json();
 

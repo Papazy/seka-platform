@@ -46,7 +46,7 @@ export const pesertaColumns: ColumnDef<PesertaData>[] = [
     accessorKey: "npm",
     header: "NPM",
     cell: ({ row }) => (
-      <div className="font-mono text-sm font-medium">{row.original.npm}</div>
+      <div className="font-mono text-sm">{row.original.npm}</div>
     ),
   },
   {
@@ -55,7 +55,6 @@ export const pesertaColumns: ColumnDef<PesertaData>[] = [
     cell: ({ row }) => (
       <div>
         <p className="font-medium text-sm">{row.original.nama}</p>
-        <p className="text-xs text-gray-500">{row.original.email}</p>
       </div>
     ),
   },
@@ -64,10 +63,7 @@ export const pesertaColumns: ColumnDef<PesertaData>[] = [
     header: "Program Studi",
     cell: ({ row }) => (
       <div>
-        <p className="text-sm font-medium">{row.original.programStudi.nama}</p>
-        <p className="text-xs text-gray-500">
-          {row.original.programStudi.kodeProdi}
-        </p>
+        <p className="text-sm">{row.original.programStudi.nama}</p>
       </div>
     ),
   },
@@ -85,7 +81,7 @@ export const asistenColumns: ColumnDef<AsistenData>[] = [
     accessorKey: "npm",
     header: "NPM",
     cell: ({ row }) => (
-      <div className="font-mono text-sm font-medium">{row.original.npm}</div>
+      <div className="font-mono text-sm ">{row.original.npm}</div>
     ),
   },
   {
@@ -94,7 +90,6 @@ export const asistenColumns: ColumnDef<AsistenData>[] = [
     cell: ({ row }) => (
       <div>
         <p className="font-medium text-sm">{row.original.nama}</p>
-        <p className="text-xs text-gray-500">{row.original.email}</p>
       </div>
     ),
   },
@@ -103,10 +98,7 @@ export const asistenColumns: ColumnDef<AsistenData>[] = [
     header: "Program Studi",
     cell: ({ row }) => (
       <div>
-        <p className="text-sm font-medium">{row.original.programStudi.nama}</p>
-        <p className="text-xs text-gray-500">
-          {row.original.programStudi.kodeProdi}
-        </p>
+        <p className="text-sm">{row.original.programStudi.nama}</p>
       </div>
     ),
   },

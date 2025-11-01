@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const {id: dosenId} = await params;
+    const { id: dosenId } = await params;
 
     const dosen = await prisma.dosen.findUnique({
       where: { id: dosenId },
@@ -110,7 +110,7 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const {id: dosenId} = await params;
+    const { id: dosenId } = await params;
     const body = await request.json();
 
     // Validasi input
@@ -230,7 +230,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const {id: dosenId} = await params;
+    const { id: dosenId } = await params;
 
     // Cek apakah dosen exists
     const existingDosen = await prisma.dosen.findUnique({

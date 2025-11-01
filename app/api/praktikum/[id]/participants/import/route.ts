@@ -48,14 +48,16 @@ export async function POST(req: NextRequest) {
     // console.log('stream', stream);
 
     const parser = csvParser();
-    const parsedData: ParticipantCsvRow[] = await new Promise((resolve, reject) => {
-      const data: ParticipantCsvRow[] = [];
-      stream
-        .pipe(parser)
-        .on("data", row => data.push(row))
-        .on("end", () => resolve(data))
-        .on("error", reject);
-    });
+    const parsedData: ParticipantCsvRow[] = await new Promise(
+      (resolve, reject) => {
+        const data: ParticipantCsvRow[] = [];
+        stream
+          .pipe(parser)
+          .on("data", row => data.push(row))
+          .on("end", () => resolve(data))
+          .on("error", reject);
+      },
+    );
 
     console.log("parsedData", parsedData);
 
@@ -66,7 +68,12 @@ export async function POST(req: NextRequest) {
       // Validasi kolom wajib
       switch (type) {
         case "dosen":
-          const requiredFieldsDosen: (keyof ParticipantCsvRow)[] = ["nip", "nama", "praktikum", "kelas"];
+          const requiredFieldsDosen: (keyof ParticipantCsvRow)[] = [
+            "nip",
+            "nama",
+            "praktikum",
+            "kelas",
+          ];
           for (const field of requiredFieldsDosen) {
             if (!row[field]) {
               errors.push(
@@ -78,7 +85,12 @@ export async function POST(req: NextRequest) {
           break;
         case "peserta":
         case "asisten":
-          const requiredFieldsPeserta: (keyof ParticipantCsvRow)[] = ["npm", "nama", "praktikum", "kelas"];
+          const requiredFieldsPeserta: (keyof ParticipantCsvRow)[] = [
+            "npm",
+            "nama",
+            "praktikum",
+            "kelas",
+          ];
           for (const field of requiredFieldsPeserta) {
             if (!row[field]) {
               errors.push(

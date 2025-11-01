@@ -47,14 +47,16 @@ export async function POST(request: NextRequest) {
     const stream = Readable.from(csvData);
     const parser = csvParser();
 
-    const parsedData: PraktikumCsvRow[] = await new Promise((resolve, reject) => {
-      const data: PraktikumCsvRow[] = [];
-      stream
-        .pipe(parser)
-        .on("data", row => data.push(row))
-        .on("end", () => resolve(data))
-        .on("error", reject);
-    });
+    const parsedData: PraktikumCsvRow[] = await new Promise(
+      (resolve, reject) => {
+        const data: PraktikumCsvRow[] = [];
+        stream
+          .pipe(parser)
+          .on("data", row => data.push(row))
+          .on("end", () => resolve(data))
+          .on("error", reject);
+      },
+    );
 
     let imported = 0;
 

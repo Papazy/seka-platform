@@ -50,7 +50,9 @@ export default function PraktikumPage() {
       return praktikumList;
     }
     return praktikumList.filter(
-      praktikum => praktikum.semester === activeSemester?.semester && praktikum.tahun === activeSemester?.tahun,
+      praktikum =>
+        praktikum.semester === activeSemester?.semester &&
+        praktikum.tahun === activeSemester?.tahun,
     );
   };
 

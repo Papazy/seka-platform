@@ -19,10 +19,16 @@ enum SubmissionStatus {
   RUNTIME_ERROR
   COMPILATION_ERROR
   PENDING
-  RUNNING
-  JUDGING
-JUDGE_ERROR
-  PARTIAL
+}
+
+enum StatusCode {
+  AC
+  WA
+  TLE
+  MLE
+  RTE
+  CE
+  PENDING
 }
 
 enum TugasStatus {
@@ -39,6 +45,8 @@ enum SubmissionTugasStatus {
   DITOLAK
   DITERIMA
   DIHAPUS
+  SUCCESS
+  ERROR
   PENDING // untuk tracking status penilaian tugas
 }
 enum Semester {
@@ -346,6 +354,8 @@ model Submission {
   sourceCode String @map("source_code") @db.Text
   score      Int    @default(0)
   statusJawaban SubmissionTugasStatus @map("status_jawaban")// terlambat atau diserahkan
+  status   SubmissionStatus @default(PENDING)
+  statusCode StatusCode @map("status_code") @default(PENDING) // untuk menyimpan kode status dari judger
 
   submittedAt   DateTime @default(now()) @map("submitted_at")
 

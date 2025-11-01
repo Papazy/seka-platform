@@ -12,7 +12,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const payload = await verifyToken(token);
     const idMahasiswa = payload.id;
-    const {soalId} = await params;
+    const { soalId } = await params;
 
     // Cek apakah user adalah asisten di praktikum soal ini
     const soal = await prisma.soal.findUnique({

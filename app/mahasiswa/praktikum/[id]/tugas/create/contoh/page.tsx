@@ -1,10 +1,5 @@
 export default function ContohTugasPage() {
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      Contoh Tugas Page
-      </div>
-  )
+  return <div className="min-h-screen bg-gray-50">Contoh Tugas Page</div>;
 }
 
 // "use client";
@@ -149,14 +144,14 @@ export default function ContohTugasPage() {
 // int main() {
 //     int n;
 //     cin >> n;
-    
+
 //     vector<int> arr(n);
 //     for(int i = 0; i < n; i++) {
 //         cin >> arr[i];
 //     }
-    
+
 //     // TODO: Implement your solution here
-    
+
 //     return 0;
 // }`,
 //     bobotNilai: 100,

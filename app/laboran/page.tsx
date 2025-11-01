@@ -149,10 +149,10 @@ export default function LaboranDashboard() {
   );
 }
 
-const HeaderSection = React.memo(function HeaderSection({ 
-  userName 
-}: { 
-  userName?: string 
+const HeaderSection = React.memo(function HeaderSection({
+  userName,
+}: {
+  userName?: string;
 }) {
   return (
     <div className="mb-8">
@@ -166,10 +166,10 @@ const HeaderSection = React.memo(function HeaderSection({
   );
 });
 
-const StatsSection = React.memo(function StatsSection({ 
-  cards 
-}: { 
-  cards: StatCard[] 
+const StatsSection = React.memo(function StatsSection({
+  cards,
+}: {
+  cards: StatCard[];
 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
@@ -180,11 +180,7 @@ const StatsSection = React.memo(function StatsSection({
   );
 });
 
-const StatCard = React.memo(function StatCard({ 
-  card 
-}: { 
-  card: StatCard 
-}) {
+const StatCard = React.memo(function StatCard({ card }: { card: StatCard }) {
   return (
     <Link href={card.href}>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer group">
@@ -198,7 +194,9 @@ const StatCard = React.memo(function StatCard({
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-gray-900">{card.value}</div>
-            <div className="text-sm font-medium text-gray-500">{card.title}</div>
+            <div className="text-sm font-medium text-gray-500">
+              {card.title}
+            </div>
           </div>
         </div>
       </div>
@@ -206,10 +204,10 @@ const StatCard = React.memo(function StatCard({
   );
 });
 
-const QuickActionsSection = React.memo(function QuickActionsSection({ 
-  actions 
-}: { 
-  actions: QuickAction[] 
+const QuickActionsSection = React.memo(function QuickActionsSection({
+  actions,
+}: {
+  actions: QuickAction[];
 }) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
@@ -228,10 +226,10 @@ const QuickActionsSection = React.memo(function QuickActionsSection({
   );
 });
 
-const QuickActionCard = React.memo(function QuickActionCard({ 
-  action 
-}: { 
-  action: QuickAction 
+const QuickActionCard = React.memo(function QuickActionCard({
+  action,
+}: {
+  action: QuickAction;
 }) {
   return (
     <Link href={action.href}>
@@ -241,7 +239,9 @@ const QuickActionCard = React.memo(function QuickActionCard({
         <div className="flex items-center">
           <action.icon className={`w-5 h-5 ${action.textColor} mr-3`} />
           <div>
-            <h3 className={`font-medium ${action.textColor}`}>{action.title}</h3>
+            <h3 className={`font-medium ${action.textColor}`}>
+              {action.title}
+            </h3>
             <p className="text-sm text-gray-600 mt-1">{action.description}</p>
           </div>
         </div>

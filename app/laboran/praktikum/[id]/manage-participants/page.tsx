@@ -492,14 +492,26 @@ export default function ManageParticipantsPage() {
           {participants[getTabKey(activeTab)]?.length > 0 ? (
             activeTab === "dosen" ? (
               <DataTable
-                columns={createDosenColumns({ selectedIds, handleSelectIds, onClickDelete })}
+                columns={createDosenColumns({
+                  selectedIds,
+                  handleSelectIds,
+                  onClickDelete,
+                })}
                 data={participants.dosenPraktikum}
                 showSearch={false}
               />
             ) : (
               <DataTable
-                columns={createMahasiswaColumns({ selectedIds, handleSelectIds, onClickDelete })}
-                data={activeTab === "peserta" ? participants.pesertaPraktikum : participants.asistenPraktikum}
+                columns={createMahasiswaColumns({
+                  selectedIds,
+                  handleSelectIds,
+                  onClickDelete,
+                })}
+                data={
+                  activeTab === "peserta"
+                    ? participants.pesertaPraktikum
+                    : participants.asistenPraktikum
+                }
                 showSearch={false}
               />
             )

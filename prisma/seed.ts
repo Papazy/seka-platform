@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function clearDatabase() {
-  console.log("🧹 Clearing existing data...")
+  console.log("🧹 Clearing existing data...");
   await prisma.$transaction([
     prisma.submission.deleteMany(),
     prisma.nilaiTugas.deleteMany(),
@@ -22,12 +22,12 @@ async function clearDatabase() {
     prisma.programStudi.deleteMany(),
     prisma.fakultas.deleteMany(),
     prisma.pengaturanSistem.deleteMany(),
-    ]);
+  ]);
 }
 
 async function main() {
   console.log("🌱 Starting seed...");
-  
+
   // Helper function untuk hash password
   const hashPassword = async (password: string) => {
     return await bcrypt.hash(password, 10);
@@ -620,7 +620,7 @@ async function main() {
       kodePraktikum: "PROG-A-2025-1",
       kodeMk: "TIF101",
       kelas: "A",
-      semester: Semester.GENAP,
+      semester: Semester.GANJIL,
       tahun: 2025,
       jadwalHari: "Senin",
       jadwalJamMasuk: new Date("2025-07-06T08:00:00.000Z"),
@@ -632,7 +632,7 @@ async function main() {
       kodePraktikum: "PROG-B-2025-1",
       kodeMk: "TIF101",
       kelas: "B",
-      semester: Semester.GENAP,
+      semester: Semester.GANJIL,
       tahun: 2025,
       jadwalHari: "Selasa",
       jadwalJamMasuk: new Date("2025-07-07T08:00:00.000Z"),
@@ -644,7 +644,7 @@ async function main() {
       kodePraktikum: "SDA-A-2025-1",
       kodeMk: "TIF201",
       kelas: "A",
-      semester: Semester.GENAP,
+      semester: Semester.GANJIL,
       tahun: 2025,
       jadwalHari: "Rabu",
       jadwalJamMasuk: new Date("2025-07-08T10:00:00.000Z"),
@@ -656,7 +656,7 @@ async function main() {
       kodePraktikum: "SDA-B-2025-1",
       kodeMk: "TIF201",
       kelas: "B",
-      semester: Semester.GENAP,
+      semester: Semester.GANJIL,
       tahun: 2025,
       jadwalHari: "Kamis",
       jadwalJamMasuk: new Date("2025-07-09T10:00:00.000Z"),
@@ -672,7 +672,7 @@ async function main() {
       create: {
         ...praktikum,
         idLaboran: laboran!.id,
-         semester: praktikum.semester as Semester,
+        semester: praktikum.semester as Semester,
       },
     });
   }
@@ -1754,7 +1754,7 @@ print(total_gaji)
   );
 
   if (progATugas2) {
-    // Soal 1: Bilangan Genap Ganjil
+    // Soal 1: Bilangan genap Ganjil
     const soal1 = await prisma.soal.create({
       data: {
         idTugas: progATugas2.id,
@@ -2483,7 +2483,7 @@ elif op == "/":
         idTugas: tugas.id,
         idBahasa: bahasa.id,
       })),
-      skipDuplicates: true
+      skipDuplicates: true,
     });
   }
 
@@ -2513,15 +2513,15 @@ elif op == "/":
   console.log(`Mahasiswa: mahasiswa123`);
 }
 
-
-clearDatabase().then(async () => {
-  await main();
+clearDatabase()
+  .then(async () => {
+    await main();
   })
   .then(async () => {
-  await prisma.$disconnect();
+    await prisma.$disconnect();
   })
   .catch(async e => {
-  console.error(e);
-  await prisma.$disconnect();
-  process.exit(1);
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
   });

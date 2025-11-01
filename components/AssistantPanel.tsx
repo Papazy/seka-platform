@@ -26,8 +26,8 @@ const AssistantPanel = () => {
       <div>
         {/* This should be replaced with actual assignment data */}
         {[
-          { id: '1', title: "Assignment 1" },
-          { id: '2', title: "Assignment 2" },
+          { id: "1", title: "Assignment 1" },
+          { id: "2", title: "Assignment 2" },
         ].map(assignment => (
           <div
             key={assignment.id}

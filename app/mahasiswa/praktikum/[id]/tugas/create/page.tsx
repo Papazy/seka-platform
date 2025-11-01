@@ -670,7 +670,8 @@ export default function CreateTugasPage() {
               {soalList.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
                   <p className="text-gray-500 text-sm">
-                    Belum ada soal. Klik &quot;Tambah Soal&quot; untuk mulai membuat soal.
+                    Belum ada soal. Klik &quot;Tambah Soal&quot; untuk mulai
+                    membuat soal.
                   </p>
                 </div>
               ) : (

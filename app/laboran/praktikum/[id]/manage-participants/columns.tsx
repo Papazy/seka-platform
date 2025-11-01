@@ -44,7 +44,7 @@ export const createMahasiswaColumns = ({
         }}
         aria-label="Select row"
       />
-    ),        
+    ),
   },
   {
     header: "No",

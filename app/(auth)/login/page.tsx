@@ -36,7 +36,8 @@ export default function Login() {
     } catch (err: unknown) {
       console.error("Login error:", err);
       setError(
-        (err as Error).message || "Terjadi kesalahan saat masuk. Silakan coba lagi.",
+        (err as Error).message ||
+          "Terjadi kesalahan saat masuk. Silakan coba lagi.",
       );
     } finally {
       setIsLoading(false);

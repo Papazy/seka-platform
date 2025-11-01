@@ -6,7 +6,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { Laboran } from "@/types";
 
 interface LaboranFormProps {
-  laboran?: Laboran
+  laboran?: Laboran;
   onSubmit: (data: { nama: string; email: string; password?: string }) => void;
   onCancel: () => void;
   isSubmitting?: boolean;

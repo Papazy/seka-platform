@@ -1,6 +1,38 @@
 import { verifyToken } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  updateTugas,
+  verifyTugasAccess,
+  getTugasById,
+  deleteTugas,
+} from "@/services/tugas.service";
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; tugasId: string }> },
+) {
+  try {
+    const { id: praktikumId, tugasId } = await params;
+
+    // Get tugas detail using service
+    const result = await getTugasById(tugasId, praktikumId);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      message: result.message,
+      tugas: result.data,
+    });
+  } catch (error) {
+    console.error("Error getting tugas:", error);
+    return NextResponse.json(
+      { error: "Terjadi kesalahan server" },
+      { status: 500 },
+    );
+  }
+}
 
 export async function PUT(
   request: NextRequest,
@@ -10,130 +42,121 @@ export async function PUT(
     const token = request.cookies.get("token")?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Tidak terautentikasi" },
+        { status: 401 },
+      );
     }
 
     const userData = await verifyToken(token);
     if (!userData) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Token tidak valid" }, { status: 401 });
     }
 
-    const { id: praktikumId } = await params;
-    const { id: tugasId } = await params;
+    const { id: praktikumId, tugasId } = await params;
 
-    // Check if user is asisten for this praktikum
-    const asisten = await prisma.asistenPraktikum.findFirst({
-      where: {
-        idMahasiswa: userData.id,
-        idPraktikum: praktikumId,
-      },
-    });
-
-    if (!asisten) {
+    // Verify access using service
+    const accessCheck = await verifyTugasAccess(
+      tugasId,
+      praktikumId,
+      userData.id,
+    );
+    if (!accessCheck.success) {
+      const statusCode = accessCheck.error === "ACCESS_DENIED" ? 403 : 404;
       return NextResponse.json(
-        { error: "Access denied. Only asisten can edit tugas." },
-        { status: 403 },
+        { error: accessCheck.message },
+        { status: statusCode },
       );
-    }
-
-    // Check if tugas exists and belongs to this praktikum
-    const existingTugas = await prisma.tugas.findFirst({
-      where: {
-        id: tugasId,
-        idPraktikum: praktikumId,
-      },
-    });
-
-    if (!existingTugas) {
-      return NextResponse.json({ error: "Tugas not found" }, { status: 404 });
     }
 
     const body = await request.json();
-    const { judul, deskripsi, deadline, maksimalSubmit } = body;
+    const { judul, deskripsi, deadline, maksimalSubmit, tugasBahasa } = body;
 
-    // Validation
-    if (!judul || !deskripsi || !deadline) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
-    }
-
-    const deadlineDate = new Date(deadline);
-    if (deadlineDate <= new Date()) {
-      return NextResponse.json(
-        { error: "Deadline must be in the future" },
-        { status: 400 },
-      );
-    }
-
-    // update Tugas Bahasa
-    if (body.tugasBahasa && Array.isArray(body.tugasBahasa)) {
-      const tugasBahasaData = body.tugasBahasa.map((id: string) => ({
-        idTugas: tugasId,
-        idBahasa: id,
-      }));
-
-      // Delete existing tugasBahasa
-      await prisma.tugasBahasa.deleteMany({
-        where: { idTugas: tugasId },
-      });
-
-      // Create new tugasBahasa
-      await prisma.tugasBahasa.createMany({
-        data: tugasBahasaData,
-      });
-    }
-
-    // Update tugas
-    const updatedTugas = await prisma.tugas.update({
-      where: { id: tugasId },
-      data: {
-        judul,
-        deskripsi,
-        deadline: deadlineDate,
-        maksimalSubmit: maksimalSubmit || 3,
-      },
-      include: {
-        praktikum: {
-          select: {
-            nama: true,
-            kodePraktikum: true,
-            kelas: true,
-          },
-        },
-        asisten: {
-          include: {
-            mahasiswa: {
-              select: {
-                nama: true,
-                npm: true,
-              },
-            },
-          },
-        },
-      },
+    // Update tugas using service
+    const result = await updateTugas(tugasId, praktikumId, {
+      judul,
+      deskripsi,
+      deadline,
+      maksimalSubmit,
+      tugasBahasa,
     });
+
+    if (!result.success) {
+      const statusCode = result.error === "TUGAS_NOT_FOUND" ? 404 : 400;
+      return NextResponse.json(
+        { error: result.message },
+        { status: statusCode },
+      );
+    }
 
     return NextResponse.json({
-      message: "Tugas updated successfully",
-      tugas: {
-        id: updatedTugas.id,
-        judul: updatedTugas.judul,
-        deskripsi: updatedTugas.deskripsi,
-        deadline: updatedTugas.deadline.toISOString(),
-        maksimalSubmit: updatedTugas.maksimalSubmit,
-        praktikum: updatedTugas.praktikum,
-        pembuat: updatedTugas.asisten.mahasiswa,
-      },
+      message: result.message,
+      tugas: result.data,
     });
   } catch (error) {
-    console.error("Error updating tugas:", error);
+    console.error("Error updating tugas di route:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Terjadi kesalahan server" },
       { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect();
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; tugasId: string }> },
+) {
+  try {
+    const token = request.cookies.get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "Tidak terautentikasi" },
+        { status: 401 },
+      );
+    }
+
+    const userData = await verifyToken(token);
+    if (!userData) {
+      return NextResponse.json({ error: "Token tidak valid" }, { status: 401 });
+    }
+
+    const { id: praktikumId, tugasId } = await params;
+
+    // Verify access using service
+    const accessCheck = await verifyTugasAccess(
+      tugasId,
+      praktikumId,
+      userData.id,
+    );
+    if (!accessCheck.success) {
+      const statusCode = accessCheck.error === "ACCESS_DENIED" ? 403 : 404;
+      return NextResponse.json(
+        { error: accessCheck.message },
+        { status: statusCode },
+      );
+    }
+
+    // Delete tugas using service
+    const result = await deleteTugas(tugasId, praktikumId);
+
+    if (!result.success) {
+      const statusCode = result.error === "HAS_SUBMISSIONS" ? 400 : 404;
+      return NextResponse.json(
+        { error: result.message },
+        { status: statusCode },
+      );
+    }
+
+    return NextResponse.json({
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error("Error deleting tugas:", error);
+    return NextResponse.json(
+      { error: "Terjadi kesalahan server" },
+      { status: 500 },
+    );
   }
 }

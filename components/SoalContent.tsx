@@ -3,13 +3,14 @@ import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "./ui/button";
 import SoalCard from "./SoalCard";
+import { PraktikumRole } from "@/lib/constants";
 
 const SoalContent = ({
   tugas,
   role,
 }: {
   tugas: TugasDetailResponse;
-  role: "ASISTEN" | "PESERTA";
+  role: (typeof PraktikumRole)[keyof typeof PraktikumRole];
 }) => {
   const router = useRouter();
   const params = useParams();
@@ -33,7 +34,7 @@ const SoalContent = ({
           </p>
         </div>
 
-        {role.toLocaleLowerCase() === "asisten" && (
+        {role === PraktikumRole.ASISTEN && (
           <Button
             variant="default"
             onClick={() =>

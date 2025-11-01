@@ -8,6 +8,8 @@ import { DataTable } from "@/components/ui/data-table";
 import { createRekapColumns, createSingleTugasColumns } from "./columns";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useRekapPraktikum } from "@/hooks/useRekapPraktikum";
+import { useRolePraktikum } from "@/contexts/RolePraktikumContext";
+import { PraktikumRole } from "@/lib/constants";
 
 interface RekapNilai {
   praktikum: {
@@ -59,6 +61,9 @@ export default function RekapNilaiPage() {
   const params = useParams();
   const { user } = useAuth();
   const [selectedView, setSelectedView] = useState<"kelas" | string>("kelas");
+  const { checkRole } = useRolePraktikum();
+  const praktikumId = params.id as string;
+  const userRole = checkRole(praktikumId);
 
   const {
     data: rekapData,
@@ -197,12 +202,15 @@ export default function RekapNilaiPage() {
             >
               Kembali
             </button>
-            <button
-              onClick={downloadCSV}
-              className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Download
-            </button>
+
+            {userRole === PraktikumRole.ASISTEN && (
+              <button
+                onClick={downloadCSV}
+                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Download
+              </button>
+            )}
           </div>
         </div>
 

@@ -149,7 +149,7 @@ export default function EditSoalPage() {
       }
 
       toast.success("Soal berhasil diupdate!");
-      router.push(`/mahasiswa/praktikum/${params.id}/tugas/${params.tugasId}`);
+      router.back();
     } catch (error) {
       console.error("Error updating soal:", error);
       toast.error(
@@ -429,8 +429,6 @@ export default function EditSoalPage() {
                             )
                           }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                          min="1024"
-                          step="1024"
                         />
                       </div>
                     </div>
