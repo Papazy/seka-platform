@@ -1,3 +1,5 @@
+import { useAuth } from "@/contexts/AuthContext";
+import { useRolePraktikum } from "@/contexts/RolePraktikumContext";
 import getRelativeDeadline from "@/utils/getRelativeTime";
 import Link from "next/link";
 
@@ -9,11 +11,18 @@ const TugasCard = ({
   praktikumId: string;
 }) => {
   let deadlineText = getRelativeDeadline(tugas.deadline);
+  
+  const { checkRole } = useRolePraktikum();
+  const userRole = checkRole(praktikumId);
 
   if (deadlineText.includes("lewat")) {
-    deadlineText = "";
+    if(userRole === "ASISTEN") {
+      deadlineText = "Selesai"
+    }else{
+      deadlineText = "";
+    }
   }
-
+  
   return (
     <Link
       href={`/mahasiswa/praktikum/${praktikumId}/tugas/${tugas.id}`}
@@ -46,7 +55,9 @@ const TugasCard = ({
           <span>Max {tugas.maksimalSubmit} submit</span>
         </div>
       </div>
+      
       <div className="text-red-500 text-sm">{deadlineText}</div>
+
     </Link>
   );
 };
