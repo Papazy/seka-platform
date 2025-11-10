@@ -517,6 +517,8 @@ const SubmitJawabanSidebar = ({
   const [isSubmitExpanded, setIsSubmitExpanded] = useState(true);
   const [isResultExpanded, setIsResultExpanded] = useState(true);
 
+  const router = useRouter();
+
   // Set default language when data loads
   useEffect(() => {
     if (bahasa.length > 0 && !selectedLanguage) {
@@ -636,7 +638,7 @@ const SubmitJawabanSidebar = ({
       setActiveTab("submission");
       const url = new URL(window.location.href);
       url.searchParams.set("tab", "submission");
-      useRouter().replace(url.pathname + url.search, { scroll: false });
+      router.replace(url.pathname + url.search, { scroll: false });
     } catch (error) {
       console.error("Error submitting code:", error);
       toast.error(
