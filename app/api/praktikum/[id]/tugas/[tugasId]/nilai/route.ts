@@ -16,6 +16,9 @@ export async function PATCH(
     const { id, tugasId } = await params;
 
     const { pesertaId, totalNilai } = await req.json();
+    const soals = await prisma.soal.findMany({
+      where: { idTugas: tugasId },
+    });
 
     // Cek asisten
     const asisten = await prisma.asistenPraktikum.findUnique({
@@ -30,7 +33,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     // Update nilai tugas
-    const nilaiTugas = await prisma.nilaiTugas.findUnique({
+    const hasilTugasMahasiswa = await prisma.hasilTugasMahasiswa.findUnique({
       where: {
         idPeserta_idTugas: {
           idPeserta: pesertaId,
@@ -40,17 +43,22 @@ export async function PATCH(
     });
 
     let updated;
-    if (nilaiTugas) {
-      updated = await prisma.nilaiTugas.update({
-        where: { id: nilaiTugas.id },
+    if (hasilTugasMahasiswa) {
+      updated = await prisma.hasilTugasMahasiswa.update({
+        where: { id: hasilTugasMahasiswa.id },
         data: { totalNilai },
       });
     } else {
-      updated = await prisma.nilaiTugas.create({
+      updated = await prisma.hasilTugasMahasiswa.create({
         data: {
           idPeserta: pesertaId,
           idTugas: tugasId,
           totalNilai,
+          status: "DISERAHKAN",
+          jumlahSubmission: 0,
+          jumlahSoalSelesai: 0,
+          jumlahSoal: soals.length || 0,
+          isLate: false,
         },
       });
     }

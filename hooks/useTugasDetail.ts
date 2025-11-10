@@ -69,8 +69,9 @@ export interface TugasDetailResponse {
     canSubmit?: boolean;
     totalSubmissions?: number;
   }>;
-  nilaiTugas?: {
+  hasilTugasMahasiswa?: {
     totalNilai: number;
+    status: string;
     createdAt: string;
     updatedAt: string;
   } | null;

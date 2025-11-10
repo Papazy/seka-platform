@@ -88,20 +88,13 @@ export async function GET(
                 bobotNilai: true,
               },
             },
-            // Untuk peserta: ambil nilai mereka
-            ...(userRole === "peserta" && {
-              nilaiTugas: {
-                where: { idPeserta: pesertaCheck?.id },
-                select: {
-                  totalNilai: true,
-                  createdAt: true,
-                },
-              },
-            }),
+            hasilTugasMahasiswa: mahasiswaId && pesertaCheck ? {
+              where: { idPeserta: pesertaCheck.id },
+            } : false,
             // Untuk asisten: hitung submission count
             _count: {
               select: {
-                nilaiTugas: true,
+                hasilTugasMahasiswa: true,
               },
             },
           },
@@ -167,11 +160,11 @@ export async function GET(
           totalSoal: t.soal.length,
           totalSoalSubmitted,
           // Untuk asisten: jumlah yang sudah submit
-          submissionCount: userRole === "asisten" ? t._count.nilaiTugas : 0,
+          submissionCount: userRole === "asisten" ? t._count.hasilTugasMahasiswa : 0,
           // Status untuk peserta
           status:
             userRole === "peserta"
-              ? t.nilaiTugas?.[0]
+              ? t.hasilTugasMahasiswa?.[0]
                 ? "submitted"
                 : "not_submitted"
               : null,
@@ -216,8 +209,8 @@ export async function GET(
         completedTasks:
           userRole === "peserta"
             ? praktikum.tugas.filter(
-                t => t.nilaiTugas && t.nilaiTugas.length > 0,
-              ).length
+              t => t.hasilTugasMahasiswa && t.hasilTugasMahasiswa.length > 0,
+            ).length
             : 0,
       },
     };

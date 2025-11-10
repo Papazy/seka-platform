@@ -48,6 +48,7 @@ enum SubmissionTugasStatus {
   SUCCESS
   ERROR
   PENDING // untuk tracking status penilaian tugas
+  NOT_STARTED // belum mulai penilaian
 }
 enum Semester {
   GANJIL
@@ -222,7 +223,7 @@ model PesertaPraktikum {
   mahasiswa  Mahasiswa    @relation(fields: [idMahasiswa], references: [id], onDelete: Cascade)
   praktikum  Praktikum    @relation(fields: [idPraktikum], references: [id], onDelete: Cascade)
   submission Submission[]
-  nilaiTugas NilaiTugas[]
+  hasilTugasMahasiswa HasilTugasMahasiswa[]
 
   @@index([idMahasiswa, idPraktikum])
   @@unique([idMahasiswa, idPraktikum])
@@ -246,7 +247,7 @@ model Tugas {
   praktikum Praktikum        @relation(fields: [idPraktikum], references: [id], onDelete: Cascade)
   asisten   AsistenPraktikum @relation(fields: [idAsisten], references: [id], onDelete: Cascade)
   soal      Soal[]
-  nilaiTugas NilaiTugas[]
+  hasilTugasMahasiswa HasilTugasMahasiswa[]
   tugasBahasa TugasBahasa[]
 
 
@@ -393,13 +394,17 @@ model TestCaseResult {
   @@map("test_case_result")
 }
 
-// 16. NilaiTugas
-model NilaiTugas {
+// 16. HasilTugasMahasiswa
+model HasilTugasMahasiswa {
   id  String @id @default(ulid())
   idPeserta  String @map("id_peserta")
   idTugas    String @map("id_tugas")
+  jumlahSubmission Int @map("total_submission") // Total submission yang dilakukan peserta untuk tugas ini
+  jumlahSoalSelesai Int @map("total_soal_selesai") // Total soal yang berhasil diselesaikan peserta
+  jumlahSoal     Int @map("total_soal") // Total soal yang ada dalam tugas
   totalNilai Int @map("total_nilai") // Total nilai dari semua soal dalam tugas
   status    SubmissionTugasStatus @default(DISERAHKAN) // Status penilaian tugas
+  isLate   Boolean @map("is_late") // Apakah tugas diserahkan terlambat atau tidak
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -409,7 +414,7 @@ model NilaiTugas {
 
   @@index([idPeserta, idTugas])
   @@unique([idPeserta, idTugas])
-  @@map("nilai_tugas")
+  @@map("hasil_tugas_mahasiswa")
 }
 
 // 17. untuk tracking tahun sekarang

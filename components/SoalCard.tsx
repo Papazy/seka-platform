@@ -66,8 +66,8 @@ const SoalCard = ({
             <h3 className="font-medium text-gray-900 mb-2">{soal.judul}</h3>
 
             <div className="flex gap-4 text-sm text-gray-600">
-              <span>{soal.bobotNilai} poin</span>
-              <span>{soal.totalTestCase} test case</span>
+              <span>{soal.bobotNilai} Poin</span>
+              <span>{soal.totalTestCase} Test cases</span>
             </div>
           </div>
 

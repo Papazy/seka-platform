@@ -112,7 +112,7 @@ export async function GET(
             },
           },
         },
-        nilaiTugas: {
+        hasilTugasMahasiswa: {
           select: {
             idTugas: true,
             totalNilai: true,
@@ -142,11 +142,11 @@ export async function GET(
     // Transform data peserta dengan stats
     const pesertaData = peserta.map(p => {
       const totalTugas = allTugas.length;
-      const totalTugasSelesai = p.nilaiTugas.length;
+      const totalTugasSelesai = p.hasilTugasMahasiswa.length;
       const rataRataNilai =
         totalTugasSelesai > 0
           ? Math.round(
-              p.nilaiTugas.reduce((sum, nt) => sum + nt.totalNilai, 0) /
+              p.hasilTugasMahasiswa.reduce((sum, nt) => sum + nt.totalNilai, 0) /
                 totalTugasSelesai,
             )
           : 0;

@@ -7,7 +7,7 @@ async function clearDatabase() {
   console.log("🧹 Clearing existing data...");
   await prisma.$transaction([
     prisma.submission.deleteMany(),
-    prisma.nilaiTugas.deleteMany(),
+    prisma.hasilTugasMahasiswa.deleteMany(),
     prisma.soal.deleteMany(),
     prisma.tugas.deleteMany(),
     prisma.pesertaPraktikum.deleteMany(),

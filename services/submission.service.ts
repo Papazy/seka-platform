@@ -10,6 +10,7 @@ import {
   TestCase,
   StatusCode,
 } from "@prisma/client";
+import { updateHasilTugasMahasiswa } from "./tugas.service";
 
 export type submitSolutionType = {
   sourceCode: string;
@@ -61,7 +62,7 @@ const languageMap: Record<string, string> = {
   python: "python",
 };
 
-export const testSubmitSolution = async (payload: submitSolutionType) => {
+export const testSubmitSolution = async (mahasiswaId: string, payload: submitSolutionType) => {
   const { sourceCode, languageId, soalId } = payload;
   if (!sourceCode || !languageId || !soalId) {
     // console.log("data in submitSolution:", data);
@@ -96,9 +97,29 @@ export const testSubmitSolution = async (payload: submitSolutionType) => {
         message: "Bahasa pemrograman tidak ditemukan",
       });
     }
+
+    const tugas = await prisma.tugas.findUnique({
+      where: { id: soal?.idTugas },
+    });
+
+    if (!tugas) {
+      return ServiceResponse({
+        success: false,
+        error: "TUGAS_NOT_FOUND",
+        message: "Tugas tidak ditemukan untuk soal ini",
+      });
+    }
+
+    const isAsisten = await prisma.asistenPraktikum.findFirst({
+      where: {
+        idMahasiswa: mahasiswaId,
+        idPraktikum: tugas.idPraktikum,
+      }
+    })
     // gabungin
+
     const finalTestCases = [
-      ...testCases,
+      ...(!!isAsisten ? testCases : []),
       ...contohTestCases.map(tc => ({
         ...tc,
         input: tc.contohInput,
@@ -252,6 +273,8 @@ export const submitSolution = async (
     });
 
     processJudgerResult({
+      idPraktikan: mahasiswaId,
+      idTugas: tugas.id,
       submission,
       soal,
       judgerResponse: null,
@@ -274,13 +297,21 @@ export const submitSolution = async (
   }
 };
 
+/**
+ * 
+ * Mengolah hasil dari judger dan memperbarui status submission serta menyimpan hasil test case
+ */
 const processJudgerResult = async ({
+  idPraktikan,
+  idTugas,
   submission,
   soal,
   judgerResponse,
   testCases,
   language,
 }: {
+  idPraktikan: string;
+  idTugas: string;
   submission: Submission;
   soal: Soal;
   judgerResponse: JudgerResponse | null;
@@ -363,6 +394,8 @@ const processJudgerResult = async ({
         statusCode: result.verdict as StatusCode,
       },
     });
+
+    updateHasilTugasMahasiswa(idPraktikan, idTugas);
 
     console.log("Submission updated with judger results:", updatedSubmission);
   } catch (error) {

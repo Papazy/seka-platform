@@ -634,6 +634,9 @@ const SubmitJawabanSidebar = ({
         fileInputRef.current.value = "";
       }
       setActiveTab("submission");
+      const url = new URL(window.location.href);
+      url.searchParams.set("tab", "submission");
+      useRouter().replace(url.pathname + url.search, { scroll: false });
     } catch (error) {
       console.error("Error submitting code:", error);
       toast.error(
@@ -788,6 +791,9 @@ const SubmitJawabanSidebar = ({
           {isResultExpanded && (
             <div className="border-t border-green-200 p-4 space-y-4">
               {/* Status Summary */}
+              {testResult.data && (
+
+          
               <div className="bg-white rounded-lg p-3 border border-green-100">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-800">
@@ -824,7 +830,7 @@ const SubmitJawabanSidebar = ({
                   </div>
                 )}
               </div>
-
+                  )}
               {/* Error Message */}
               {testResult.message && !testResult.success && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -838,8 +844,8 @@ const SubmitJawabanSidebar = ({
               )}
 
               {/* Test Cases Results */}
-              {testResult.data.test_results &&
-                testResult.data.test_results.length > 0 && (
+              {testResult.data?.test_results &&
+                testResult.data?.test_results.length > 0 && (
                   <div className="space-y-3">
                     <h4 className="text-sm font-medium text-gray-800">
                       Detail Test Cases:

@@ -687,26 +687,26 @@ export const getTugasDataForMahasiswa = async (
           orderBy: { id: "asc" },
           include: {
             contohTestCase: true,
-            testCase: mahasiswaRole === PraktikumRole.ASISTEN,
+            testCase: true,
             submission:
               mahasiswaRole === PraktikumRole.PRAKTIKAN && pesertaId
                 ? {
-                    where: { idPeserta: pesertaId },
-                    orderBy: { submittedAt: "desc" },
-                    include: {
-                      bahasa: {
-                        select: {
-                          nama: true,
-                          ekstensi: true,
-                        },
-                      },
-                      testCaseResult: {
-                        include: {
-                          testCase: true,
-                        },
+                  where: { idPeserta: pesertaId },
+                  orderBy: { submittedAt: "desc" },
+                  include: {
+                    bahasa: {
+                      select: {
+                        nama: true,
+                        ekstensi: true,
                       },
                     },
-                  }
+                    testCaseResult: {
+                      include: {
+                        testCase: true,
+                      },
+                    },
+                  },
+                }
                 : false,
             _count: {
               select: {
@@ -715,16 +715,16 @@ export const getTugasDataForMahasiswa = async (
             },
           },
         },
-        nilaiTugas:
+        hasilTugasMahasiswa:
           mahasiswaRole.PRAKTIKAN && pesertaId
             ? {
-                where: { idPeserta: pesertaId },
-                select: {
-                  totalNilai: true,
-                  createdAt: true,
-                  updatedAt: true,
-                },
-              }
+              where: { idPeserta: pesertaId },
+              select: {
+                totalNilai: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            }
             : false,
       },
     });
@@ -797,8 +797,8 @@ export const getTugasDataForMahasiswa = async (
         const bestSubmission =
           userSubmissions.length > 0
             ? userSubmissions.reduce((best: any, current: any) =>
-                current.score > best.score ? current : best,
-              )
+              current.score > best.score ? current : best,
+            )
             : null;
 
         baseSoal.userSubmissions = userSubmissions.map((sub: any) => ({
@@ -848,8 +848,8 @@ export const getTugasDataForMahasiswa = async (
     };
 
     // Add praktikan-specific data
-    if (mahasiswaRole === PraktikumRole.PRAKTIKAN && tugas.nilaiTugas) {
-      response.nilaiTugas = tugas.nilaiTugas[0] || null;
+    if (mahasiswaRole === PraktikumRole.PRAKTIKAN && tugas.hasilTugasMahasiswa) {
+      response.hasilTugasMahasiswa = tugas.hasilTugasMahasiswa[0] || null;
       response.totalBobot = tugas.soal.reduce(
         (sum: number, s: any) => sum + s.bobotNilai,
         0,
@@ -876,3 +876,109 @@ export const getTugasDataForMahasiswa = async (
     });
   }
 };
+
+/**
+ * Mengupdate status tugas praktikan secara otomatis berdasarkan submission yang dilakukan
+ */
+export const updateHasilTugasMahasiswa = async (
+  idPraktikan: string,
+  idTugas: string,
+) => {
+  if (!idPraktikan || !idTugas) {
+    return ServiceResponse({
+      success: false,
+      error: "INVALID_PARAMS",
+      message: "ID praktikan dan ID tugas wajib diisi",
+    });
+  }
+
+  const [dataPeserta, dataTugas, dataSoal] = await Promise.all([
+    prisma.pesertaPraktikum.findFirst({
+      where: { idMahasiswa: idPraktikan},
+    }),
+    prisma.tugas.findFirst({
+      where: {id: idTugas},
+    }),
+    prisma.soal.findMany({
+      where: {idTugas: idTugas},
+    }),
+  ])
+
+  const soalIds = dataSoal?.map(soal => soal.id) || [];
+
+  const submissions = await prisma.submission.findMany({
+    where: {
+      idPeserta: dataPeserta?.id,
+      idSoal: { in: soalIds },
+    }
+  })
+
+  console.log("--- DEBUG updateHasilTugasMahasiswa ---", {
+    dataPeserta,
+    dataTugas,
+    dataSoal,
+    submissions
+  });
+
+  if (!dataPeserta || !dataTugas || !dataSoal) {
+    return ServiceResponse({
+      success: false,
+      error: "DATA_NOT_FOUND",
+      message: "Data peserta, tugas, atau soal tidak ditemukan",
+    });
+  }  
+}
+
+export const getOrCreateHasilTugasMahasiswa = async (idPeserta: string, idTugas: string) => {
+
+  if(!idPeserta || !idTugas) {
+    return ServiceResponse({
+      success: false,
+      error: "INVALID_PARAMS",
+      message: "ID peserta dan ID tugas wajib diisi",
+    });
+  }
+
+  const dataTugas = await prisma.tugas.findFirst({
+    where: {
+      id: idTugas,
+    },
+    include: {
+      soal: true,
+    }
+  })
+
+  const hasiTugas = await prisma.hasilTugasMahasiswa.findFirst({
+    where: {
+      idPeserta: idPeserta,
+      idTugas: idTugas,
+    }
+  })
+
+  if(!hasiTugas) {
+    const newHasilTugas = await prisma.hasilTugasMahasiswa.create({
+      data: {
+        idPeserta: idPeserta,
+        idTugas: idTugas,
+        status: "NOT_STARTED",
+        totalNilai: 0,
+        jumlahSubmission: 0,
+        jumlahSoalSelesai: 0,
+        jumlahSoal: dataTugas?.soal.length || 0,
+        isLate: false,
+      }
+    })
+
+    return ServiceResponse({
+      success: true,
+      data: newHasilTugas,
+      message: "Hasil tugas mahasiswa berhasil dibuat",
+    });
+  }
+
+  return ServiceResponse({
+    success: true,
+    data: hasiTugas,
+    message: "Hasil tugas mahasiswa berhasil diambil",
+  });
+}

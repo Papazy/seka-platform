@@ -113,6 +113,11 @@ const DeskripsiContent = ({
 }) => {
   const router = useRouter();
   console.log("Tugas", tugas);
+
+  const totalSoal = tugas.soal.length;
+  const totalBenar = tugas.soal.filter(s => s.bestScore === 100).length;
+  const isSelesai = totalSoal > 0 && totalSoal === totalBenar;
+  const isOverdue = new Date() > new Date(tugas.deadline);
   return (
     <div className="bg-white rounded-lg border p-6">
       <div className="flex justify-between items-center mb-6">
@@ -128,6 +133,12 @@ const DeskripsiContent = ({
           >
             <Edit /> Edit
           </Button>
+        )}
+        {tugas.userRole === PraktikumRole.PRAKTIKAN && isSelesai && (
+          <div className="bg-green-100 text-sm text-green-800 px-2 py-1 rounded-sm">Selesai</div>
+        )}
+        {tugas.userRole === PraktikumRole.PRAKTIKAN && !isSelesai && isOverdue && (
+          <div className="bg-red-100 text-sm text-red-800 px-2 py-1 rounded-sm">Terlambat</div>
         )}
       </div>
 

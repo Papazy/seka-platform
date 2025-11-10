@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { testSubmitSolution } from "@/services/submission.service";
+import { verifyToken } from "@/lib/auth";
 
 export async function POST(
   request: NextRequest,
@@ -9,6 +10,11 @@ export async function POST(
   try {
     const { id: soalId } = await params;
     const { sourceCode, languageId, testCases } = await request.json();
+    const token = request.cookies.get("token")?.value;
+
+    if(!token){
+      return NextResponse.json({ error: "Unauthorized"}, {status: 401});
+    }
 
     if (!sourceCode || !languageId) {
       return NextResponse.json(
@@ -17,7 +23,14 @@ export async function POST(
       );
     }
 
-    const judgeResult = await testSubmitSolution({
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const mahasiswaId = payload.id;
+
+    const judgeResult = await testSubmitSolution(mahasiswaId, {
       sourceCode,
       languageId,
       soalId,
