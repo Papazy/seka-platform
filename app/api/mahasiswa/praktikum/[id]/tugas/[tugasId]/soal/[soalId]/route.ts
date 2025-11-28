@@ -278,10 +278,10 @@ export async function GET(
           sub: SubmissionWithRelations,
         ) => {
           const hasAccepted = sub.testCaseResult.some(
-            (tcr: TestCaseResult) => tcr.status === "ACCEPTED",
+            (tcr: TestCaseResult) => tcr.status === "AC",
           );
           const allAccepted = sub.testCaseResult.every(
-            (tcr: TestCaseResult) => tcr.status === "ACCEPTED",
+            (tcr: TestCaseResult) => tcr.status === "AC",
           );
 
           if (allAccepted) acc.perfect++;
