@@ -97,7 +97,7 @@ export default function PraktikumDetailPage() {
           {/* Kiri */}
           <div>
             <h1 className="text-xl font-semibold text-gray-800 mb-1">
-              {praktikumData.nama}
+              {praktikumData.nama} 
             </h1>
             <p className="text-sm text-gray-600 mb-1">
               Kelas {praktikumData.kelas}

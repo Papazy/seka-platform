@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { ServiceResponse } from "./utils";
+import { ServiceResponse, ServiceResponseType } from "./utils";
 import { PraktikumRole } from "@/lib/constants";
+import { HasilTugasMahasiswa, HasilTugasStatus } from "@prisma/client";
 
 export type CreateTugasType = {
   judul: string;
@@ -913,6 +914,24 @@ export const updateHasilTugasMahasiswa = async (
     }
   })
 
+  const hasilTugasMahasiswaResponse = await getOrCreateHasilTugasMahasiswa(idPraktikan, idTugas);
+  const hasilTugasMahasiswaData = hasilTugasMahasiswaResponse.data!; // harus ada
+
+  // check apakah setiap soal ada submission dengan score > 0
+  const allSoalSelesai = soalIds.every(soalId => submissions.some(sub => sub.idSoal === soalId && sub.score > 0));
+  if (allSoalSelesai){
+    // update hasilTugasMahasiswa status to COMPLETED
+    await prisma.hasilTugasMahasiswa.update({
+      where: {
+        id: hasilTugasMahasiswaData.id,
+      },
+      data: {
+        status: HasilTugasStatus.DISERAHKAN,
+        jumlahSoalSelesai: soalIds.length,
+      }
+    });
+  }
+
   console.log("--- DEBUG updateHasilTugasMahasiswa ---", {
     dataPeserta,
     dataTugas,
@@ -929,7 +948,7 @@ export const updateHasilTugasMahasiswa = async (
   }  
 }
 
-export const getOrCreateHasilTugasMahasiswa = async (idPeserta: string, idTugas: string) => {
+export const getOrCreateHasilTugasMahasiswa = async (idPeserta: string, idTugas: string): Promise<ServiceResponseType<HasilTugasMahasiswa>> => {
 
   if(!idPeserta || !idTugas) {
     return ServiceResponse({
@@ -982,3 +1001,4 @@ export const getOrCreateHasilTugasMahasiswa = async (idPeserta: string, idTugas:
     message: "Hasil tugas mahasiswa berhasil diambil",
   });
 }
+

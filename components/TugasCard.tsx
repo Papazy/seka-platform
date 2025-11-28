@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useRolePraktikum } from "@/contexts/RolePraktikumContext";
 import getRelativeDeadline from "@/utils/getRelativeTime";
+import { getStatusTugasCardForPraktikan } from "@/utils/getStatusTugasCardForPraktikan";
 import Link from "next/link";
 
 const TugasCard = ({
@@ -11,9 +12,22 @@ const TugasCard = ({
   praktikumId: string;
 }) => {
   let deadlineText = getRelativeDeadline(tugas.deadline);
+  const deadlineTime = new Date(tugas.deadline).getTime();
+  const now = Date.now();
   
   const { checkRole } = useRolePraktikum();
   const userRole = checkRole(praktikumId);
+  let status = "";
+  let statusStyle = "";
+  console.log("Tugas status:", tugas);
+  console.log("deadlineTime:", deadlineTime);
+  console.log("now:", now);
+
+  if(userRole === "PESERTA"){
+    const {status: newStatus, statusStyle: newStatusStyle} = getStatusTugasCardForPraktikan(tugas);
+    status = newStatus;
+    statusStyle = newStatusStyle;
+  }
 
   if (deadlineText.includes("lewat")) {
     if(userRole === "ASISTEN") {
@@ -29,21 +43,18 @@ const TugasCard = ({
       prefetch //   Prefetch otomatis
       className="border rounded p-4 cursor-pointer hover:border-gray-400 flex justify-between"
     >
-      <div className="">
-        <div className="flex justify-between items-start mb-2">
+      <div className="w-full">
+        <div className="flex justify-between items-start mb-2 w-full ">
           <h3 className="font-medium">{tugas.judul}</h3>
           <div className="flex items-center gap-3">
             {tugas.status && (
               <span
-                className={`text-xs px-2 py-1 rounded ${
-                  tugas.status === "submitted"
-                    ? "bg-green-50 text-green-700"
-                    : "bg-gray-50 text-gray-600"
-                }`}
+                className={`text-xs px-2 py-1 rounded ${statusStyle}`}
               >
-                {tugas.status === "submitted" ? "Selesai" : "Belum"}
+                {status}
               </span>
             )}
+              <div className="text-red-500 text-sm">{deadlineText}</div>
           </div>
         </div>
 
@@ -56,7 +67,7 @@ const TugasCard = ({
         </div>
       </div>
       
-      <div className="text-red-500 text-sm">{deadlineText}</div>
+
 
     </Link>
   );

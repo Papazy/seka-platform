@@ -273,7 +273,7 @@ export const submitSolution = async (
     });
 
     processJudgerResult({
-      idPraktikan: mahasiswaId,
+      idPraktikan: pesertaPraktikum.id,
       idTugas: tugas.id,
       submission,
       soal,
@@ -419,11 +419,12 @@ const saveTestCaseResults = async (
       ...tcResult,
       testCaseId: testCases[index]?.id,
     }));
+    console.log("Final test cases formatted for DB:", finalTestCasesFormatted);
     const testCasesResultsData = await prisma.testCaseResult.createMany({
       data: finalTestCasesFormatted.map(tc => ({
         idSubmission: submissionId,
         idTestCase: tc.testCaseId,
-        status: tc.verdict as SubmissionStatus,
+        status: tc.verdict as StatusCode,
         outputDihasilkan: tc.actual_output,
         waktuEksekusiMs: tc.time_ms,
         memoriKb: tc.memory_kb,

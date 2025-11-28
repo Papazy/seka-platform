@@ -35,7 +35,7 @@ export default function SoalLayout(props: SoalLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex p-4 gap-4 h-screen">
+      <div className="flex p-4 gap-4 min-h-screen">
         <div className="w-64 flex-shrink-0">
           {/* left */}
           <LeftSidebar config={sidebarConfig} currentPath={pathname} />

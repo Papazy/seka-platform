@@ -12,14 +12,7 @@ datasource db {
 }
 
 // Enums
-enum SubmissionStatus {
-  ACCEPTED
-  WRONG_ANSWER
-  TIME_LIMIT_EXCEEDED
-  RUNTIME_ERROR
-  COMPILATION_ERROR
-  PENDING
-}
+
 
 enum StatusCode {
   AC
@@ -31,25 +24,30 @@ enum StatusCode {
   PENDING
 }
 
-enum TugasStatus {
-  DISERAHKAN
-  TERLAMBAT
-  DITOLAK
-  DITERIMA
-  DIHAPUS
+enum HasilTugasStatus {
+  NOT_STARTED // belum mulai penilaian
+  SELESAI // kalau selesai semua
+  TERLAMBAT // kalau belum selesai dan terlambat
+  DISERAHKAN // kalau sudah mengirimkan minimal 1 submission
 }
 
+// untuk status penyerahan tugas
 enum SubmissionTugasStatus {
   DISERAHKAN
   TERLAMBAT
-  DITOLAK
-  DITERIMA
-  DIHAPUS
-  SUCCESS
-  ERROR
-  PENDING // untuk tracking status penilaian tugas
-  NOT_STARTED // belum mulai penilaian
+  BELUM_DISERAHKAN
 }
+
+// untuk status hasil submission
+enum SubmissionStatus {
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+  PENDING
+}
+
 enum Semester {
   GANJIL
   GENAP
@@ -357,7 +355,8 @@ model Submission {
   statusJawaban SubmissionTugasStatus @map("status_jawaban")// terlambat atau diserahkan
   status   SubmissionStatus @default(PENDING)
   statusCode StatusCode @map("status_code") @default(PENDING) // untuk menyimpan kode status dari judger
-
+  waktuRataRataEksekusiMs Int @map("waktu_rata_rata_eksekusi_ms") @default(0)
+  memoriRataRataKb      Int @map("memori_rata_rata_kb") @default(0)
   submittedAt   DateTime @default(now()) @map("submitted_at")
 
   createdAt DateTime @default(now())
@@ -378,10 +377,10 @@ model TestCaseResult {
   id  String @id @default(ulid())
   idSubmission      String @map("id_submission")
   idTestCase        String @map("id_test_case")
-  status            SubmissionStatus
+  status            StatusCode
   outputDihasilkan  String?          @map("output_dihasilkan") @db.Text
-  waktuEksekusiMs   Int?             @map("waktu_eksekusi_ms")
-  memoriKb          Int?             @map("memori_kb")
+  waktuEksekusiMs   Int             @map("waktu_eksekusi_ms")
+  memoriKb          Int             @map("memori_kb")
 
   createdAt DateTime @default(now())
 
@@ -403,7 +402,7 @@ model HasilTugasMahasiswa {
   jumlahSoalSelesai Int @map("total_soal_selesai") // Total soal yang berhasil diselesaikan peserta
   jumlahSoal     Int @map("total_soal") // Total soal yang ada dalam tugas
   totalNilai Int @map("total_nilai") // Total nilai dari semua soal dalam tugas
-  status    SubmissionTugasStatus @default(DISERAHKAN) // Status penilaian tugas
+  status    HasilTugasStatus @default(DISERAHKAN) // Status penilaian tugas
   isLate   Boolean @map("is_late") // Apakah tugas diserahkan terlambat atau tidak
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

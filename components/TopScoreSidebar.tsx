@@ -29,7 +29,7 @@ const TopScoreSidebar = ({ soalId }: { soalId: string }) => {
         <h2 className="text-base font-semibold text-gray-900">Top Scores</h2>
       </div>
       <div className="p-4">
-        {topScores.length === 0 ? (
+        {!topScores || topScores.length === 0 ? (
           <div className="text-center py-8 text-gray-500 text-sm">
             Belum ada submission
           </div>

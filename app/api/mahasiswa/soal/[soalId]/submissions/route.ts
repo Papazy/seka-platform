@@ -50,6 +50,12 @@ export async function GET(
       include: {
         bahasa: true,
         testCaseResult: true,
+        soal: true,
+        peserta: {
+          include: {
+            mahasiswa: true,
+          }
+        },
       },
       orderBy: {
         createdAt: "desc",

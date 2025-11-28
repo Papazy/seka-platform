@@ -9,6 +9,14 @@ export type FormattedResponseProps = {
   message?: string;
 };
 
+export type ApiResponse<T = any> = {
+    success: boolean;
+    data?: T;
+    error?: any;
+    message?: string;
+    status_code?: number;
+}
+
 export const FormattedResponse = (props: FormattedResponseProps) => {
   if (!props.success) {
     return NextResponse.json(

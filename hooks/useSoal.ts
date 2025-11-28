@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-interface Soal {
+export interface Soal {
   id: string;
   idTugas: number;
   judul: string;

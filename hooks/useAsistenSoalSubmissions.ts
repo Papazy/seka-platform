@@ -14,6 +14,14 @@ const fetchAsistenSoalSubmissions = async (
   return res.json();
 };
 
+const fetchListHasilTugasMahasiswa = async (soalId: string) => {
+  const res = await fetch(`/api/soal/${soalId}/hasil-tugas-mahasiswa`, {
+    credentials: "include",
+  });
+  if(!res.ok) throw new Error("Gagal fetch hasil tugas mahasiswa");
+  return res.json();
+}
+
 export function useAsistenSoalSubmissions(
   praktikumId: string,
   tugasId: string,
@@ -26,6 +34,18 @@ export function useAsistenSoalSubmissions(
     gcTime: 10 * 60 * 1000,
   });
 }
+
+export function useListHasilTugasMahasiswa (
+  tugasId: string,
+) {
+  return useQuery({
+    queryKey: ["list-tugas", tugasId],
+    queryFn: () => fetchListHasilTugasMahasiswa(tugasId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  })
+}
+
 
 export function useUpdateSubmissionScore(
   praktikumId: string,

@@ -123,7 +123,20 @@ const DeskripsiContent = ({
   return (
     <div className="bg-white rounded-lg border p-6">
       <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold ">{tugas.judul}</h2>
+         {tugas.userRole === PraktikumRole.ASISTEN && isOverdue && (
+          <div className="bg-green-100 text-sm text-green-800 px-2 py-1 rounded-sm">Selesai</div>
+        )}
+        </div>
+          
+       
+        {tugas.userRole === PraktikumRole.PRAKTIKAN && isSelesai && (
+          <div className="bg-green-100 text-sm text-green-800 px-2 py-1 rounded-sm">Selesai</div>
+        )}
+        {tugas.userRole === PraktikumRole.PRAKTIKAN && !isSelesai && isOverdue && (
+          <div className="bg-red-100 text-sm text-red-800 px-2 py-1 rounded-sm">Terlambat</div>
+        )}
         {tugas.userRole === PraktikumRole.ASISTEN && (
           <Button
             onClick={() =>
@@ -135,12 +148,6 @@ const DeskripsiContent = ({
           >
             <Edit /> Edit
           </Button>
-        )}
-        {tugas.userRole === PraktikumRole.PRAKTIKAN && isSelesai && (
-          <div className="bg-green-100 text-sm text-green-800 px-2 py-1 rounded-sm">Selesai</div>
-        )}
-        {tugas.userRole === PraktikumRole.PRAKTIKAN && !isSelesai && isOverdue && (
-          <div className="bg-red-100 text-sm text-red-800 px-2 py-1 rounded-sm">Terlambat</div>
         )}
       </div>
 
