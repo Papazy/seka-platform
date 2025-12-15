@@ -27,7 +27,7 @@ const AsistenSubmissions = ({
     praktikumId: string;
     tugasId: string;
     soalId: string;
-    soalData: Soal | null;
+    soalData?: Soal;
 }) => {
 
     const [selectedMahasiswa, setSelectedMahasiswa] = useState<ListMahasiswaFromSoal | null>(null)

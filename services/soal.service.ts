@@ -70,6 +70,12 @@ export const getListMahasiswaFromSoal = async (soalId: string): Promise<ServiceR
                 include: {
                     bahasa: true,
                     testCaseResult: true,
+                    peserta: {
+                        include: {
+                            mahasiswa: true
+                        }
+                    },
+                    soal: true,
                 }
             }
         }
